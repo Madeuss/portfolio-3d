@@ -9,6 +9,7 @@ import LoadingScreen from './ui/LoadingScreen'
 import TouchControls from './ui/TouchControls'
 import SoundEffects from './audio/SoundEffects'
 import { useDocumentLocale } from './i18n'
+import { isTouch } from './state/device'
 import { isPlaying, useGame } from './state/game'
 import './ui/screens.css'
 
@@ -38,7 +39,9 @@ export default function App() {
 
       {/* A cena já carrega por trás da tela de carregamento. `shadows`
           "percentage" = PCF: o tipo "soft" padrão do R3F saiu do three.js. */}
-      <Canvas shadows="percentage" camera={{ position: [5, 6, 7], fov: 40 }}>
+      {/* dpr: resolução máxima em telas de alta densidade. Acima de 1,5 (2 no
+          desktop) o custo cresce muito e a diferença quase não aparece. */}
+      <Canvas shadows="percentage" dpr={[1, isTouch() ? 1.5 : 2]} camera={{ position: [5, 6, 7], fov: 40 }}>
         <color attach="background" args={['#FAFAF7']} />
         <TestScene />
       </Canvas>

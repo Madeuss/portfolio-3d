@@ -9,7 +9,7 @@ import { LoopOnce, LoopRepeat } from 'three'
 // Personagem provisório (tarefas 2.1 e 2.4): Viking do Ultimate Animated
 // Character Pack, do Quaternius (CC0). Na fase 4 entra o seu avatar; se as
 // animações tiverem os mesmos nomes (Idle, Walk, Run, Jump), basta trocar o URL.
-const URL = '/models/character/Viking_Male.gltf'
+const URL = '/models/character/viking.glb'
 
 // O modelo tem 3,6 unidades de altura; 0,42 deixa ele com ~1,5 m.
 const SCALE = 0.42

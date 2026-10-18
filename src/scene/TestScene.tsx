@@ -1,4 +1,4 @@
-import { Environment } from '@react-three/drei'
+import { Environment, Stats } from '@react-three/drei'
 import { CuboidCollider, Physics, RigidBody } from '@react-three/rapier'
 import { useControls } from 'leva'
 import Office from './Office'
@@ -82,9 +82,12 @@ function Box({ position, size = 1, color }: BoxProps) {
 
 export default function TestScene() {
   const { debug } = useControls('Física', { debug: { value: false, label: 'ver colliders' } })
+  // Medidor de FPS (tarefa 7.4), só no painel do dev. Meta: 60 no desktop, 30+ no celular.
+  const { stats } = useControls('Desempenho', { stats: { value: false, label: 'medidor de FPS' } })
 
   return (
     <>
+      {stats && <Stats />}
       <Lights />
 
       {/* Tudo que colide fica dentro de <Physics>. `debug` desenha as formas
