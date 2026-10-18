@@ -35,11 +35,12 @@ boa luz, fundo liso (parede). Sem boné cobrindo o cabelo, sem mãos no bolso. S
 Using the attached photo of me as reference, create a stylized 3D character of this
 person for a cozy video game. Chibi proportions: head about one third of the body
 height. Keep my face and skin tone recognizable, with these exact details: dark brown
-hair (not black), short and full, the same length on top, sides and back, rounded
-following the shape of the head, with a low fade only at the very bottom (a thin
-band just above the ears and at the nape), ears visible; the hair is sculpted as one
-smooth clay-like volume with soft shallow grooves, no individual strands, no realistic
-hair texture; green-brown (hazel) eyes; thin mustache and a small goatee only, no
+hair (not black), a short curly crop about 2 cm long, the same length on top, sides
+and back, like a snug rounded cap following the shape of the head; the sides are fully
+covered with hair down to the top of the ears, no shaved temples; only a very thin low
+fade right above the ears and at the nape; no pompadour, no quiff, no slicked back
+hair, no volume on top; stylized curly texture made of tiny rounded clay bumps, no
+individual strands, no realistic hair; ears visible; green-brown (hazel) eyes; thin mustache and a small goatee only, no
 beard on the cheeks or sides; glasses only if I have them in the photo.
 Wearing a soccer jersey with vertical royal blue and black stripes
 (no crest, no sponsor, no logo, plain back with no name and no number), black shorts or
@@ -64,8 +65,9 @@ the floor, no text, no logo.
 > ```
 > This is a stylized 3D game character. Create the back view of this exact same
 > character, in the exact same art style: same proportions, same A-pose, same hair
-> (dark brown, short and full, same length all around, low fade only at the very
-> bottom of the nape, sculpted as one smooth clay-like volume, no individual strands),
+> (dark brown short curly crop, same length all around like a snug rounded cap, only a
+> very thin low fade at the nape, stylized texture of tiny rounded clay bumps, no
+> individual strands, no realistic hair),
 > same jersey with vertical royal blue and black stripes, plain jersey back with no
 > name and no number, same black shorts and white sneakers. Plain white background,
 > even soft studio lighting, no shadow on the floor, no text.
