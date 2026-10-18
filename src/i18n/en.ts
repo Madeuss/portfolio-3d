@@ -9,7 +9,7 @@ const en: Dictionary = {
   language: { label: 'Language' },
   loading: { role: 'Front-end · playable portfolio', loading: 'Loading', enter: 'Enter' },
   simple: { link: 'Simple version', title: 'Open madeusdev.com, the HTML version of this portfolio' },
-  hud: { help: 'How to play' },
+  hud: { help: 'How to play', soundOn: 'Turn sound on', soundOff: 'Turn sound off' },
   help: {
     title: '/How to play',
     keys: { move: 'move', run: 'run', jump: 'jump', interact: 'interact', zoom: 'zoom' },

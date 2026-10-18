@@ -13,7 +13,7 @@ export type Dictionary = {
   loading: { role: string; loading: string; enter: string }
   /** Link para o madeusdev.com, que é a versão em HTML de tudo (tarefa 6.5). */
   simple: { link: string; title: string }
-  hud: { help: string }
+  hud: { help: string; soundOn: string; soundOff: string }
   help: {
     title: string
     keys: { move: string; run: string; jump: string; interact: string; zoom: string }

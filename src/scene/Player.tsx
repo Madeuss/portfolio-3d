@@ -5,6 +5,7 @@ import { Ecctrl, type EcctrlHandle, type MovementInput } from 'ecctrl'
 import { EcctrlAnimationStateController } from 'ecctrl/animation'
 import { useButtonStore, useJoystickStore } from 'ecctrl/input'
 import { isPlaying, useGame } from '../state/game'
+import Footsteps from '../audio/Footsteps'
 import Character from './Character'
 import FollowCamera from './FollowCamera'
 
@@ -106,6 +107,7 @@ export default function Player({ position }: Props) {
 
       <MovementInputs target={ref} />
       <Respawn target={ref} spawn={position} />
+      <Footsteps />
       <FollowCamera target={ref} />
     </KeyboardControls>
   )

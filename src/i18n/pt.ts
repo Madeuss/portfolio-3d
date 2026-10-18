@@ -9,7 +9,7 @@ const pt: Dictionary = {
   language: { label: 'Idioma' },
   loading: { role: 'Front-end · portfólio jogável', loading: 'Carregando', enter: 'Entrar' },
   simple: { link: 'Versão simples', title: 'Abrir o madeusdev.com, a versão em HTML do portfólio' },
-  hud: { help: 'Como jogar' },
+  hud: { help: 'Como jogar', soundOn: 'Ligar som', soundOff: 'Desligar som' },
   help: {
     title: '/Como jogar',
     keys: { move: 'andar', run: 'correr', jump: 'pular', interact: 'interagir', zoom: 'zoom' },

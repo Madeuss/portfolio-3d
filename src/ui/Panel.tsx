@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { stationPages, type StationId } from '../data/stations'
+import { play } from '../audio/sounds'
 import { useI18n } from '../i18n'
 import { useGame } from '../state/game'
 import './panel.css'
@@ -23,7 +24,10 @@ function PanelDialog({ id }: { id: StationId }) {
   const many = pages.length > 1
 
   // Volta ao início depois do último (e vice-versa).
-  const go = (step: number) => setPage((p) => (p + step + pages.length) % pages.length)
+  const go = (step: number) => {
+    setPage((p) => (p + step + pages.length) % pages.length)
+    play('click')
+  }
 
   useEffect(() => {
     closeRef.current?.focus()

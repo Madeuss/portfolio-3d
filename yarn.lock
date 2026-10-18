@@ -471,6 +471,11 @@
   resolved "https://registry.yarnpkg.com/@types/draco3d/-/draco3d-1.4.10.tgz#63ec0ba78b30bd58203ec031f4e4f0198c596dca"
   integrity sha512-AX22jp8Y7wwaBgAixaSvkoG4M/+PlAcm3Qs4OW8yT9DM4xUpWKeFhLueTAyZF39pviAdcDdeJoACapiAceqNcw==
 
+"@types/howler@^2.2.13":
+  version "2.2.13"
+  resolved "https://registry.yarnpkg.com/@types/howler/-/howler-2.2.13.tgz#16fe866b3494f5a825041b232ae06de18ec1b2e7"
+  integrity sha512-40+EBjqIHHrC4VShlz/7i0lBUsE3QkgzZinQQji74Hd8sBkJZUBaT7LWFLK6rcabsDOOQpoMbEJvtaFQwxOu/g==
+
 "@types/node@^24.13.3":
   version "24.19.2"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-24.19.2.tgz#8718eedbc0f89648de6525be9f4a9c61cdbaa502"
@@ -692,6 +697,11 @@ hls.js@^1.5.17:
   version "1.7.3"
   resolved "https://registry.yarnpkg.com/hls.js/-/hls.js-1.7.3.tgz#79a3338dd2e78fe63fc2ba6cfebdf5e34495537a"
   integrity sha512-MsPlx6yVW4Qv4C7mEVou4/gk/5cN2dVxOTnrNjPSmyH2f0Ln+/UkG10Ax1PE6OvrmTVPKgQYozTtBaPOuCzq7A==
+
+howler@^2.2.4:
+  version "2.2.4"
+  resolved "https://registry.yarnpkg.com/howler/-/howler-2.2.4.tgz#bd3df4a4f68a0118a51e4bd84a2bfc2e93e6e5a1"
+  integrity sha512-iARIBPgcQrwtEr+tALF+rapJ8qSc+Set2GJQl7xT1MQzWaVkFebdJhR3alVlSiUf5U7nAANKuj3aWpwerocD5w==
 
 ieee754@^1.2.1:
   version "1.2.1"

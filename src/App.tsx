@@ -7,6 +7,7 @@ import Hud from './ui/Hud'
 import HelpScreen from './ui/HelpScreen'
 import LoadingScreen from './ui/LoadingScreen'
 import TouchControls from './ui/TouchControls'
+import SoundEffects from './audio/SoundEffects'
 import { useDocumentLocale } from './i18n'
 import { isPlaying, useGame } from './state/game'
 import './ui/screens.css'
@@ -42,6 +43,7 @@ export default function App() {
         <TestScene />
       </Canvas>
 
+      <SoundEffects />
       <Hud />
       <TouchControls />
       <Panel />

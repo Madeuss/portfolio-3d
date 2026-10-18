@@ -1,3 +1,4 @@
+import { play } from '../audio/sounds'
 import { LOCALES, useI18n } from '../i18n'
 
 // Seletor de idioma com siglas (não bandeiras), igual ao madeusdev.
@@ -9,7 +10,7 @@ export default function LangSwitch() {
   return (
     <div className="lang" role="group" aria-label={label}>
       {LOCALES.map((l) => (
-        <button key={l} type="button" aria-pressed={l === locale} onClick={() => setLocale(l)}>
+        <button key={l} type="button" aria-pressed={l === locale} onClick={() => (setLocale(l), play('click'))}>
           {l.toUpperCase()}
         </button>
       ))}

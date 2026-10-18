@@ -1,0 +1,93 @@
+import { Howl, Howler } from 'howler'
+import { create } from 'zustand'
+
+// Sons (tarefa 7.2), com Howler.js. Efeitos da Kenney (CC0), em public/sounds.
+// Os navegadores só tocam áudio depois de um gesto do visitante: por isso
+// nada toca antes do clique em "Entrar", e os arquivos só são criados aqui
+// na primeira vez que alguém pede para tocar.
+
+const SFX = {
+  enter: { src: '/sounds/enter.mp3', volume: 0.5 },
+  'panel-open': { src: '/sounds/panel-open.mp3', volume: 0.5 },
+  'panel-close': { src: '/sounds/panel-close.mp3', volume: 0.4 },
+  prompt: { src: '/sounds/prompt.mp3', volume: 0.35 },
+  click: { src: '/sounds/click.mp3', volume: 0.4 },
+  toggle: { src: '/sounds/toggle.mp3', volume: 0.5 },
+} as const
+
+export type SfxName = keyof typeof SFX
+
+// Passos: 5 variações sorteadas para não soar repetitivo.
+const STEPS = [0, 1, 2, 3, 4].map((i) => `/sounds/step-grass-${i}.mp3`)
+
+// Música de fundo: escolha sua (Pixabay ou Freesound, licença livre). Coloque
+// o arquivo em public/sounds e o caminho aqui; null = sem música.
+const MUSIC_URL: string | null = null
+const MUSIC_VOLUME = 0.25
+
+const cache = new Map<string, Howl>()
+
+function howl(src: string, volume: number) {
+  let h = cache.get(src)
+  if (!h) {
+    h = new Howl({ src: [src], volume })
+    cache.set(src, h)
+  }
+  return h
+}
+
+export function play(name: SfxName) {
+  const { src, volume } = SFX[name]
+  howl(src, volume).play()
+}
+
+export function playStep() {
+  const src = STEPS[Math.floor(Math.random() * STEPS.length)]
+  const h = howl(src, 0.25)
+  const id = h.play()
+  // Leve variação de tom a cada passo.
+  h.rate(0.9 + Math.random() * 0.2, id)
+}
+
+let music: Howl | null = null
+
+export function startMusic() {
+  if (!MUSIC_URL || music) return
+  music = new Howl({ src: [MUSIC_URL], loop: true, volume: 0 })
+  music.play()
+  music.fade(0, MUSIC_VOLUME, 2000)
+}
+
+// ---- Mudo (botão de som do HUD) ----------------------------------------
+
+const MUTED_KEY = 'muted'
+
+function savedMuted() {
+  try {
+    return localStorage.getItem(MUTED_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+type AudioState = { muted: boolean; toggleMuted: () => void }
+
+// Começa com som (como o worawork); a escolha de silenciar fica salva.
+export const useAudio = create<AudioState>((set, get) => {
+  const muted = savedMuted()
+  Howler.mute(muted)
+  return {
+    muted,
+    toggleMuted: () => {
+      const next = !get().muted
+      Howler.mute(next)
+      set({ muted: next })
+      if (!next) play('toggle')
+      try {
+        localStorage.setItem(MUTED_KEY, next ? '1' : '0')
+      } catch {
+        // sem storage, vale só nesta visita
+      }
+    },
+  }
+})
