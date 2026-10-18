@@ -131,6 +131,15 @@
   color: var(--bg);
 }
 
+/* No toque o canto de baixo é do joystick: o link sobe para o lado do "?". */
+@media (pointer: coarse) {
+  .hud__simple {
+    top: 22px;
+    bottom: auto;
+    left: 72px;
+  }
+}
+
 /* Seletor de idioma */
 .lang {
   display: flex;

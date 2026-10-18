@@ -2,6 +2,7 @@ import { useEffect, useRef, type RefObject } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { Vector3 } from 'three'
 import type { EcctrlHandle } from 'ecctrl'
+import { isTouch } from '../state/device'
 
 // Câmera do jogo (tarefa 2.5), no estilo do worawork: ângulo fixo, de cima e
 // inclinada, seguindo o personagem. Só o zoom muda, pela rodinha do mouse.
@@ -11,6 +12,8 @@ const DIRECTION = new Vector3(0, 1.1, 1).normalize()
 const MIN_DISTANCE = 6
 const MAX_DISTANCE = 18
 const START_DISTANCE = 11
+// No celular a tela é menor (e em pé): a câmera começa mais perto.
+const START_DISTANCE_TOUCH = 8
 // Quanto maior, mais "grudada" a câmera fica; menor = acompanha com atraso suave.
 const FOLLOW_SPEED = 5
 
@@ -19,7 +22,7 @@ type Props = { target: RefObject<EcctrlHandle | null> }
 export default function FollowCamera({ target }: Props) {
   const camera = useThree((s) => s.camera)
   const gl = useThree((s) => s.gl)
-  const distance = useRef(START_DISTANCE)
+  const distance = useRef(isTouch() ? START_DISTANCE_TOUCH : START_DISTANCE)
   const focus = useRef(new Vector3())
   const wanted = useRef(new Vector3())
 

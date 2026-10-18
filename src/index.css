@@ -17,6 +17,10 @@ body,
   margin: 0;
 }
 
+canvas {
+  touch-action: none;
+}
+
 body {
   background: var(--bg);
   font-family: var(--font);

@@ -3,6 +3,7 @@ import { Html } from '@react-three/drei'
 import { CuboidCollider, RigidBody, type IntersectionEnterPayload } from '@react-three/rapier'
 import { stationPrompt, type StationId } from '../data/stations'
 import { useI18n } from '../i18n'
+import { useIsTouch } from '../state/device'
 import { isPlaying, useGame } from '../state/game'
 import Marker from './Marker'
 
@@ -32,6 +33,8 @@ export default function Station({ id, position, zoneCenter, zoneSize, markerY, c
   const openStation = useGame((s) => s.openStation)
   const showPrompt = useGame((s) => s.nearby === id && isPlaying(s))
   const t = useI18n((s) => s.t)
+  // No celular quem interage é o botão A; no teclado, a tecla E.
+  const key = useIsTouch() ? 'A' : 'E'
 
   return (
     <group position={position}>
@@ -54,7 +57,7 @@ export default function Station({ id, position, zoneCenter, zoneSize, markerY, c
           entrada quanto a saída do aviso. */}
       <Html position={[zoneCenter[0], markerY + 0.55, zoneCenter[2]]} center zIndexRange={[10, 0]}>
         <div className={`prompt${showPrompt ? ' prompt--visible' : ''}`} aria-hidden={!showPrompt}>
-          <kbd>E</kbd>
+          <kbd>{key}</kbd>
           {stationPrompt(id, t)}
         </div>
       </Html>

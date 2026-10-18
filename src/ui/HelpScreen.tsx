@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useI18n } from '../i18n'
+import { useIsTouch } from '../state/device'
 import { useGame } from '../state/game'
 import { markHelpSeen } from '../state/help'
 
@@ -11,6 +12,7 @@ export default function HelpScreen() {
   const screen = useGame((s) => s.screen)
   const setScreen = useGame((s) => s.setScreen)
   const closeRef = useRef<HTMLButtonElement>(null)
+  const touch = useIsTouch()
   const open = screen === 'help'
 
   const close = () => {
@@ -29,13 +31,20 @@ export default function HelpScreen() {
   if (!open) return null
 
   const { keys, labels } = t.help
-  const rows: [string, string][] = [
-    ['WASD', keys.move],
-    ['Shift', keys.run],
-    [labels.space, keys.jump],
-    ['E', keys.interact],
-    [labels.wheel, keys.zoom],
-  ]
+  // No celular: joystick e botões A/B (o pulo e o zoom ficam só no teclado).
+  const rows: [string, string][] = touch
+    ? [
+        ['Joystick', keys.move],
+        ['B', keys.run],
+        ['A', keys.interact],
+      ]
+    : [
+        ['WASD', keys.move],
+        ['Shift', keys.run],
+        [labels.space, keys.jump],
+        ['E', keys.interact],
+        [labels.wheel, keys.zoom],
+      ]
 
   return (
     <div className="panel-backdrop" onClick={close}>

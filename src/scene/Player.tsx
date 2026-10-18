@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import { KeyboardControls, useKeyboardControls } from '@react-three/drei'
 import { Ecctrl, type EcctrlHandle, type MovementInput } from 'ecctrl'
 import { EcctrlAnimationStateController } from 'ecctrl/animation'
+import { useButtonStore, useJoystickStore } from 'ecctrl/input'
 import { isPlaying, useGame } from '../state/game'
 import Character from './Character'
 import FollowCamera from './FollowCamera'
@@ -23,26 +24,35 @@ const RADIUS = 0.3
 const HALF_HEIGHT = 0.35
 const FLOAT = 0.3
 
-// O ecctrl 2 não lê o teclado sozinho: a cada quadro a gente pega o estado
-// das teclas e entrega com setMovement. Isso deixa trocar a fonte (joystick
-// no celular, tarefa 7.3) sem mexer no personagem.
-function KeyboardInput({ target }: { target: RefObject<EcctrlHandle | null> }) {
+// O ecctrl 2 não lê o teclado sozinho: a cada quadro a gente junta o estado
+// das teclas com o do joystick e do botão B (celular, tarefa 7.3) e entrega
+// tudo com setMovement.
+function MovementInputs({ target }: { target: RefObject<EcctrlHandle | null> }) {
   const [, getKeys] = useKeyboardControls()
 
   useFrame(() => {
     // Com painel, ajuda ou carregamento por cima, o personagem fica parado.
-    const input = isPlaying(useGame.getState()) ? (getKeys() as MovementInput) : STOPPED
-    target.current?.setMovement(input)
+    if (!isPlaying(useGame.getState())) {
+      target.current?.setMovement(STOPPED)
+      return
+    }
+    const keys = getKeys() as MovementInput
+    const { x, y } = useJoystickStore.getState().joysticks.default ?? NO_STICK
+    const runButton = useButtonStore.getState().buttons.run ?? false
+    target.current?.setMovement({ ...keys, joystick: { x, y }, run: keys.run || runButton })
   })
 
   return null
 }
+
+const NO_STICK = { x: 0, y: 0 }
 
 const STOPPED: MovementInput = {
   forward: false,
   backward: false,
   leftward: false,
   rightward: false,
+  joystick: NO_STICK,
   run: false,
   jump: false,
 }
@@ -94,7 +104,7 @@ export default function Player({ position }: Props) {
           numa store que o Character escuta para trocar a animação. */}
       <EcctrlAnimationStateController ecctrl={ref} />
 
-      <KeyboardInput target={ref} />
+      <MovementInputs target={ref} />
       <Respawn target={ref} spawn={position} />
       <FollowCamera target={ref} />
     </KeyboardControls>

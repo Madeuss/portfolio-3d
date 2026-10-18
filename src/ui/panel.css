@@ -257,6 +257,32 @@
   }
 }
 
+/* Celular: o painel vira uma "gaveta" que sobe de baixo (wireframe 5). */
+@media (max-width: 600px) {
+  .panel-backdrop {
+    place-items: end stretch;
+    padding: 0;
+  }
+
+  .panel {
+    width: 100%;
+    max-height: 88dvh;
+    border-radius: 20px 20px 0 0;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    animation-name: panel-sheet;
+  }
+
+  .panel__title {
+    font-size: 22px;
+  }
+}
+
+@keyframes panel-sheet {
+  from {
+    transform: translateY(100%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .panel-backdrop,
   .panel {
