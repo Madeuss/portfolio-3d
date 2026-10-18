@@ -35,9 +35,9 @@ boa luz, fundo liso (parede). Sem boné cobrindo o cabelo, sem mãos no bolso. S
 Using the attached photo of me as reference, create a stylized 3D character of this
 person for a cozy video game. Chibi proportions: head about one third of the body
 height. Keep my face and skin tone recognizable, with these exact details: dark brown
-hair (not black), straight (not curly), short and full: the top is short and low (only a
-little longer than the sides, close to the head, not tall), swept slightly forward
-in soft chunky clumps, the sides and back are covered with
+hair (not black), straight (not curly), short and full: the top is a short scissor cut
+(not buzzed), medium-low volume, with a loose fringe swept forward and slightly to
+one side in soft chunky clumps, the sides and back are covered with
 short hair of the same color (not shaved), rounded following the head, and only a
 very thin low taper at the very bottom, right above the ears and at the nape; no
 pompadour, no quiff; ears visible;
