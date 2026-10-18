@@ -246,22 +246,23 @@ worawork** (âncora de estilo do exterior). A última linha de cada prompt já p
 
 ### 16. Fachada da casa
 
-**Anexe:** buscar **"casa térrea moderna pequena fachada"** ou **"small modern cottage house"** no Pinterest,
-mais o print do worawork.
+**Anexe:** a foto do Pinterest (casa moderna com empena alta, madeira e pedra escura), mais o print da casa do worawork.
 
 ```
-Create a stylized 3D game asset of a cozy small single-story modern house like the
-attached image, square footprint (about 10 by 10 meters), white walls with warm wood
-panels, a low gabled dark roof, a wooden front door centered on the front with two
-small steps, two windows on each side of the door with warm light inside. Complete
-house exterior, closed, no garden around it. Soft rounded shapes, clay-like smooth
-surfaces, cozy warm colors, Animal Crossing style, single object, centered, front
+Create a stylized 3D game asset of the modern house in the first attached image: a
+tall steep A-frame gable on the right with a big glass window wall, a lower wing with
+a dark sloped roof on the left, warm wood plank cladding, dark grey stone panels,
+black window frames, a stone chimney, and a low wooden deck along the front with two
+wide steps leading to a glass front door. Warm light glowing from the windows, the
+inside seen only as soft warm light, no furniture details. Complete house exterior,
+no garden, no plants, no rocks, no trees, no lawn. Soft rounded shapes, clay-like
+smooth surfaces, chunky simplified details, cozy, single object, centered, front
 three-quarter view, plain white background, even soft lighting, no shadow on the
 floor, no text, no logo.
-Match the art style, colors and lighting of the second attached image (a game
-screenshot). Keep the house design from the first image and copy only the style, do
-not copy the house from the screenshot. Only the house, nothing else from the
-screenshot.
+Match the art style and lighting of the second attached image (a game screenshot):
+the same chunky toy-like shapes and soft rounded edges, but keep the colors and the
+design of the house from the first image (dark roof, wood and dark stone, not red
+tiles). Only the house, nothing else from the screenshot.
 ```
 
 ### 17. Caixa de correio
