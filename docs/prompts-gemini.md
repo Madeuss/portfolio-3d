@@ -35,9 +35,11 @@ boa luz, fundo liso (parede). Sem boné cobrindo o cabelo, sem mãos no bolso. S
 Using the attached photo of me as reference, create a stylized 3D character of this
 person for a cozy video game. Chibi proportions: head about one third of the body
 height. Keep my face and skin tone recognizable, with these exact details: dark brown
-hair (not black), short on top, slightly longer on top than on the sides; the sides
-and back are covered with short hair of the same color (not shaved), and only a very
-thin low fade at the very bottom, right above the ears and at the nape; ears visible;
+hair (not black), straight (not curly), short and full: the top is a bit longer and
+swept slightly forward in soft chunky clumps, the sides and back are covered with
+short hair of the same color (not shaved), rounded following the head, and only a
+very thin low taper at the very bottom, right above the ears and at the nape; no
+pompadour, no quiff; ears visible;
 green-brown (hazel) eyes; thin mustache and a small goatee only, no
 beard on the cheeks or sides; glasses only if I have them in the photo.
 Wearing a soccer jersey with vertical royal blue and black stripes
@@ -63,8 +65,8 @@ the floor, no text, no logo.
 > ```
 > This is a stylized 3D game character. Create the back view of this exact same
 > character, in the exact same art style: same proportions, same A-pose, same hair
-> (dark brown, sides and back covered with short hair, only a very thin low fade at the
-> very bottom of the nape),
+> (dark brown, straight, sides and back covered with short hair rounded following the
+> head, only a very thin low taper at the very bottom of the nape),
 > same jersey with vertical royal blue and black stripes, plain jersey back with no
 > name and no number, same black shorts and white sneakers. Plain white background,
 > even soft studio lighting, no shadow on the floor, no text.
