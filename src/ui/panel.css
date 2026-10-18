@@ -156,6 +156,28 @@
   white-space: nowrap;
   pointer-events: none;
   user-select: none;
+  /* Escondido: um pouco abaixo e menor. A saída é mais rápida que a entrada. */
+  opacity: 0;
+  transform: translateY(8px) scale(0.9);
+  transition:
+    opacity 0.18s ease-in,
+    transform 0.18s ease-in;
+}
+
+.prompt--visible {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.35s var(--ease-out),
+    transform 0.45s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prompt,
+  .prompt--visible {
+    transform: none;
+    transition: opacity 0.2s linear;
+  }
 }
 
 .prompt kbd {

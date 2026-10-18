@@ -47,15 +47,15 @@ export default function Station({ id, position, zoneCenter, zoneSize, markerY, c
 
       <Marker position={[zoneCenter[0], markerY, zoneCenter[2]]} active={showPrompt} onClick={() => openStation(id)} />
 
-      {showPrompt && (
-        // Html: um elemento do DOM preso a um ponto 3D, que acompanha a câmera.
-        <Html position={[zoneCenter[0], markerY + 0.55, zoneCenter[2]]} center zIndexRange={[10, 0]}>
-          <div className="prompt">
-            <kbd>E</kbd>
-            {stations[id].prompt}
-          </div>
-        </Html>
-      )}
+      {/* Html: um elemento do DOM preso a um ponto 3D, que acompanha a câmera.
+          Fica sempre montado e só troca de classe, para o CSS animar tanto a
+          entrada quanto a saída do aviso. */}
+      <Html position={[zoneCenter[0], markerY + 0.55, zoneCenter[2]]} center zIndexRange={[10, 0]}>
+        <div className={`prompt${showPrompt ? ' prompt--visible' : ''}`} aria-hidden={!showPrompt}>
+          <kbd>E</kbd>
+          {stations[id].prompt}
+        </div>
+      </Html>
     </group>
   )
 }
