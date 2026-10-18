@@ -168,8 +168,8 @@ the wood and black metal colors of this desk). Only the desk, do not include the
 Create a stylized 3D game asset of the computer setup in the attached image, grouped
 together as a single compact set with no desk and no wall: a horizontal monitor in the
 middle with a slim light bar on top, a second monitor in vertical (portrait) position
-on a black articulated arm on the left, a black keyboard and mouse on a dark grey desk
-mat in front, and a black glass PC tower with soft white LED strips on the right.
+on a black articulated arm on the left, a black keyboard with a soft white LED glow all
+around its edges and a mouse on a dark grey desk mat in front, and a black glass PC tower with soft white LED strips on the right.
 All the items sit on one shared flat base level, close together. Both monitor screens
 are plain solid black, no image. Glossy black materials. Soft rounded edges, clean
 modern design, centered, front three-quarter view, plain white background, even soft
