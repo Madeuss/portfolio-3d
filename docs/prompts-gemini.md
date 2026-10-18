@@ -24,14 +24,21 @@ Os prompts estão em inglês porque os geradores de imagem respondem melhor. Já
 
 ## 1. Seu avatar (o mais importante)
 
-**Anexe:** uma foto sua de **corpo inteiro, de frente**, em pé, braços soltos ao lado do corpo, boa luz, fundo liso (parede).
-Sem boné cobrindo o cabelo, sem mãos no bolso, com a roupa que mais te representa. Se puder, uma segunda foto de lado ajuda.
+**Roupa (decidido em 18/10):** a camisa listrada azul e preta estilo Inter, a mesma da hero do madeusdev.
+Sem escudo e sem patrocinador (regra: não desenhamos escudo de clube) e com as costas lisas: o **"MADEUS 9"** entra
+depois como textura, porque a IA erra letras. A câmera do jogo fica atrás do personagem, então as costas aparecem o tempo todo.
+
+**Anexe:** uma foto sua **vestindo essa camisa**, de **corpo inteiro, de frente**, em pé, braços soltos ao lado do corpo,
+boa luz, fundo liso (parede). Sem boné cobrindo o cabelo, sem mãos no bolso. Se tiver uma de costas, guarde para a vista de costas.
 
 ```
 Using the attached photo of me as reference, create a stylized 3D character of this
 person for a cozy video game. Chibi proportions: head about one third of the body
 height. Keep my hairstyle, hair color, skin tone, facial hair and glasses (if I have
-them) recognizable. Same outfit as in the photo, simplified into clean shapes.
+them) recognizable. Wearing a soccer jersey with vertical royal blue and black stripes
+(no crest, no sponsor, no logo, plain back with no name and no number), black shorts or
+the pants from the photo, and the sneakers from the photo, all simplified into clean
+shapes.
 Full body, standing in A-pose: arms straight and slightly away from the body (about
 30 degrees down from horizontal), hands open with fingers together, legs straight and
 slightly apart, facing the camera, neutral friendly expression.
@@ -41,7 +48,8 @@ the floor, no text, no logo.
 ```
 
 > Se a semelhança não vier, peça ajustes curtos: "make the hair shorter on the sides", "make the beard fuller" etc.
-> Gere também uma **vista de costas** do personagem aprovado ("same character, back view, same pose"): o Tripo usa as duas.
+> Gere também uma **vista de costas** do personagem aprovado ("same character, back view, same pose, plain jersey back
+> with no name and no number"): o Tripo usa as duas.
 
 ---
 

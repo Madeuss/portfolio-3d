@@ -46,7 +46,7 @@ Legenda de prioridade: **1** = sem ele a estação não existe · **2** = deixa 
 
 | # | Item | Como | Prior. | Notas |
 |---|---|---|---|---|
-| 1 | **Seu avatar** | Foto sua → imagem estilizada (Gemini) → Tripo com **Rig** | 1 | Foto de corpo inteiro, de frente, braços levemente abertos, roupa típica sua. Pedir ao Gemini "stylized 3D chibi figure of this person, A-pose". Gerar **privado**. Pode levar 2–3 tentativas: reservar créditos. Animações: Mixamo (Idle, Walk, Run, Punch, SitDown) |
+| 1 | **Seu avatar** | Foto sua → imagem estilizada (Gemini) → Tripo com **Rig** | 1 | Camisa listrada azul e preta estilo Inter (sem escudo/patrocinador, costas lisas; "MADEUS 9" entra como textura depois). Foto de corpo inteiro, de frente, com essa camisa. Pedir ao Gemini "stylized 3D chibi figure of this person, A-pose". Gerar **privado**. Pode levar 2–3 tentativas: reservar créditos. Animações: Mixamo (Idle, Walk, Run, Punch, SitDown) |
 
 ### Interior
 
