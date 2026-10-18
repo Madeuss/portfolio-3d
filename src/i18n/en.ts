@@ -8,6 +8,7 @@ const en: Dictionary = {
   },
   language: { label: 'Language' },
   loading: { role: 'Front-end · playable portfolio', loading: 'Loading', enter: 'Enter' },
+  simple: { link: 'Simple version', title: 'Open madeusdev.com, the HTML version of this portfolio' },
   hud: { help: 'How to play' },
   help: {
     title: '/How to play',

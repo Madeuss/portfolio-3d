@@ -1,8 +1,10 @@
 import { useI18n } from '../i18n'
 import { useGame } from '../state/game'
+import { SIMPLE_URL } from './SimpleLink'
 
 // HUD mínimo, como no worawork: só botões redondos nos cantos. Por enquanto
-// o "?" (ajuda); o de som entra junto com os sons (tarefa 7.2).
+// o "?" (ajuda); o de som entra junto com os sons (tarefa 7.2). Embaixo, o
+// link discreto para a versão simples.
 export default function Hud() {
   const t = useI18n((s) => s.t)
   const screen = useGame((s) => s.screen)
@@ -11,10 +13,15 @@ export default function Hud() {
   if (screen === 'loading') return null
 
   return (
-    <div className="hud">
-      <button type="button" className="hud__btn" aria-label={t.hud.help} title={t.hud.help} onClick={() => setScreen('help')}>
-        ?
-      </button>
-    </div>
+    <>
+      <div className="hud">
+        <button type="button" className="hud__btn" aria-label={t.hud.help} title={t.hud.help} onClick={() => setScreen('help')}>
+          ?
+        </button>
+      </div>
+      <a className="hud__simple" href={SIMPLE_URL} title={t.simple.title}>
+        /{t.simple.link}
+      </a>
+    </>
   )
 }

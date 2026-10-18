@@ -8,6 +8,7 @@ const es: Dictionary = {
   },
   language: { label: 'Idioma' },
   loading: { role: 'Front-end · portafolio jugable', loading: 'Cargando', enter: 'Entrar' },
+  simple: { link: 'Versión simple', title: 'Abrir madeusdev.com, la versión en HTML del portafolio' },
   hud: { help: 'Cómo jugar' },
   help: {
     title: '/Cómo jugar',

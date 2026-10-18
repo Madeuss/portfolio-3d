@@ -11,6 +11,8 @@ export type Dictionary = {
   meta: { htmlLang: string; title: string; description: string }
   language: { label: string }
   loading: { role: string; loading: string; enter: string }
+  /** Link para o madeusdev.com, que é a versão em HTML de tudo (tarefa 6.5). */
+  simple: { link: string; title: string }
   hud: { help: string }
   help: {
     title: string

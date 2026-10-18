@@ -4,6 +4,7 @@ import { useI18n } from '../i18n'
 import { useGame } from '../state/game'
 import { helpSeen } from '../state/help'
 import LangSwitch from './LangSwitch'
+import SimpleLink from './SimpleLink'
 
 // Tela de carregamento (tarefa 7.1). A barra é o progresso real dos arquivos
 // (useProgress do drei escuta o carregador do three.js). Ao terminar aparece
@@ -68,6 +69,8 @@ export default function LoadingScreen() {
         <button type="button" className="loading__enter" onClick={enter} disabled={!ready} autoFocus>
           {ready ? `${t.loading.enter} ▸` : `${t.loading.loading}…`}
         </button>
+
+        <SimpleLink className="loading__simple" />
       </div>
     </div>
   )
