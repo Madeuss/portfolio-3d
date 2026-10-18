@@ -15,15 +15,37 @@ const es: Dictionary = {
     labels: { space: 'Espacio', wheel: 'Rueda' },
     close: 'Entendido',
   },
-  panel: { close: 'Cerrar', escHint: 'Esc cierra' },
+  panel: { close: 'Cerrar', escHint: 'Esc cierra', prev: 'anterior', next: 'siguiente', site: 'Sitio' },
   stations: {
     projects: {
       prompt: 'Ver proyectos',
       label: '/Proyectos',
-      firenze: {
-        tag: 'Juego · IA',
-        desc: 'Juego de misterio investigativo con sospechosos impulsados por LLM: casos generados de forma determinista, un solver independiente que garantiza que todo caso tenga solución y aislamiento de contexto como frontera de arquitectura.',
-      },
+      items: [
+        {
+          name: 'Consola de nube pública',
+          year: '2022 — hoy',
+          tag: 'Producto',
+          desc: 'Formo parte del equipo que construye la consola de clientes, con micro-frontends en React y Next.js.',
+        },
+        {
+          name: 'Firenze',
+          year: '2026',
+          tag: 'Juego · IA',
+          desc: 'Juego de misterio investigativo con sospechosos impulsados por LLM: casos generados de forma determinista, un solver independiente que garantiza que todo caso tenga solución y aislamiento de contexto como frontera de arquitectura.',
+        },
+        {
+          name: 'Covid-19 Tracker',
+          year: '2020',
+          tag: 'Web app',
+          desc: 'App en React que mapea la COVID-19 en el mundo: casos confirmados, muertes y recuperados por país, en un mapa interactivo con Mapbox, consumiendo una API pública con Axios y Context API.',
+        },
+        {
+          name: 'madeusdev.com',
+          year: '2026',
+          tag: 'Sitio web · portafolio 2D',
+          desc: 'Balón y control arrojables con física propia, i18n en PT/EN/ES con diccionario tipado, cartas FUT con giro 3D y medios que solo cargan cuando se usan. Física e i18n hechas a mano, sin librerías.',
+        },
+      ],
     },
     skills: {
       prompt: 'Entrenar',

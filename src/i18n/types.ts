@@ -18,12 +18,13 @@ export type Dictionary = {
     labels: { space: string; wheel: string }
     close: string
   }
-  panel: { close: string; escHint: string }
+  panel: { close: string; escHint: string; prev: string; next: string; site: string }
   stations: {
     projects: {
       prompt: string
       label: string
-      firenze: { tag: string; desc: string }
+      /** Mesma ordem de `projects` em data/content.ts. */
+      items: { name: string; year: string; tag: string; desc: string }[]
     }
     skills: { prompt: string; label: string; title: string; groups: Record<StackGroupId, string> }
     contact: { prompt: string; label: string; title: string; note: string; email: string }

@@ -15,15 +15,37 @@ const en: Dictionary = {
     labels: { space: 'Space', wheel: 'Scroll' },
     close: 'Got it',
   },
-  panel: { close: 'Close', escHint: 'Esc closes' },
+  panel: { close: 'Close', escHint: 'Esc closes', prev: 'previous', next: 'next', site: 'Website' },
   stations: {
     projects: {
       prompt: 'See projects',
       label: '/Projects',
-      firenze: {
-        tag: 'Game · AI',
-        desc: 'Investigative mystery game with LLM-driven suspects: deterministic case generation, an independent solver that guarantees every case is solvable, and context isolation as an architectural boundary.',
-      },
+      items: [
+        {
+          name: 'Public cloud console',
+          year: '2022 — present',
+          tag: 'Product',
+          desc: 'Part of the team building the customer console, with micro-frontends in React and Next.js.',
+        },
+        {
+          name: 'Firenze',
+          year: '2026',
+          tag: 'Game · AI',
+          desc: 'Investigative mystery game with LLM-driven suspects: deterministic case generation, an independent solver that guarantees every case is solvable, and context isolation as an architectural boundary.',
+        },
+        {
+          name: 'Covid-19 Tracker',
+          year: '2020',
+          tag: 'Web app',
+          desc: 'React app that maps COVID-19 around the world: confirmed cases, deaths and recoveries by country on an interactive Mapbox map, consuming a public API with Axios and the Context API.',
+        },
+        {
+          name: 'madeusdev.com',
+          year: '2026',
+          tag: 'Website · 2D portfolio',
+          desc: 'Throwable ball and controller with hand-rolled physics, PT/EN/ES i18n with a typed dictionary, FUT cards with a 3D flip and media that only loads when used. Physics and i18n built from scratch, no libraries.',
+        },
+      ],
     },
     skills: {
       prompt: 'Train',

@@ -9,12 +9,14 @@ export const contact = {
   github: 'https://github.com/madeuss',
 }
 
-export const firenze = {
-  name: 'Firenze',
-  year: '2026',
-  image: '/images/firenze.webp',
-  github: 'https://github.com/Madeuss/firenze',
-}
+/** Visual e links de cada projeto, na mesma ordem de `stations.projects.items` nos dicionários. */
+export const projects: { image: string; github?: string; site?: string }[] = [
+  // console: produto privado, sem links
+  { image: '/images/console-home.webp' },
+  { image: '/images/firenze.webp', github: 'https://github.com/Madeuss/firenze' },
+  { image: '/images/covid-tracker.webp', github: 'https://github.com/Madeuss/Covid-19-Tracker' },
+  { image: '/images/portfolio-hero.webp', site: 'https://madeusdev.com', github: 'https://github.com/Madeuss/portfolio' },
+]
 
 export const stack: { id: StackGroupId; items: string[] }[] = [
   {
