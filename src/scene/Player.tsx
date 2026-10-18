@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import { KeyboardControls, useKeyboardControls } from '@react-three/drei'
 import { Ecctrl, type EcctrlHandle, type MovementInput } from 'ecctrl'
 import { EcctrlAnimationStateController } from 'ecctrl/animation'
+import { useGame } from '../state/game'
 import Character from './Character'
 import FollowCamera from './FollowCamera'
 
@@ -29,10 +30,21 @@ function KeyboardInput({ target }: { target: RefObject<EcctrlHandle | null> }) {
   const [, getKeys] = useKeyboardControls()
 
   useFrame(() => {
-    target.current?.setMovement(getKeys() as MovementInput)
+    // Com um painel aberto o personagem fica parado (as teclas são do painel).
+    const input = useGame.getState().open ? STOPPED : (getKeys() as MovementInput)
+    target.current?.setMovement(input)
   })
 
   return null
+}
+
+const STOPPED: MovementInput = {
+  forward: false,
+  backward: false,
+  leftward: false,
+  rightward: false,
+  run: false,
+  jump: false,
 }
 
 // Rede de segurança: se cair do mapa, volta para o ponto de partida.
@@ -67,7 +79,8 @@ export default function Player({ position }: Props) {
         floatHeight={FLOAT}
         // Por padrão o Shift liga/desliga a corrida; assim é "segurar para correr".
         enableToggleRun={false}
-        props={{ position }}
+        // userData.player: é assim que as zonas das estações reconhecem o personagem.
+        props={{ position, userData: { player: true } }}
       >
         {/* Suspense: enquanto o modelo baixa, nada aparece (sem travar a cena). */}
         <Suspense fallback={null}>

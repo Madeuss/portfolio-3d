@@ -2,6 +2,8 @@ import { Environment } from '@react-three/drei'
 import { CuboidCollider, Physics, RigidBody } from '@react-three/rapier'
 import { useControls } from 'leva'
 import Office from './Office'
+import { Mailbox, PunchingBag } from './Placeholders'
+import Station from './Station'
 import Player from './Player'
 
 // Cena de teste (tarefas 1.4 e 2.2–2.5): chão, caixas com física, luz de
@@ -78,9 +80,7 @@ function Box({ position, size = 1, color }: BoxProps) {
   )
 }
 
-type Props = { onOpenProject: () => void }
-
-export default function TestScene({ onOpenProject }: Props) {
+export default function TestScene() {
   const { debug } = useControls('Física', { debug: { value: false, label: 'ver colliders' } })
 
   return (
@@ -91,7 +91,17 @@ export default function TestScene({ onOpenProject }: Props) {
           de colisão em linhas, que é o que a física "enxerga". */}
       <Physics debug={debug}>
         <Floor />
-        <Office position={[-3.2, 0, -2]} onOpen={onOpenProject} />
+        {/* Estações (tarefa 2.6): objeto + zona invisível. A mesa tem
+            ~1,5 x 1,1 m, então a zona cobre ela e um pouco da frente. */}
+        <Station id="projects" position={[-3.2, 0, -2]} zoneCenter={[0.73, 0.75, 0.2]} zoneSize={[1.3, 0.75, 1.2]} markerY={1.9}>
+          <Office />
+        </Station>
+        <Station id="skills" position={[4, 0, 1.5]} zoneCenter={[0, 0.75, 0]} zoneSize={[1.2, 0.75, 1.2]} markerY={2.2}>
+          <PunchingBag />
+        </Station>
+        <Station id="contact" position={[-3.5, 0, 3]} zoneCenter={[0, 0.75, 0]} zoneSize={[1, 0.75, 1]} markerY={1.8}>
+          <Mailbox />
+        </Station>
 
         {/* 1 unidade = 1 metro. As caixas nascem no ar e caem. */}
         <Box position={[0, 3, 0]} color="#0A3FB8" />

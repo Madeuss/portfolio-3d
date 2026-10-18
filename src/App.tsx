@@ -1,23 +1,25 @@
-import { useCallback, useState } from 'react'
+import { useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Leva } from 'leva'
 import TestScene from './scene/TestScene'
-import Panel, { type PanelContent } from './ui/Panel'
+import Panel from './ui/Panel'
+import { useGame } from './state/game'
 
-// Conteúdo provisório, copiado do madeusdev (pt.ts). Na fase 6 isso passa a
-// vir dos dicionários PT/EN/ES.
-const FIRENZE: PanelContent = {
-  label: '/Projetos',
-  title: 'Firenze',
-  meta: '2026 · Jogo · IA',
-  desc: 'Jogo de mistério investigativo com suspeitos movidos a LLM: casos gerados de forma determinística, um solver independente que garante que todo caso tem solução e isolamento de contexto como fronteira de arquitetura.',
-  image: '/images/firenze.webp',
-  href: 'https://github.com/Madeuss/firenze',
+// Tecla E: abre o painel da estação em cuja zona o personagem está.
+function useInteractKey() {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.code !== 'KeyE' || e.repeat) return
+      const { nearby, open, openStation } = useGame.getState()
+      if (nearby && !open) openStation(nearby)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 }
 
 export default function App() {
-  const [panel, setPanel] = useState<PanelContent | null>(null)
-  const closePanel = useCallback(() => setPanel(null), [])
+  useInteractKey()
 
   return (
     <>
@@ -28,10 +30,10 @@ export default function App() {
           "soft" que o R3F usa por padrão saiu do three.js e gerava aviso. */}
       <Canvas shadows="percentage" camera={{ position: [5, 6, 7], fov: 40 }}>
         <color attach="background" args={['#FAFAF7']} />
-        <TestScene onOpenProject={() => setPanel(FIRENZE)} />
+        <TestScene />
       </Canvas>
 
-      <Panel content={panel} onClose={closePanel} />
+      <Panel />
     </>
   )
 }

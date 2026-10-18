@@ -80,9 +80,45 @@
   line-height: 1.55;
 }
 
-.panel__btn {
-  justify-self: start;
+.panel__group {
+  display: grid;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.panel__group-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.panel__chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.panel__chips li {
+  padding: 4px 10px;
+  border: 1.5px solid var(--accent);
+  border-radius: 999px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.panel__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-top: 8px;
+}
+
+.panel__btn {
   padding: 8px 16px;
   border: 1.5px solid var(--ink);
   border-radius: 999px;
@@ -94,6 +130,43 @@
 .panel__btn:hover {
   background: var(--ink);
   color: var(--bg);
+}
+
+.panel__btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+.panel__btn--primary:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+/* Aviso "E  Abrir ..." que flutua sobre a estação (tarefa 2.6). */
+.prompt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px 6px 6px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg);
+  font: 600 14px var(--font);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+.prompt kbd {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--ink);
+  font: 800 13px var(--font);
 }
 
 .panel__close:focus-visible,

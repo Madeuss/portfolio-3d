@@ -54,4 +54,6 @@ Igual ao worawork, **duas cenas**:
 
 ## Em aberto
 
+- Pulo (Espaço): funciona, mas talvez saia da versão final (comentário dele em 18/10).
+
 - Easter egg (decidir até a tarefa 6.6).
