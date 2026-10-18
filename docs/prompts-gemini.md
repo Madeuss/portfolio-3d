@@ -34,8 +34,10 @@ boa luz, fundo liso (parede). Sem boné cobrindo o cabelo, sem mãos no bolso. S
 ```
 Using the attached photo of me as reference, create a stylized 3D character of this
 person for a cozy video game. Chibi proportions: head about one third of the body
-height. Keep my hairstyle, hair color, skin tone, facial hair and glasses (if I have
-them) recognizable. Wearing a soccer jersey with vertical royal blue and black stripes
+height. Keep my face and skin tone recognizable, with these exact details: dark brown
+hair (not black), short fade cut on the sides with the ears visible, slightly longer
+on top; green-brown (hazel) eyes; thin mustache and a small goatee only, no beard on
+the cheeks or sides; glasses only if I have them in the photo. Wearing a soccer jersey with vertical royal blue and black stripes
 (no crest, no sponsor, no logo, plain back with no name and no number), black shorts or
 the pants from the photo, and the sneakers from the photo, all simplified into clean
 shapes.
@@ -47,7 +49,9 @@ character, centered, plain white background, even soft studio lighting, no shado
 the floor, no text, no logo.
 ```
 
-> Se a semelhança não vier, peça ajustes curtos: "make the hair shorter on the sides", "make the beard fuller" etc.
+> Se precisar ajustar, **não peça no mesmo chat da foto**: o Gemini edita a foto original em vez do avatar.
+> Baixe o avatar, abra um chat novo, anexe só ele e comece com "This is a stylized 3D game character. Edit only this
+> character image, keep everything else identical:" seguido dos ajustes.
 > Gere também uma **vista de costas** do personagem aprovado ("same character, back view, same pose, plain jersey back
 > with no name and no number"): o Tripo usa as duas.
 
