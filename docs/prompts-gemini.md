@@ -196,16 +196,18 @@ chair, do not include the stand.
 
 ### 10. Cama
 
-**Anexe:** buscar **"cama casal moderna cabeceira estofada"** em loja de móveis.
+**Anexe:** a foto da cama de cabeceira estofada bege (a do quarto ensolarado).
 
 ```
-Create a stylized 3D game asset of a modern double bed like the one in the attached
-image, with a low upholstered headboard, off-white sheets, a dark grey blanket folded
-at the foot and two pillows. Soft rounded shapes, clean modern design, cozy, single
-object, centered, front three-quarter view, plain white background, even soft lighting,
-no shadow on the floor, no text, no logo.
-Match the art style, materials and lighting of the second attached image. Only the
-bed, do not include the stand.
+Create a stylized 3D game asset of only the bed in the attached image, isolated: a
+modern double bed with a low platform base and a tall upholstered beige headboard with
+side wings, off-white sheets, four pillows and a warm beige throw blanket draped across
+the foot, simplified into a few soft smooth folds (no fringe, no knit texture). Remove
+the nightstands, lamp, vase, rug, wall and window. Soft rounded shapes, clean modern
+design, cozy, single object, centered, front three-quarter view, plain white
+background, even soft lighting, no shadow on the floor, no text, no logo.
+Match the art style and lighting of the second attached image (only the style, keep
+the beige and off-white colors of this bed). Only the bed, do not include the stand.
 ```
 
 ### 11. Banco do vestiário
