@@ -11,7 +11,8 @@ Os prompts estão em inglês porque os geradores de imagem respondem melhor. Já
    `Match the art style, materials and lighting of the second attached image.`
    É o que faz a casa inteira parecer um conjunto só.
 3. Imagem saiu com texto, logo, sombra no chão ou mais de um objeto? Peça para refazer antes de levar ao Tripo.
-4. Salve as aprovadas com o número do item (ex.: `04-armario.png`). O número segue a [lista de geração](assets-ia.md).
+4. As aprovadas ficam em [`docs/refs/`](refs/), com o número do item (ex.: `04-armario.jpg`). O número segue a [lista de geração](assets-ia.md).
+   Fora do `public/`, então não vão para o site.
 
 ### Onde achar as referências
 
