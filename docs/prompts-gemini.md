@@ -145,16 +145,19 @@ jersey on the hanger, do not include the stand.
 
 ### 6. Mesa do escritório
 
-**Anexe:** buscar **"mesa escritório minimalista preta"** ou **"minimalist black desk"** em loja de móveis.
+**Anexe:** a foto da mesa industrial (tampo de madeira, estrutura preta com prateleiras na lateral).
 
 ```
-Create a stylized 3D game asset of a modern minimalist desk like the one in the
-attached image, about 1.4 m wide, with a glossy black top, slim black metal legs and a
-small off-white drawer unit on one side. Empty desk, nothing on top. Soft rounded
-edges, clean modern design, single object, centered, front three-quarter view, plain
-white background, even soft lighting, no shadow on the floor, no text, no logo.
-Match the art style, materials and lighting of the second attached image. Only the
-desk, do not include the stand.
+Create a stylized 3D game asset of an industrial style desk like the one in the
+attached image, about 1.4 m wide: a warm walnut brown wood top, a black metal frame
+with a rectangular leg on the right, and on the left side a black metal frame with two
+open wooden shelves below the top. Empty desk, nothing on top or on the shelves. Keep
+the wood as a smooth warm brown with only a very subtle grain, no realistic texture.
+Soft rounded edges, clean modern design, single object, centered, front three-quarter
+view, plain white background, even soft lighting, no shadow on the floor, no text, no
+logo.
+Match the art style and lighting of the second attached image (only the style, keep
+the wood and black metal colors of this desk). Only the desk, do not include the stand.
 ```
 
 ### 7. Setup do PC (monitor + teclado + gabinete)
