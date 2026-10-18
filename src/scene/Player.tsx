@@ -33,6 +33,22 @@ function KeyboardInput({ target }: { target: RefObject<EcctrlHandle | null> }) {
   return null
 }
 
+// Rede de segurança: se cair do mapa, volta para o ponto de partida.
+// No mapa de verdade as bordas de madeira impedem a queda; isto fica de reserva.
+const FALL_LIMIT = -10
+
+function Respawn({ target, spawn }: { target: RefObject<EcctrlHandle | null>; spawn: [number, number, number] }) {
+  useFrame(() => {
+    const player = target.current
+    if (!player || player.currPos.y > FALL_LIMIT) return
+    const [x, y, z] = spawn
+    player.body.setTranslation({ x, y, z }, true)
+    player.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
+  })
+
+  return null
+}
+
 type Props = { position: [number, number, number] }
 
 // Personagem provisório (tarefa 2.3): uma cápsula no lugar do boneco.
@@ -63,6 +79,7 @@ export default function Player({ position }: Props) {
       </Ecctrl>
 
       <KeyboardInput target={ref} />
+      <Respawn target={ref} spawn={position} />
       <FollowCamera target={ref} />
     </KeyboardControls>
   )
