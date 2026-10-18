@@ -8,7 +8,7 @@ A ideia é assinar o Tripo Starter (R$ 25, um mês), gerar tudo em sequência e 
 **Regra geral: imagem → 3D.** Com texto a IA inventa a forma e cada objeto sai num estilo diferente.
 Com imagem você controla o resultado e garante que tudo combina.
 
-1. **Gerar a imagem de referência** de graça no Gemini ou no ChatGPT, sempre com o mesmo trecho de estilo (abaixo).
+1. **Gerar a imagem de referência** de graça no Gemini ou no ChatGPT. Prompts prontos, item por item: [prompts-gemini.md](prompts-gemini.md).
    Uma foto real também serve, se estiver de frente e em fundo liso (como foi o saco).
 2. **Subir no Tripo**: malha Ultra desligada, textura 2K, remover iluminação ligado, 25 mil polígonos, PBR, triângulos.
 3. **Exportar em GLB** e salvar em `public/models/ai/<nome>.glb`. A "dieta" e o encaixe no site ficam comigo.
