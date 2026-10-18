@@ -1,7 +1,9 @@
-import { useRef, type RefObject } from 'react'
+import { Suspense, useRef, type RefObject } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { KeyboardControls, useKeyboardControls } from '@react-three/drei'
 import { Ecctrl, type EcctrlHandle, type MovementInput } from 'ecctrl'
+import { EcctrlAnimationStateController } from 'ecctrl/animation'
+import Character from './Character'
 import FollowCamera from './FollowCamera'
 
 // Teclas → ações que o ecctrl entende. Setas e WASD fazem a mesma coisa.
@@ -51,8 +53,8 @@ function Respawn({ target, spawn }: { target: RefObject<EcctrlHandle | null>; sp
 
 type Props = { position: [number, number, number] }
 
-// Personagem provisório (tarefa 2.3): uma cápsula no lugar do boneco.
-// Na tarefa 2.4 a cápsula vira o personagem animado, sem mexer no resto.
+// Personagem jogável (tarefas 2.3 e 2.4): o ecctrl cuida da física numa
+// cápsula invisível, e o Character desenha o boneco animado dentro dela.
 export default function Player({ position }: Props) {
   const ref = useRef<EcctrlHandle>(null)
 
@@ -67,16 +69,15 @@ export default function Player({ position }: Props) {
         enableToggleRun={false}
         props={{ position }}
       >
-        <mesh castShadow>
-          <capsuleGeometry args={[RADIUS, HALF_HEIGHT * 2, 8, 16]} />
-          <meshStandardMaterial color="#14161c" />
-        </mesh>
-        {/* "Nariz" para dar para ver para onde a cápsula está virada. */}
-        <mesh position={[0, 0.25, RADIUS]} castShadow>
-          <boxGeometry args={[0.12, 0.08, 0.12]} />
-          <meshStandardMaterial color="#0A3FB8" />
-        </mesh>
+        {/* Suspense: enquanto o modelo baixa, nada aparece (sem travar a cena). */}
+        <Suspense fallback={null}>
+          <Character />
+        </Suspense>
       </Ecctrl>
+
+      {/* Lê o estado do ecctrl (parado, andando, correndo, pulando) e publica
+          numa store que o Character escuta para trocar a animação. */}
+      <EcctrlAnimationStateController ecctrl={ref} />
 
       <KeyboardInput target={ref} />
       <Respawn target={ref} spawn={position} />
