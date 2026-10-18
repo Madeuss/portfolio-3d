@@ -79,8 +79,10 @@ export default function Player({ position }: Props) {
         floatHeight={FLOAT}
         // Por padrão o Shift liga/desliga a corrida; assim é "segurar para correr".
         enableToggleRun={false}
-        // userData.player: é assim que as zonas das estações reconhecem o personagem.
-        props={{ position, userData: { player: true } }}
+        // O ecctrl repassa estas props direto para o RigidBody do personagem.
+        // userData.player: é assim que as zonas das estações reconhecem ele.
+        position={position}
+        userData={{ player: true }}
       >
         {/* Suspense: enquanto o modelo baixa, nada aparece (sem travar a cena). */}
         <Suspense fallback={null}>
