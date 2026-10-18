@@ -26,11 +26,13 @@ function useInteractKey() {
 export default function App() {
   useInteractKey()
   useDocumentLocale()
+  const loading = useGame((s) => s.screen === 'loading')
 
   return (
     <>
-      {/* Painel de ajustes: só aparece em dev (yarn dev), nunca no site publicado. */}
-      <Leva hidden={!import.meta.env.DEV} collapsed />
+      {/* Painel de ajustes: só aparece em dev (yarn dev), nunca no site publicado.
+          Some na tela de carregamento para não cobrir o seletor de idioma. */}
+      <Leva hidden={!import.meta.env.DEV || loading} collapsed />
 
       {/* A cena já carrega por trás da tela de carregamento. `shadows`
           "percentage" = PCF: o tipo "soft" padrão do R3F saiu do three.js. */}
