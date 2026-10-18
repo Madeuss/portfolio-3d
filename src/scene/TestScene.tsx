@@ -2,6 +2,7 @@ import { Environment, Stats } from '@react-three/drei'
 import { CuboidCollider, Physics, RigidBody } from '@react-three/rapier'
 import { useControls } from 'leva'
 import Office from './Office'
+import { AiBag } from './AiBag'
 import { Mailbox, PunchingBag } from './Placeholders'
 import Station from './Station'
 import Player from './Player'
@@ -84,6 +85,10 @@ export default function TestScene() {
   const { debug } = useControls('Física', { debug: { value: false, label: 'ver colliders' } })
   // Medidor de FPS (tarefa 7.4), só no painel do dev. Meta: 60 no desktop, 30+ no celular.
   const { stats } = useControls('Desempenho', { stats: { value: false, label: 'medidor de FPS' } })
+  // Comparação do teste de IA: saco provisório (formas simples) x gerado por IA.
+  const { bag } = useControls('Teste IA', {
+    bag: { value: 'IA (Hunyuan)', options: ['IA (Hunyuan)', 'provisório'], label: 'saco' },
+  })
 
   return (
     <>
@@ -100,7 +105,7 @@ export default function TestScene() {
           <Office />
         </Station>
         <Station id="skills" position={[4, 0, 1.5]} zoneCenter={[0, 0.75, 0]} zoneSize={[1.2, 0.75, 1.2]} markerY={2.2}>
-          <PunchingBag />
+          {bag === 'provisório' ? <PunchingBag /> : <AiBag />}
         </Station>
         <Station id="contact" position={[-3.5, 0, 3]} zoneCenter={[0, 0.75, 0]} zoneSize={[1, 0.75, 1]} markerY={1.8}>
           <Mailbox />
