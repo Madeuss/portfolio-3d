@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import { KeyboardControls, useKeyboardControls } from '@react-three/drei'
 import { Ecctrl, type EcctrlHandle, type MovementInput } from 'ecctrl'
 import { EcctrlAnimationStateController } from 'ecctrl/animation'
-import { useGame } from '../state/game'
+import { isPlaying, useGame } from '../state/game'
 import Character from './Character'
 import FollowCamera from './FollowCamera'
 
@@ -30,8 +30,8 @@ function KeyboardInput({ target }: { target: RefObject<EcctrlHandle | null> }) {
   const [, getKeys] = useKeyboardControls()
 
   useFrame(() => {
-    // Com um painel aberto o personagem fica parado (as teclas são do painel).
-    const input = useGame.getState().open ? STOPPED : (getKeys() as MovementInput)
+    // Com painel, ajuda ou carregamento por cima, o personagem fica parado.
+    const input = isPlaying(useGame.getState()) ? (getKeys() as MovementInput) : STOPPED
     target.current?.setMovement(input)
   })
 

@@ -3,15 +3,20 @@ import { Canvas } from '@react-three/fiber'
 import { Leva } from 'leva'
 import TestScene from './scene/TestScene'
 import Panel from './ui/Panel'
-import { useGame } from './state/game'
+import Hud from './ui/Hud'
+import HelpScreen from './ui/HelpScreen'
+import LoadingScreen from './ui/LoadingScreen'
+import { useDocumentLocale } from './i18n'
+import { isPlaying, useGame } from './state/game'
+import './ui/screens.css'
 
 // Tecla E: abre o painel da estação em cuja zona o personagem está.
 function useInteractKey() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.code !== 'KeyE' || e.repeat) return
-      const { nearby, open, openStation } = useGame.getState()
-      if (nearby && !open) openStation(nearby)
+      const state = useGame.getState()
+      if (state.nearby && isPlaying(state)) state.openStation(state.nearby)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -20,20 +25,24 @@ function useInteractKey() {
 
 export default function App() {
   useInteractKey()
+  useDocumentLocale()
 
   return (
     <>
       {/* Painel de ajustes: só aparece em dev (yarn dev), nunca no site publicado. */}
-      <Leva hidden={!import.meta.env.DEV} collapsed={false} />
+      <Leva hidden={!import.meta.env.DEV} collapsed />
 
-      {/* `shadows` liga o cálculo de sombras. "percentage" = PCF: o tipo
-          "soft" que o R3F usa por padrão saiu do three.js e gerava aviso. */}
+      {/* A cena já carrega por trás da tela de carregamento. `shadows`
+          "percentage" = PCF: o tipo "soft" padrão do R3F saiu do three.js. */}
       <Canvas shadows="percentage" camera={{ position: [5, 6, 7], fov: 40 }}>
         <color attach="background" args={['#FAFAF7']} />
         <TestScene />
       </Canvas>
 
+      <Hud />
       <Panel />
+      <HelpScreen />
+      <LoadingScreen />
     </>
   )
 }

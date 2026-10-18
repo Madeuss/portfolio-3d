@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react'
 import { Html } from '@react-three/drei'
 import { CuboidCollider, RigidBody, type IntersectionEnterPayload } from '@react-three/rapier'
-import { stations, type StationId } from '../data/stations'
-import { useGame } from '../state/game'
+import { stationPrompt, type StationId } from '../data/stations'
+import { useI18n } from '../i18n'
+import { isPlaying, useGame } from '../state/game'
 import Marker from './Marker'
 
 type Vec3 = [number, number, number]
@@ -29,7 +30,8 @@ export default function Station({ id, position, zoneCenter, zoneSize, markerY, c
   const enter = useGame((s) => s.enter)
   const leave = useGame((s) => s.leave)
   const openStation = useGame((s) => s.openStation)
-  const showPrompt = useGame((s) => s.nearby === id && s.open === null)
+  const showPrompt = useGame((s) => s.nearby === id && isPlaying(s))
+  const t = useI18n((s) => s.t)
 
   return (
     <group position={position}>
@@ -53,7 +55,7 @@ export default function Station({ id, position, zoneCenter, zoneSize, markerY, c
       <Html position={[zoneCenter[0], markerY + 0.55, zoneCenter[2]]} center zIndexRange={[10, 0]}>
         <div className={`prompt${showPrompt ? ' prompt--visible' : ''}`} aria-hidden={!showPrompt}>
           <kbd>E</kbd>
-          {stations[id].prompt}
+          {stationPrompt(id, t)}
         </div>
       </Html>
     </group>

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
-import { stations } from '../data/stations'
+import { stationPanel } from '../data/stations'
+import { useI18n } from '../i18n'
 import { useGame } from '../state/game'
 import './panel.css'
 
@@ -9,8 +10,9 @@ import './panel.css'
 export default function Panel() {
   const open = useGame((s) => s.open)
   const close = useGame((s) => s.close)
+  const t = useI18n((s) => s.t)
   const closeRef = useRef<HTMLButtonElement>(null)
-  const content = open ? stations[open].panel : null
+  const content = open ? stationPanel(open, t) : null
 
   useEffect(() => {
     if (!content) return
@@ -33,7 +35,7 @@ export default function Panel() {
       >
         <header className="panel__head">
           <span className="panel__label">{content.label}</span>
-          <button ref={closeRef} className="panel__close" onClick={close} aria-label="Fechar">
+          <button ref={closeRef} className="panel__close" onClick={close} aria-label={t.panel.close}>
             ✕
           </button>
         </header>
@@ -75,7 +77,7 @@ export default function Panel() {
           )}
         </div>
 
-        <p className="panel__hint">Esc fecha</p>
+        <p className="panel__hint">{t.panel.escHint}</p>
       </section>
     </div>
   )
