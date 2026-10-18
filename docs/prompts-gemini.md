@@ -162,15 +162,18 @@ the wood and black metal colors of this desk). Only the desk, do not include the
 
 ### 7. Setup do PC (monitor + teclado + gabinete)
 
-**Anexe:** buscar **"setup minimalista preto monitor teclado gabinete"** ou **"minimal black pc setup"**. Melhor se for parecido com o seu de verdade.
+**Anexe:** a foto do setup (dois monitores, um na vertical, gabinete de vidro com LED).
 
 ```
-Create a stylized 3D game asset of a computer setup grouped together like the attached
-image: one wide monitor on a stand, a keyboard and mouse in front of it and a compact
-PC tower beside it, all as a single group with no desk. Glossy black with subtle royal
-blue (#0A3FB8) light accents. The monitor screen is plain solid black. Soft rounded
-edges, clean modern design, centered, front three-quarter view, plain white background,
-even soft lighting, no shadow on the floor, no text, no logo.
+Create a stylized 3D game asset of the computer setup in the attached image, grouped
+together as a single compact set with no desk and no wall: a horizontal monitor in the
+middle with a slim light bar on top, a second monitor in vertical (portrait) position
+on a black articulated arm on the left, a black keyboard and mouse on a dark grey desk
+mat in front, and a black glass PC tower with soft white LED strips on the right.
+All the items sit on one shared flat base level, close together. Both monitor screens
+are plain solid black, no image. Glossy black materials. Soft rounded edges, clean
+modern design, centered, front three-quarter view, plain white background, even soft
+lighting, no shadow on the floor, no text, no logo.
 Match the art style, materials and lighting of the second attached image. Only the
 computer setup, do not include the stand.
 ```
