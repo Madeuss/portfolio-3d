@@ -9,7 +9,9 @@ Os prompts estão em inglês porque os geradores de imagem respondem melhor. Já
 2. **Âncora de estilo:** depois que a primeira imagem de cada grupo (interior / exterior) ficar boa, anexe ela também
    nos pedidos seguintes do mesmo grupo e acrescente no fim do prompt:
    `Match the art style, materials and lighting of the second attached image.`
-   É o que faz a casa inteira parecer um conjunto só.
+   É o que faz a casa inteira parecer um conjunto só. Âncora do interior: [`refs/02-saco.jpg`](refs/02-saco.jpg).
+   **Nunca use o avatar como âncora de objeto:** o Gemini redesenha o personagem e ignora o pedido.
+   Se a âncora for parecida com o objeto (ex.: saco → suporte), acrescente `Do not include the <coisa da âncora>.`
 3. Imagem saiu com texto, logo, sombra no chão ou mais de um objeto? Peça para refazer antes de levar ao Tripo.
 4. As aprovadas ficam em [`docs/refs/`](refs/), com o número do item (ex.: `04-armario.jpg`). O número segue a [lista de geração](assets-ia.md).
    Fora do `public/`, então não vão para o site.
