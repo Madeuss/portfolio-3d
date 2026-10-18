@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import { Environment, OrbitControls } from '@react-three/drei'
 import { useControls } from 'leva'
 import type { Mesh } from 'three'
+import Office from './Office'
 
 // Cena de teste (tarefa 1.4): chão, 3 caixas, luz de ambiente (HDRI) e sombras.
 // Os valores do painel Leva (canto superior direito, só em dev) servem para
@@ -76,11 +77,15 @@ function Box({ position, size = 1, color, spin = false }: BoxProps) {
   )
 }
 
-export default function TestScene() {
+type Props = { onOpenProject: () => void }
+
+export default function TestScene({ onOpenProject }: Props) {
   return (
     <>
       <Lights />
       <Floor />
+
+      <Office position={[-3.2, 0, -2]} onOpen={onOpenProject} />
 
       {/* 1 unidade = 1 metro: a caixa grande tem 1 m, a pequena 50 cm.
           O y é metade da altura para a caixa ficar apoiada no chão. */}

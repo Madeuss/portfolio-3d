@@ -1,3 +1,15 @@
+/* Tokens do madeusdev.com (portfolio-mateus/src/styles/global.css). */
+:root {
+  --bg: #fafaf7;
+  --bg-soft: #f1efea;
+  --ink: #14161c;
+  --ink-2: #45434a;
+  --muted: #6b6862;
+  --accent: #0a3fb8;
+  --font: 'Archivo', system-ui, sans-serif;
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
 html,
 body,
 #root {
@@ -6,6 +18,7 @@ body,
 }
 
 body {
-  background: #fafaf7;
+  background: var(--bg);
+  font-family: var(--font);
   overscroll-behavior: none;
 }
