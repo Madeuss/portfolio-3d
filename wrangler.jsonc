@@ -1,0 +1,12 @@
+// Deploy no Cloudflare Workers (arquivos estáticos), igual ao madeusdev. O build
+// roda `yarn build` e o `npx wrangler deploy` publica a pasta dist.
+{
+  // precisa ser igual ao nome do projeto no painel do Cloudflare
+  "name": "portfolio-3d",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    // site de uma página só: qualquer caminho cai no index.html
+    "not_found_handling": "single-page-application",
+  },
+}
