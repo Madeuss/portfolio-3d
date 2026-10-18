@@ -179,14 +179,17 @@ computer setup, do not include the stand.
 
 ### 8. Cadeira do escritório
 
-**Anexe:** buscar **"cadeira gamer preta"** ou **"cadeira escritório ergonômica preta"** (a que tiver mais a sua cara).
+**Anexe:** a foto da cadeira ergonômica de tela (malha), sem o logo.
 
 ```
-Create a stylized 3D game asset of an office gaming chair like the one in the attached
-image, with five-star wheeled base, armrests and a high backrest. Black upholstery with
-royal blue (#0A3FB8) stitching accents. Soft rounded shapes, clean modern design,
-single object, centered, front three-quarter view, plain white background, even soft
-lighting, no shadow on the floor, no text, no logo.
+Create a stylized 3D game asset of the ergonomic mesh office chair in the attached
+image (not a gaming chair, no leather, no padding, no stitching): a separate curved
+headrest, a two-part backrest with a thin black plastic frame filled with dark grey
+mesh, a mesh seat, adjustable T-shaped armrests and a black five-star wheeled base.
+Draw the mesh as solid dark grey panels with a subtle fine grid pattern, not see-through
+holes. Keep the curved cut-out shapes of the frame like in the photo. Soft rounded
+shapes, clean modern design, single object, centered, front three-quarter view, plain
+white background, even soft lighting, no shadow on the floor, no text, no logo.
 Match the art style, materials and lighting of the second attached image. Only the
 chair, do not include the stand.
 ```
