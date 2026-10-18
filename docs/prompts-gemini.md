@@ -241,12 +241,13 @@ dumbbell rack, do not include the stand.
 
 ## Exterior (estilo jardim, parente do worawork)
 
-Referência de estilo útil para todo o exterior: um print do worawork (os que você já tirou) anexado como segunda imagem.
+Do item 16 em diante, anexe sempre **duas imagens**: a referência do objeto e, como segunda, o **print da casa do
+worawork** (âncora de estilo do exterior). A última linha de cada prompt já pede para copiar só o estilo dele.
 
 ### 16. Fachada da casa
 
-**Anexe:** buscar **"casa térrea moderna pequena fachada"** ou **"small modern cottage house"** no Pinterest.
-Se quiser, anexe também o print do worawork como referência de estilo.
+**Anexe:** buscar **"casa térrea moderna pequena fachada"** ou **"small modern cottage house"** no Pinterest,
+mais o print do worawork.
 
 ```
 Create a stylized 3D game asset of a cozy small single-story modern house like the
@@ -257,6 +258,10 @@ house exterior, closed, no garden around it. Soft rounded shapes, clay-like smoo
 surfaces, cozy warm colors, Animal Crossing style, single object, centered, front
 three-quarter view, plain white background, even soft lighting, no shadow on the
 floor, no text, no logo.
+Match the art style, colors and lighting of the second attached image (a game
+screenshot). Keep the house design from the first image and copy only the style, do
+not copy the house from the screenshot. Only the house, nothing else from the
+screenshot.
 ```
 
 ### 17. Caixa de correio
@@ -270,6 +275,8 @@ the slot. Warm orange mailbox on a natural wood post. Soft rounded shapes, clay-
 smooth surfaces, cozy warm colors, Animal Crossing style, single object, centered,
 front three-quarter view, plain white background, even soft lighting, no shadow on the
 floor, no text, no logo.
+Match the art style, colors and lighting of the second attached image (a game
+screenshot). Only the mailbox, nothing else from the screenshot.
 ```
 
 ### 18. Golzinho
@@ -282,6 +289,8 @@ image, about 1.5 m wide and 1 m tall, white rounded posts and a soft white net. 
 rounded shapes, clay-like smooth surfaces, cozy warm colors, Animal Crossing style,
 single object, centered, front three-quarter view, plain white background, even soft
 lighting, no shadow on the floor, no text, no logo.
+Match the art style, colors and lighting of the second attached image (a game
+screenshot). Only the soccer goal, nothing else from the screenshot.
 ```
 
 ### 20. Casinha do dog
@@ -294,6 +303,8 @@ pitched red roof, arched entrance, a small food bowl in front. Warm natural wood
 rounded shapes, clay-like smooth surfaces, cozy warm colors, Animal Crossing style,
 single object, centered, front three-quarter view, plain white background, even soft
 lighting, no shadow on the floor, no text, no logo.
+Match the art style, colors and lighting of the second attached image (a game
+screenshot). Only the dog house, nothing else from the screenshot.
 ```
 
 ### 22. Árvores (duas variações)
