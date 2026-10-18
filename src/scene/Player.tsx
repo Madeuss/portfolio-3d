@@ -1,6 +1,7 @@
-import { useRef } from 'react'
-import { KeyboardControls } from '@react-three/drei'
-import { Ecctrl, type EcctrlHandle } from 'ecctrl'
+import { useRef, type RefObject } from 'react'
+import { useFrame } from '@react-three/fiber'
+import { KeyboardControls, useKeyboardControls } from '@react-three/drei'
+import { Ecctrl, type EcctrlHandle, type MovementInput } from 'ecctrl'
 import FollowCamera from './FollowCamera'
 
 // Teclas → ações que o ecctrl entende. Setas e WASD fazem a mesma coisa.
@@ -19,6 +20,19 @@ const RADIUS = 0.3
 const HALF_HEIGHT = 0.35
 const FLOAT = 0.3
 
+// O ecctrl 2 não lê o teclado sozinho: a cada quadro a gente pega o estado
+// das teclas e entrega com setMovement. Isso deixa trocar a fonte (joystick
+// no celular, tarefa 7.3) sem mexer no personagem.
+function KeyboardInput({ target }: { target: RefObject<EcctrlHandle | null> }) {
+  const [, getKeys] = useKeyboardControls()
+
+  useFrame(() => {
+    target.current?.setMovement(getKeys() as MovementInput)
+  })
+
+  return null
+}
+
 type Props = { position: [number, number, number] }
 
 // Personagem provisório (tarefa 2.3): uma cápsula no lugar do boneco.
@@ -33,6 +47,8 @@ export default function Player({ position }: Props) {
         capsuleRadius={RADIUS}
         capsuleHalfHeight={HALF_HEIGHT}
         floatHeight={FLOAT}
+        // Por padrão o Shift liga/desliga a corrida; assim é "segurar para correr".
+        enableToggleRun={false}
         props={{ position }}
       >
         <mesh castShadow>
@@ -46,6 +62,7 @@ export default function Player({ position }: Props) {
         </mesh>
       </Ecctrl>
 
+      <KeyboardInput target={ref} />
       <FollowCamera target={ref} />
     </KeyboardControls>
   )
