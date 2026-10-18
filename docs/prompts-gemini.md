@@ -35,9 +35,13 @@ boa luz, fundo liso (parede). Sem boné cobrindo o cabelo, sem mãos no bolso. S
 Using the attached photo of me as reference, create a stylized 3D character of this
 person for a cozy video game. Chibi proportions: head about one third of the body
 height. Keep my face and skin tone recognizable, with these exact details: dark brown
-hair (not black), short fade cut on the sides with the ears visible, slightly longer
-on top; green-brown (hazel) eyes; thin mustache and a small goatee only, no beard on
-the cheeks or sides; glasses only if I have them in the photo. Wearing a soccer jersey with vertical royal blue and black stripes
+hair (not black), short and full, the same length on top, sides and back, rounded
+following the shape of the head, with a low fade only at the very bottom (a thin
+band just above the ears and at the nape), ears visible; the hair is sculpted as one
+smooth clay-like volume with soft shallow grooves, no individual strands, no realistic
+hair texture; green-brown (hazel) eyes; thin mustache and a small goatee only, no
+beard on the cheeks or sides; glasses only if I have them in the photo.
+Wearing a soccer jersey with vertical royal blue and black stripes
 (no crest, no sponsor, no logo, plain back with no name and no number), black shorts or
 the pants from the photo, and the sneakers from the photo, all simplified into clean
 shapes.
@@ -52,8 +56,22 @@ the floor, no text, no logo.
 > Se precisar ajustar, **não peça no mesmo chat da foto**: o Gemini edita a foto original em vez do avatar.
 > Baixe o avatar, abra um chat novo, anexe só ele e comece com "This is a stylized 3D game character. Edit only this
 > character image, keep everything else identical:" seguido dos ajustes.
-> Gere também uma **vista de costas** do personagem aprovado ("same character, back view, same pose, plain jersey back
-> with no name and no number"): o Tripo usa as duas.
+> **Cabelo:** descreva em palavras, nunca anexe foto de corte de cabelo real. O Gemini copia a textura da foto
+> (fios realistas) e o cabelo sai num estilo diferente do resto do avatar.
+>
+> Gere também uma **vista de costas** do personagem aprovado, num chat novo com só o avatar anexado:
+>
+> ```
+> This is a stylized 3D game character. Create the back view of this exact same
+> character, in the exact same art style: same proportions, same A-pose, same hair
+> (dark brown, short and full, same length all around, low fade only at the very
+> bottom of the nape, sculpted as one smooth clay-like volume, no individual strands),
+> same jersey with vertical royal blue and black stripes, plain jersey back with no
+> name and no number, same black shorts and white sneakers. Plain white background,
+> even soft studio lighting, no shadow on the floor, no text.
+> ```
+>
+> O Tripo usa as duas vistas (multiview).
 
 ---
 
