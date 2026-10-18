@@ -83,6 +83,9 @@ the floor, no text, no logo.
 
 ## Interior (estilo madeusdev)
 
+Do item 4 em diante, anexe sempre **duas imagens**: a referência do objeto e, como segunda, a âncora
+[`refs/03-suporte-saco.jpg`](refs/03-suporte-saco.jpg). A última linha de cada prompt já pede para copiar o estilo dela.
+
 ### 2. Saco de pancada (versão final)
 
 **Anexe:** a mesma foto do saco que você já usou (sem o logo).
@@ -122,6 +125,8 @@ a simple handle. Off-white body with a glossy black door and a thin royal blue
 (#0A3FB8) stripe. Soft rounded edges, clean modern design, single object, centered,
 front three-quarter view, plain white background, even soft lighting, no shadow on the
 floor, no text, no numbers, no logo.
+Match the art style, materials and lighting of the second attached image. Only the
+locker, do not include the stand.
 ```
 
 ### 5. Camisa de futebol pendurada (lisa)
@@ -134,6 +139,8 @@ seen from the back, like the attached image. Completely plain fabric with no nam
 number, no crest and no logo (those will be added later). White jersey with black
 collar and sleeve cuffs. Soft rounded folds, clean simple shapes, single object,
 centered, front view, plain white background, even soft lighting, no shadow, no text.
+Match the art style, materials and lighting of the second attached image. Only the
+jersey on the hanger, do not include the stand.
 ```
 
 ### 6. Mesa do escritório
@@ -146,6 +153,8 @@ attached image, about 1.4 m wide, with a glossy black top, slim black metal legs
 small off-white drawer unit on one side. Empty desk, nothing on top. Soft rounded
 edges, clean modern design, single object, centered, front three-quarter view, plain
 white background, even soft lighting, no shadow on the floor, no text, no logo.
+Match the art style, materials and lighting of the second attached image. Only the
+desk, do not include the stand.
 ```
 
 ### 7. Setup do PC (monitor + teclado + gabinete)
@@ -159,6 +168,8 @@ PC tower beside it, all as a single group with no desk. Glossy black with subtle
 blue (#0A3FB8) light accents. The monitor screen is plain solid black. Soft rounded
 edges, clean modern design, centered, front three-quarter view, plain white background,
 even soft lighting, no shadow on the floor, no text, no logo.
+Match the art style, materials and lighting of the second attached image. Only the
+computer setup, do not include the stand.
 ```
 
 ### 8. Cadeira do escritório
@@ -171,6 +182,8 @@ image, with five-star wheeled base, armrests and a high backrest. Black upholste
 royal blue (#0A3FB8) stitching accents. Soft rounded shapes, clean modern design,
 single object, centered, front three-quarter view, plain white background, even soft
 lighting, no shadow on the floor, no text, no logo.
+Match the art style, materials and lighting of the second attached image. Only the
+chair, do not include the stand.
 ```
 
 ### 10. Cama
@@ -183,6 +196,8 @@ image, with a low upholstered headboard, off-white sheets, a dark grey blanket f
 at the foot and two pillows. Soft rounded shapes, clean modern design, cozy, single
 object, centered, front three-quarter view, plain white background, even soft lighting,
 no shadow on the floor, no text, no logo.
+Match the art style, materials and lighting of the second attached image. Only the
+bed, do not include the stand.
 ```
 
 ### 11. Banco do vestiário
@@ -194,6 +209,8 @@ Create a stylized 3D game asset of a locker room bench like the one in the attac
 image, about 1.5 m long, light wood slats on a glossy black metal frame. Soft rounded
 edges, clean modern design, single object, centered, front three-quarter view, plain
 white background, even soft lighting, no shadow on the floor, no text, no logo.
+Match the art style, materials and lighting of the second attached image. Only the
+bench, do not include the stand.
 ```
 
 ### 12. Halteres + suporte
@@ -206,6 +223,8 @@ dumbbells like the attached image. Glossy black frame, black dumbbells with roya
 (#0A3FB8) handles. Soft rounded shapes, clean modern design, single object, centered,
 front three-quarter view, plain white background, even soft lighting, no shadow on the
 floor, no text, no numbers, no logo.
+Match the art style, materials and lighting of the second attached image. Only the
+dumbbell rack, do not include the stand.
 ```
 
 ---
