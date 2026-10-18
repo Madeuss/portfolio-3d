@@ -1,11 +1,11 @@
-import { useRef } from 'react'
-import { useFrame } from '@react-three/fiber'
-import { Environment, OrbitControls } from '@react-three/drei'
+import { Environment } from '@react-three/drei'
+import { CuboidCollider, Physics, RigidBody } from '@react-three/rapier'
 import { useControls } from 'leva'
-import type { Mesh } from 'three'
 import Office from './Office'
+import Player from './Player'
 
-// Cena de teste (tarefa 1.4): chão, 3 caixas, luz de ambiente (HDRI) e sombras.
+// Cena de teste (tarefas 1.4 e 2.2–2.5): chão, caixas com física, luz de
+// ambiente (HDRI), sombras e o personagem controlável.
 // Os valores do painel Leva (canto superior direito, só em dev) servem para
 // experimentar; quando acharmos um bom ajuste, ele vira o valor padrão aqui.
 
@@ -49,52 +49,57 @@ function Lights() {
 function Floor() {
   const { color } = useControls('Chão', { color: { value: '#c3e6b0', label: 'cor' } })
 
-  // O plano nasce em pé (eixo XY); girar -90° em X deita ele no chão.
+  // Corpo "fixed": participa das colisões mas nunca se move. O collider é uma
+  // caixa fina (meias-medidas: 10 x 0,1 x 10 = chão de 20 x 20 m) logo abaixo do plano.
   return (
-    <mesh rotation-x={-Math.PI / 2} receiveShadow>
-      <planeGeometry args={[20, 20]} />
-      <meshStandardMaterial color={color} />
-    </mesh>
+    <RigidBody type="fixed" colliders={false}>
+      <CuboidCollider args={[10, 0.1, 10]} position={[0, -0.1, 0]} />
+      {/* O plano nasce em pé (eixo XY); girar -90° em X deita ele no chão. */}
+      <mesh rotation-x={-Math.PI / 2} receiveShadow>
+        <planeGeometry args={[20, 20]} />
+        <meshStandardMaterial color={color} />
+      </mesh>
+    </RigidBody>
   )
 }
 
-type BoxProps = { position: [number, number, number]; size?: number; color: string; spin?: boolean }
+type BoxProps = { position: [number, number, number]; size?: number; color: string }
 
-function Box({ position, size = 1, color, spin = false }: BoxProps) {
-  const ref = useRef<Mesh>(null)
-
-  // useFrame roda a cada quadro (~60x por segundo). `delta` = segundos desde
-  // o quadro anterior, então a velocidade é a mesma em qualquer monitor.
-  useFrame((_, delta) => {
-    if (spin && ref.current) ref.current.rotation.y += delta * 0.5
-  })
-
+// Caixa "dynamic" (tarefa 2.2): a física controla a posição. Ela nasce no ar,
+// cai, bate no chão e pode ser empurrada pelo personagem.
+function Box({ position, size = 1, color }: BoxProps) {
   return (
-    <mesh ref={ref} position={position} castShadow receiveShadow>
-      <boxGeometry args={[size, size, size]} />
-      <meshStandardMaterial color={color} roughness={0.6} />
-    </mesh>
+    <RigidBody position={position} colliders="cuboid">
+      <mesh castShadow receiveShadow>
+        <boxGeometry args={[size, size, size]} />
+        <meshStandardMaterial color={color} roughness={0.6} />
+      </mesh>
+    </RigidBody>
   )
 }
 
 type Props = { onOpenProject: () => void }
 
 export default function TestScene({ onOpenProject }: Props) {
+  const { debug } = useControls('Física', { debug: { value: false, label: 'ver colliders' } })
+
   return (
     <>
       <Lights />
-      <Floor />
 
-      <Office position={[-3.2, 0, -2]} onOpen={onOpenProject} />
+      {/* Tudo que colide fica dentro de <Physics>. `debug` desenha as formas
+          de colisão em linhas, que é o que a física "enxerga". */}
+      <Physics debug={debug}>
+        <Floor />
+        <Office position={[-3.2, 0, -2]} onOpen={onOpenProject} />
 
-      {/* 1 unidade = 1 metro: a caixa grande tem 1 m, a pequena 50 cm.
-          O y é metade da altura para a caixa ficar apoiada no chão. */}
-      <Box position={[0, 0.5, 0]} color="#0A3FB8" spin />
-      <Box position={[-2, 0.25, 1]} size={0.5} color="#f08c00" />
-      <Box position={[1.8, 0.75, -1.2]} size={1.5} color="#FAFAF7" />
+        {/* 1 unidade = 1 metro. As caixas nascem no ar e caem. */}
+        <Box position={[0, 3, 0]} color="#0A3FB8" />
+        <Box position={[-2, 4, 1]} size={0.5} color="#f08c00" />
+        <Box position={[1.8, 5, -1.2]} size={1.5} color="#FAFAF7" />
 
-      {/* makeDefault: outros componentes do drei passam a usar estes controles. */}
-      <OrbitControls makeDefault maxPolarAngle={Math.PI / 2.1} />
+        <Player position={[0, 2, 4]} />
+      </Physics>
     </>
   )
 }

@@ -7,6 +7,11 @@
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.29.10.tgz#fe9920782f7ee34029165ac6f272984917a1641b"
   integrity sha512-NpugTzbKgGrNe45Ui32cN8vCFFMxVtP/9rtfwv0nP5FRDAjvYBxJcLVpYA9mr1jxP6cnIT7x9LUzuDTbWYYNRA==
 
+"@dimforge/rapier3d-compat@0.19.2":
+  version "0.19.2"
+  resolved "https://registry.yarnpkg.com/@dimforge/rapier3d-compat/-/rapier3d-compat-0.19.2.tgz#3eaa0557398ea2ffb19f6d94802e718b95ddad66"
+  integrity sha512-AZHL1jqUF55QJkJyU1yKeh4ImX2J93bVLIezT1+o0FZqTix6O06MOaqpKoJ4MmbDCsoZmwO+qc471/SDMDm2AA==
+
 "@dimforge/rapier3d-compat@~0.12.0":
   version "0.12.0"
   resolved "https://registry.yarnpkg.com/@dimforge/rapier3d-compat/-/rapier3d-compat-0.12.0.tgz#7b3365e1dfdc5cd957b45afe920b4ac06c7cd389"
@@ -362,6 +367,15 @@
     use-sync-external-store "^1.4.0"
     zustand "^5.0.3"
 
+"@react-three/rapier@^2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@react-three/rapier/-/rapier-2.2.0.tgz#ffa73dcf23fceffe515009d981a77f0e7adae0d3"
+  integrity sha512-mVsqbKXlGZoN+XrqdhzFZUQmy8pibEOVzl4k7LC+LHe84bQnYBSagy1Hvbda6bL1PJDdTFyiDiBk5buKFinNIQ==
+  dependencies:
+    "@dimforge/rapier3d-compat" "0.19.2"
+    suspend-react "^0.1.3"
+    three-stdlib "^2.35.12"
+
 "@rolldown/binding-android-arm-eabi@1.2.14":
   version "1.2.14"
   resolved "https://registry.yarnpkg.com/@rolldown/binding-android-arm-eabi/-/binding-android-arm-eabi-1.2.14.tgz#4e56a59bff8b2756fb6474ed4af7fcb1f19e96ed"
@@ -609,6 +623,13 @@ draco3d@^1.4.1:
   version "1.5.9"
   resolved "https://registry.yarnpkg.com/draco3d/-/draco3d-1.5.9.tgz#27b28801e80a927339ae0ae88a00e50f6b6352ca"
   integrity sha512-MqC0eAfW5gPATGY3GABIyFWpHwdDGAyewTdek5R/e+mhI9ZDUMKb2mTDkTMUW0+Vm7an+ThEMUop3+svS72Uug==
+
+ecctrl@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/ecctrl/-/ecctrl-2.0.2.tgz#08601cb5a6c4756fa6a5aef3d3082bb4093d8f9d"
+  integrity sha512-cbfB/egQwZgNKmNIkdtdILWUo/U7EWLa2uAgqWQ8uvrRgxKJ/01VZ51RhEezvtnWl8/Y2tmetf3TNYw8c7llEQ==
+  dependencies:
+    zustand "^5.0.14"
 
 extend-shallow@^2.0.1:
   version "2.0.1"
@@ -1074,7 +1095,7 @@ three-mesh-bvh@^0.8.3:
   resolved "https://registry.yarnpkg.com/three-mesh-bvh/-/three-mesh-bvh-0.8.3.tgz#c5e72472e7f062ff79084157a25c122d73184163"
   integrity sha512-4G5lBaF+g2auKX3P0yqx+MJC6oVt6sB5k+CchS6Ob0qvH0YIhuUk1eYr7ktsIpY+albCqE80/FVQGV190PmiAg==
 
-three-stdlib@^2.35.6, three-stdlib@^2.36.1:
+three-stdlib@^2.35.12, three-stdlib@^2.35.6, three-stdlib@^2.36.1:
   version "2.36.1"
   resolved "https://registry.yarnpkg.com/three-stdlib/-/three-stdlib-2.36.1.tgz#7aad805f3de1b8f792274226132bda809fcb15c5"
   integrity sha512-XyGQrFmNQ5O/IoKm556ftwKsBg11TIb301MB5dWNicziQBEs2g3gtOYIf7pFiLa0zI2gUwhtCjv9fmjnxKZ1Cg==
@@ -1203,7 +1224,7 @@ zustand@^4.3.2:
   dependencies:
     use-sync-external-store "^1.2.2"
 
-zustand@^5.0.1, zustand@^5.0.3:
+zustand@^5.0.1, zustand@^5.0.14, zustand@^5.0.3:
   version "5.0.15"
   resolved "https://registry.yarnpkg.com/zustand/-/zustand-5.0.15.tgz#42bddf35647cb80a818a8943a69f6618c126fcfe"
   integrity sha512-MpSEjRiBkA9crSYeOUH32rJC7SVqAbm0Fqcqge/bUi2PPoLcBWKOsG+C8mevmpr8TwXHBVkChbbJiyvkE+i/3A==

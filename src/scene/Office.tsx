@@ -1,3 +1,4 @@
+import { RigidBody } from '@react-three/rapier'
 import { Desk } from '../models/Desk'
 import { ComputerScreen } from '../models/ComputerScreen'
 import { ComputerKeyboard } from '../models/ComputerKeyboard'
@@ -13,12 +14,16 @@ type Props = { position?: [number, number, number]; onOpen: () => void }
 export default function Office({ position = [0, 0, 0], onOpen }: Props) {
   return (
     <group position={position}>
-      <group scale={2}>
-        <Desk />
-        <ComputerScreen position={[0.17, 0.38, -0.12]} />
-        <ComputerKeyboard position={[0.22, 0.38, 0.02]} />
-        <ChairDesk position={[0.36, 0, 0.3]} rotation-y={Math.PI} />
-      </group>
+      {/* Corpo fixo: o personagem esbarra nos móveis em vez de atravessar.
+          colliders="cuboid" cria uma caixa de colisão em volta de cada peça. */}
+      <RigidBody type="fixed" colliders="cuboid">
+        <group scale={2}>
+          <Desk />
+          <ComputerScreen position={[0.17, 0.38, -0.12]} />
+          <ComputerKeyboard position={[0.22, 0.38, 0.02]} />
+          <ChairDesk position={[0.36, 0, 0.3]} rotation-y={Math.PI} />
+        </group>
+      </RigidBody>
 
       {/* Marcador da estação: flutua acima do monitor; clicar abre o painel. */}
       <Marker position={[0.75, 1.9, -0.2]} onClick={onOpen} />
