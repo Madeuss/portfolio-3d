@@ -66,8 +66,9 @@ the floor, no text, no logo.
 > ```
 > This is a stylized 3D game character. Create the back view of this exact same
 > character, in the exact same art style: same proportions, same A-pose, same hair
-> (dark brown, straight, sides and back covered with short hair rounded following the
-> head, only a very thin low taper at the very bottom of the nape),
+> (dark brown, straight, short scissor cut, top in soft chunky clumps swept forward,
+> sides and back covered with short hair rounded following the head, not shaved, only
+> a very thin low taper at the very bottom of the nape),
 > same jersey with vertical royal blue and black stripes, plain jersey back with no
 > name and no number, same black shorts and white sneakers. Plain white background,
 > even soft studio lighting, no shadow on the floor, no text.
