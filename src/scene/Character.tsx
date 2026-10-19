@@ -16,8 +16,11 @@ const URL = '/models/character/avatar.glb'
 // (alternativa ao parado) e, para a estação da academia, fight-idle,
 // boxing-1, boxing-2, kick e roundhouse-kick.
 const MIXAMO = {
-  idle: '/models/character/anims/idle.glb', // Happy Idle
+  idle: '/models/character/anims/happy-idle.glb',
   jog: '/models/character/anims/jog.glb', // Jog Forward
+  // Nome do arquivo = nome da animação no Mixamo: os modelos ficam 7 dias no
+  // cache do navegador (public/_headers), então trocar uma animação é trocar
+  // de arquivo, nunca sobrescrever.
 } as const
 const MIXAMO_URLS = Object.values(MIXAMO)
 
