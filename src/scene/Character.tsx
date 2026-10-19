@@ -12,10 +12,11 @@ import { retargetClip, type GltfNode } from './retarget'
 const URL = '/models/character/avatar.glb'
 
 // Animações do Mixamo (in place, sem malha), convertidas de FBX para GLB e
-// adaptadas ao avatar pelo retarget. Em anims/ também ficam fight-idle,
-// boxing-1, boxing-2, kick e roundhouse-kick, para a estação da academia.
+// adaptadas ao avatar pelo retarget. Em anims/ também ficam breathing-idle
+// (alternativa ao parado) e, para a estação da academia, fight-idle,
+// boxing-1, boxing-2, kick e roundhouse-kick.
 const MIXAMO = {
-  idle: '/models/character/anims/idle.glb', // Breathing Idle
+  idle: '/models/character/anims/idle.glb', // Happy Idle
   jog: '/models/character/anims/jog.glb', // Jog Forward
 } as const
 const MIXAMO_URLS = Object.values(MIXAMO)
