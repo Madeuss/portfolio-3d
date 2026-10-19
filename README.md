@@ -18,7 +18,7 @@ Avatar e móveis: gerados com IA (imagens no Gemini, modelos e rig no [Tripo](ht
 
 Assets provisórios, todos CC0 (domínio público):
 
-- Sons: [Impact Sounds](https://kenney.nl/assets/impact-sounds) e [Interface Sounds](https://kenney.nl/assets/interface-sounds), Kenney
+- Sons: [Impact Sounds](https://kenney.nl/assets/impact-sounds), [Interface Sounds](https://kenney.nl/assets/interface-sounds) e [RPG Audio](https://kenney.nl/assets/rpg-audio) (porta), Kenney
 - Céu (HDRI): [Kloofendal 48d Partly Cloudy (Pure Sky)](https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky), Poly Haven
 
 ## Planejamento

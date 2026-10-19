@@ -25,6 +25,9 @@ export default function FollowCamera({ target }: Props) {
   const distance = useRef(isTouch() ? START_DISTANCE_TOUCH : START_DISTANCE)
   const focus = useRef(new Vector3())
   const wanted = useRef(new Vector3())
+  // No 1º quadro a câmera pula direto para o personagem (ao nascer ou trocar
+  // de cena), em vez de deslizar desde a origem.
+  const placed = useRef(false)
 
   // Rodinha do mouse: aproxima ou afasta, dentro dos limites.
   useEffect(() => {
@@ -44,7 +47,8 @@ export default function FollowCamera({ target }: Props) {
 
     // Ponto que a câmera mira: o personagem, com o atraso suave do lerp.
     // 1 - exp(-k·dt) deixa a suavidade igual em 30 ou 144 fps.
-    const t = 1 - Math.exp(-FOLLOW_SPEED * delta)
+    const t = placed.current ? 1 - Math.exp(-FOLLOW_SPEED * delta) : 1
+    placed.current = true
     focus.current.lerp(player.currPos, t)
 
     wanted.current.copy(DIRECTION).multiplyScalar(distance.current).add(focus.current)

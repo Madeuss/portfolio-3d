@@ -45,6 +45,7 @@ export default function App() {
   useInteractKey()
   useDocumentLocale()
   const loading = useGame((s) => s.screen === 'loading')
+  const fading = useGame((s) => s.fading)
 
   return (
     <>
@@ -60,6 +61,9 @@ export default function App() {
         <color attach="background" args={['#FAFAF7']} />
         <World />
       </Canvas>
+
+      {/* Escurece a tela na troca de cena (porta da casa). */}
+      <div className={`fade${fading ? ' fade--on' : ''}`} aria-hidden="true" />
 
       <SoundEffects />
       <Hud />

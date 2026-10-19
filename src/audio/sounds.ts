@@ -13,6 +13,9 @@ const SFX = {
   prompt: { src: '/sounds/prompt.mp3', volume: 0.35 },
   click: { src: '/sounds/click.mp3', volume: 0.4 },
   toggle: { src: '/sounds/toggle.mp3', volume: 0.5 },
+  // Porta da casa (Kenney RPG Audio, doorOpen_1 e doorClose_1).
+  'door-open': { src: '/sounds/door-open.mp3', volume: 0.6 },
+  'door-close': { src: '/sounds/door-close.mp3', volume: 0.5 },
 } as const
 
 export type SfxName = keyof typeof SFX

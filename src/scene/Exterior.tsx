@@ -15,6 +15,8 @@ const GATE = 2.2 // meia-largura do portão (sul, no fim do caminho)
 
 // Onde o personagem nasce: no caminho, logo depois do portão.
 export const EXTERIOR_SPAWN: [number, number, number] = [0, 2, 7]
+// Ao sair da casa: no pé da escada, logo fora da zona da porta.
+export const EXTERIOR_DOOR_SPAWN: [number, number, number] = [0, 2, 0.8]
 
 const WOOD = '#b98552'
 const WOOD_DARK = '#8a5a2b'
@@ -197,8 +199,11 @@ export default function Exterior() {
 
       {/* Casa (item 16): 1 unidade de largura; 5,6 m. As janelas e os degraus
           vêm de scripts/house_glass.mts. Textura em 4k (o maior objeto da tela).
-          Os degraus caem no começo do caminho (z ≈ −0,9). */}
-      <Prop url="/models/ai/16-casa-v2.glb" scale={5.6} position={[0, 0, -3.6]} />
+          Os degraus ficam 1,13 m à direita do centro da casa: ela vai 1,13 m
+          para a esquerda para eles caírem no caminho (z ≈ −0,9). */}
+      <Prop url="/models/ai/16-casa-v2.glb" scale={5.6} position={[-1.13, 0, -3.6]} />
+      {/* Porta: no pé da escada, E entra na casa (troca de cena). */}
+      <Station id="door" position={[0, 0, -0.4]} zoneCenter={[0, 0.75, 0]} zoneSize={[0.8, 0.75, 0.5]} markerY={1.6} />
 
       {/* Fileira de árvores no fundo, dos dois lados da casa. */}
       {[-8, -6.3, -4.6, 4.6, 6.3, 8].map((x, i) => (

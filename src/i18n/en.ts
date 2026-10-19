@@ -16,6 +16,7 @@ const en: Dictionary = {
     labels: { wheel: 'Scroll' },
     close: 'Got it',
   },
+  door: { enter: 'Go inside', exit: 'Go outside' },
   panel: { close: 'Close', escHint: 'Esc closes', prev: 'previous', next: 'next', site: 'Website' },
   stations: {
     projects: {

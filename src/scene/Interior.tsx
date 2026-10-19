@@ -14,8 +14,8 @@ import Prop from './Prop'
 // encosta eles na parede de lado.
 
 const HALF = 5
-// Onde o personagem aparece ao entrar: em cima do capacho, na porta sul.
-export const INTERIOR_SPAWN: [number, number, number] = [0, 2, 4.2]
+// Onde o personagem aparece ao entrar: logo à frente do capacho, na porta sul.
+export const INTERIOR_SPAWN: [number, number, number] = [0, 2, 3.2]
 
 function Floor() {
   return (
@@ -38,6 +38,14 @@ export default function Interior() {
   return (
     <>
       <Floor />
+
+      {/* Capacho na porta sul: E sai da casa. */}
+      <Station id="door" position={[0, 0, 4.4]} zoneCenter={[0, 0.75, 0]} zoneSize={[0.8, 0.75, 0.5]} markerY={1.6}>
+        <mesh rotation-x={-Math.PI / 2} position-y={0.01} receiveShadow>
+          <planeGeometry args={[1.4, 0.7]} />
+          <meshStandardMaterial color="#69a86b" />
+        </mesh>
+      </Station>
 
       {/* Academia (noroeste): saco de pancada e halteres. */}
       <Station id="skills" position={[-2.4, 0, -2.2]} zoneCenter={[0, 0.75, 0]} zoneSize={[1.2, 0.75, 1.2]} markerY={2.4}>

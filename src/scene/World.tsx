@@ -2,7 +2,7 @@ import { Environment, Stats } from '@react-three/drei'
 import { Physics } from '@react-three/rapier'
 import { useControls } from 'leva'
 import { useGame } from '../state/game'
-import Exterior, { EXTERIOR_SPAWN } from './Exterior'
+import Exterior, { EXTERIOR_DOOR_SPAWN, EXTERIOR_SPAWN } from './Exterior'
 import Interior, { INTERIOR_SPAWN } from './Interior'
 import Player from './Player'
 
@@ -53,11 +53,8 @@ export default function World() {
   // Medidor de FPS (tarefa 7.4), só no painel do dev. Meta: 60 no desktop, 30+ no celular.
   const { stats } = useControls('Desempenho', { stats: { value: false, label: 'medidor de FPS' } })
   const scene = useGame((s) => s.scene)
-  const setScene = useGame((s) => s.setScene)
-  // Atalho de dev até a porta existir: troca de cena pelo painel.
-  useControls('Cena', {
-    interior: { value: false, label: 'interior', onChange: (v: boolean) => setScene(v ? 'interior' : 'exterior') },
-  })
+  const spawn = useGame((s) => s.spawn)
+  const at = scene === 'interior' ? INTERIOR_SPAWN : spawn === 'door' ? EXTERIOR_DOOR_SPAWN : EXTERIOR_SPAWN
 
   return (
     <>
@@ -69,7 +66,7 @@ export default function World() {
           a física ao trocar de cena: o personagem renasce na entrada da nova. */}
       <Physics key={scene} debug={debug}>
         {scene === 'exterior' ? <Exterior /> : <Interior />}
-        <Player position={scene === 'exterior' ? EXTERIOR_SPAWN : INTERIOR_SPAWN} />
+        <Player position={at} />
       </Physics>
     </>
   )

@@ -1,16 +1,17 @@
 import type { ReactNode } from 'react'
 import { Html } from '@react-three/drei'
 import { CuboidCollider, RigidBody, type IntersectionEnterPayload } from '@react-three/rapier'
-import { stationPrompt, type StationId } from '../data/stations'
+import { stationPrompt } from '../data/stations'
 import { useI18n } from '../i18n'
 import { useIsTouch } from '../state/device'
-import { isPlaying, useGame } from '../state/game'
+import { isPlaying, useGame, type ZoneId } from '../state/game'
 import Marker from './Marker'
 
 type Vec3 = [number, number, number]
 
 type Props = {
-  id: StationId
+  /** Estação, ou a porta da casa (troca de cena em vez de abrir painel). */
+  id: ZoneId
   position: Vec3
   /** Centro da zona de interação, relativo a `position`. */
   zoneCenter: Vec3
@@ -18,7 +19,7 @@ type Props = {
   zoneSize: Vec3
   /** Altura do marcador flutuante. */
   markerY: number
-  children: ReactNode
+  children?: ReactNode
 }
 
 const isPlayer = ({ other }: IntersectionEnterPayload) =>
@@ -32,6 +33,8 @@ export default function Station({ id, position, zoneCenter, zoneSize, markerY, c
   const leave = useGame((s) => s.leave)
   const openStation = useGame((s) => s.openStation)
   const interact = useGame((s) => s.interact)
+  const goThrough = useGame((s) => s.goThrough)
+  const outside = useGame((s) => s.scene === 'exterior')
   const showPrompt = useGame((s) => s.nearby === id && isPlaying(s))
   const t = useI18n((s) => s.t)
   // No celular quem interage é o botão A; no teclado, a tecla E.
@@ -51,7 +54,7 @@ export default function Station({ id, position, zoneCenter, zoneSize, markerY, c
         />
       </RigidBody>
 
-      <Marker position={[zoneCenter[0], markerY, zoneCenter[2]]} active={showPrompt} onClick={() => (id === 'skills' ? interact() : openStation(id))} />
+      <Marker position={[zoneCenter[0], markerY, zoneCenter[2]]} active={showPrompt} onClick={() => (id === 'door' ? goThrough() : id === 'skills' ? interact() : openStation(id))} />
 
       {/* Html: um elemento do DOM preso a um ponto 3D, que acompanha a câmera.
           Fica sempre montado e só troca de classe, para o CSS animar tanto a
@@ -59,7 +62,7 @@ export default function Station({ id, position, zoneCenter, zoneSize, markerY, c
       <Html position={[zoneCenter[0], markerY + 0.55, zoneCenter[2]]} center zIndexRange={[10, 0]}>
         <div className={`prompt${showPrompt ? ' prompt--visible' : ''}`} aria-hidden={!showPrompt}>
           <kbd>{key}</kbd>
-          {stationPrompt(id, t)}
+          {id === 'door' ? (outside ? t.door.enter : t.door.exit) : stationPrompt(id, t)}
         </div>
       </Html>
     </group>

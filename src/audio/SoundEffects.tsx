@@ -16,6 +16,9 @@ export default function SoundEffects() {
         if (s.open && !prev.open) play('panel-open')
         if (!s.open && prev.open) play('panel-close')
         // Chegou perto de uma estação (o aviso "E ..." apareceu).
+        // Porta: abre ao escurecer, fecha ao chegar do outro lado.
+        if (s.fading && !prev.fading) play('door-open')
+        if (s.scene !== prev.scene && s.spawn === 'door') play('door-close')
         if (s.nearby && s.nearby !== prev.nearby && isPlaying(s)) play('prompt')
       }),
     [],

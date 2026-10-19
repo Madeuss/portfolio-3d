@@ -8,6 +8,15 @@ export type Screen = 'loading' | 'help' | 'play'
 // interior, aberto ao passar pela porta.
 export type Scene = 'exterior' | 'interior'
 
+// Zona perto da qual o personagem pode estar: uma estação (abre painel) ou a
+// porta da casa (troca de cena), dos dois lados.
+export type ZoneId = StationId | 'door'
+
+// Troca de cena pela porta: a tela escurece em FADE_MS, a cena troca no
+// escuro e clareia de novo depois de HOLD_MS (tempo de a nova cena montar).
+const FADE_MS = 350
+const HOLD_MS = 250
+
 // Treino no saco, como num jogo de luta: cada E é um golpe da sequência
 // (`step`, índice em STRIKES no Character). Apertar durante um golpe deixa o
 // próximo guardado (`queued`) para emendar sem perder o ritmo.
@@ -25,16 +34,21 @@ export type Hit = { id: number; dir: [number, number] }
 type GameState = {
   screen: Screen
   scene: Scene
-  nearby: StationId | null
+  /** Onde o personagem aparece na cena: no começo (portão) ou na porta. */
+  spawn: 'start' | 'door'
+  /** Tela escurecida durante a troca de cena. */
+  fading: boolean
+  nearby: ZoneId | null
   nearbyAt: [number, number] | null
   open: StationId | null
   training: Training | null
   hit: Hit | null
   dizzy: boolean
   setScreen: (screen: Screen) => void
-  setScene: (scene: Scene) => void
-  enter: (id: StationId, at: [number, number]) => void
-  leave: (id: StationId) => void
+  setScene: (scene: Scene, spawn?: 'start' | 'door') => void
+  goThrough: () => void
+  enter: (id: ZoneId, at: [number, number]) => void
+  leave: (id: ZoneId) => void
   openStation: (id: StationId) => void
   close: () => void
   interact: () => void
@@ -64,6 +78,8 @@ let lastSpinEnd = 0
 export const useGame = create<GameState>((set, get) => ({
   screen: 'loading',
   scene: 'exterior',
+  spawn: 'start',
+  fading: false,
   nearby: null,
   nearbyAt: null,
   open: null,
@@ -72,7 +88,15 @@ export const useGame = create<GameState>((set, get) => ({
   dizzy: false,
   setScreen: (screen) => set({ screen }),
   // Trocar de cena desmonta as zonas sem avisar a saída: limpa tudo junto.
-  setScene: (scene) => set({ scene, nearby: null, nearbyAt: null, open: null, training: null }),
+  setScene: (scene, spawn = 'start') => set({ scene, spawn, nearby: null, nearbyAt: null, open: null, training: null }),
+  // Passa pela porta: escurece, troca para a outra cena (aparecendo na porta
+  // de lá) e clareia.
+  goThrough: () => {
+    if (get().fading) return
+    set({ fading: true })
+    setTimeout(() => get().setScene(get().scene === 'exterior' ? 'interior' : 'exterior', 'door'), FADE_MS)
+    setTimeout(() => set({ fading: false }), FADE_MS + HOLD_MS)
+  },
   enter: (id, at) => set({ nearby: id, nearbyAt: at }),
   // Só limpa se for a mesma estação: ao passar de uma zona para outra
   // vizinha, o "entrou" da nova pode chegar antes do "saiu" da antiga.
@@ -89,6 +113,7 @@ export const useGame = create<GameState>((set, get) => ({
       return
     }
     if (!s.nearby || !isPlaying(s)) return
+    if (s.nearby === 'door') return s.goThrough()
     const bag = bagNearby(s)
     if (bag && s.dizzy) return
     if (bag) set({ training: { target: bag, step: randomStep(), queued: false, special: false } })
@@ -121,4 +146,4 @@ export const useGame = create<GameState>((set, get) => ({
 }))
 
 /** O personagem só anda quando nenhuma tela, painel ou treino está em curso. */
-export const isPlaying = (s: GameState) => s.screen === 'play' && s.open === null && s.training === null
+export const isPlaying = (s: GameState) => s.screen === 'play' && s.open === null && s.training === null && !s.fading
