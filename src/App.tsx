@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Leva } from 'leva'
-import TestScene from './scene/TestScene'
+import World from './scene/World'
 import Panel from './ui/Panel'
 import Hud from './ui/Hud'
 import HelpScreen from './ui/HelpScreen'
@@ -58,7 +58,7 @@ export default function App() {
           desktop) o custo cresce muito e a diferença quase não aparece. */}
       <Canvas shadows="percentage" dpr={[1, isTouch() ? 1.5 : 2]} camera={{ position: [5, 6, 7], fov: 40 }}>
         <color attach="background" args={['#FAFAF7']} />
-        <TestScene />
+        <World />
       </Canvas>
 
       <SoundEffects />

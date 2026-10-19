@@ -4,6 +4,10 @@ import type { StationId } from '../data/stations'
 // Telas por cima do jogo: carregamento → ajuda (só no 1º acesso) → jogo.
 export type Screen = 'loading' | 'help' | 'play'
 
+// As duas cenas (docs/conceito.md): o terreno com a casa vista de fora e o
+// interior, aberto ao passar pela porta.
+export type Scene = 'exterior' | 'interior'
+
 // Treino no saco, como num jogo de luta: cada E é um golpe da sequência
 // (`step`, índice em STRIKES no Character). Apertar durante um golpe deixa o
 // próximo guardado (`queued`) para emendar sem perder o ritmo.
@@ -20,6 +24,7 @@ export type Hit = { id: number; dir: [number, number] }
 // `open`: estação com o painel aberto.
 type GameState = {
   screen: Screen
+  scene: Scene
   nearby: StationId | null
   nearbyAt: [number, number] | null
   open: StationId | null
@@ -27,6 +32,7 @@ type GameState = {
   hit: Hit | null
   dizzy: boolean
   setScreen: (screen: Screen) => void
+  setScene: (scene: Scene) => void
   enter: (id: StationId, at: [number, number]) => void
   leave: (id: StationId) => void
   openStation: (id: StationId) => void
@@ -57,6 +63,7 @@ let lastSpinEnd = 0
 
 export const useGame = create<GameState>((set, get) => ({
   screen: 'loading',
+  scene: 'exterior',
   nearby: null,
   nearbyAt: null,
   open: null,
@@ -64,6 +71,8 @@ export const useGame = create<GameState>((set, get) => ({
   hit: null,
   dizzy: false,
   setScreen: (screen) => set({ screen }),
+  // Trocar de cena desmonta as zonas sem avisar a saída: limpa tudo junto.
+  setScene: (scene) => set({ scene, nearby: null, nearbyAt: null, open: null, training: null }),
   enter: (id, at) => set({ nearby: id, nearbyAt: at }),
   // Só limpa se for a mesma estação: ao passar de uma zona para outra
   // vizinha, o "entrou" da nova pode chegar antes do "saiu" da antiga.
