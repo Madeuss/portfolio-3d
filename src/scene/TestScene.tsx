@@ -3,9 +3,11 @@ import { CuboidCollider, Physics, RigidBody } from '@react-three/rapier'
 import { useControls } from 'leva'
 import Office from './Office'
 import PunchingBag from './PunchingBag'
-import { Mailbox } from './Placeholders'
 import Station from './Station'
 import BagSwing from './BagSwing'
+import BagStand, { HOOK_HEIGHT } from './BagStand'
+import Locker from './Locker'
+import Prop from './Prop'
 import Player from './Player'
 
 // Cena de teste (tarefas 1.4 e 2.2–2.5): chão, caixas com física, luz de
@@ -51,16 +53,16 @@ function Lights() {
 }
 
 function Floor() {
-  const { color } = useControls('Chão', { color: { value: '#c3e6b0', label: 'cor' } })
+  const { color } = useControls('Chão', { color: { value: '#afcbc0', label: 'cor' } })
 
   // Corpo "fixed": participa das colisões mas nunca se move. O collider é uma
-  // caixa fina (meias-medidas: 10 x 0,1 x 10 = chão de 20 x 20 m) logo abaixo do plano.
+  // caixa fina (meias-medidas: 20 x 0,1 x 20 = chão de 40 x 40 m) logo abaixo do plano.
   return (
     <RigidBody type="fixed" colliders={false}>
-      <CuboidCollider args={[10, 0.1, 10]} position={[0, -0.1, 0]} />
+      <CuboidCollider args={[20, 0.1, 20]} position={[0, -0.1, 0]} />
       {/* O plano nasce em pé (eixo XY); girar -90° em X deita ele no chão. */}
       <mesh rotation-x={-Math.PI / 2} receiveShadow>
-        <planeGeometry args={[20, 20]} />
+        <planeGeometry args={[40, 40]} />
         <meshStandardMaterial color={color} />
       </mesh>
     </RigidBody>
@@ -101,14 +103,34 @@ export default function TestScene() {
         <Station id="projects" position={[-3.2, 0, -2]} zoneCenter={[0.73, 0.75, 0.2]} zoneSize={[1.3, 0.75, 1.2]} markerY={1.9}>
           <Office />
         </Station>
-        <Station id="skills" position={[4, 0, 1.5]} zoneCenter={[0, 0.75, 0]} zoneSize={[1.2, 0.75, 1.2]} markerY={2.2}>
-          {/* Pendurado a ~1,4 m: é dali que ele balança ao levar um golpe. */}
-          <BagSwing pivotY={1.4}>
-            <PunchingBag />
+        <Station id="skills" position={[4, 0, 1.5]} zoneCenter={[0, 0.75, 0]} zoneSize={[1.2, 0.75, 1.2]} markerY={2.4}>
+          <BagStand />
+          {/* Pendurado no gancho: é dali que ele balança ao levar um golpe. O
+              saco tem 1,4 m com a corrente, então a base fica a 30 cm do chão. */}
+          <BagSwing pivotY={HOOK_HEIGHT}>
+            <group position-y={HOOK_HEIGHT - 1.4}>
+              <PunchingBag />
+            </group>
           </BagSwing>
         </Station>
+        {/* Halteres no rack, ao lado do saco (academia): 1 unidade de altura; 90 cm. */}
+        <Prop url="/models/ai/12-halteres.glb" scale={0.9} position={[5.7, 0, 0.7]} rotationY={-Math.PI / 6} />
+        {/* Vestiário provisório: os 3 armários lado a lado, ainda sem estação. */}
+        <Locker position={[5.5, 0, -3]} shirt />
+        <Locker position={[6.15, 0, -3]} shirt />
+        <Locker position={[6.8, 0, -3]} shirt />
+        {/* Banco do vestiário: 1 unidade de comprimento; 1,3 m e 44 cm de altura. */}
+        <Prop url="/models/ai/11-banco.glb" scale={1.3} position={[6.15, 0, -1.9]} rotationY={Math.PI / 2} />
+        {/* Quarto provisório: cama de casal (1 unidade de comprimento; 2 m),
+            com a cabeceira para o fundo. Limpa com scripts/clean_loose.py. */}
+        <Prop url="/models/ai/10-cama.glb" scale={2} position={[-6.5, 0, -3]} />
+        {/* Casa (item 16), provisória: vai ser gerada de novo com vidro de
+            verdade nas janelas (hoje são vãos) e textura 4k. 1 unidade de
+            largura; 7 m. Textura mantida em 2k. */}
+        <Prop url="/models/ai/16-casa.glb" scale={7} position={[0, 0, -7]} />
         <Station id="contact" position={[-3.5, 0, 3]} zoneCenter={[0, 0.75, 0]} zoneSize={[1, 0.75, 1]} markerY={1.8}>
-          <Mailbox />
+          {/* Caixa de correio no poste: 1 unidade de altura; 1,2 m. */}
+          <Prop url="/models/ai/17-caixa-correio.glb" scale={1.2} position={[0, 0, 0]} />
         </Station>
 
         {/* 1 unidade = 1 metro. As caixas nascem no ar e caem. */}

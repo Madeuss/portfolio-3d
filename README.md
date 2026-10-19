@@ -14,11 +14,10 @@ yarn build  # build de produção
 
 ## Créditos
 
-Avatar: gerado com IA (imagem no Gemini, modelo, rig e animações no [Tripo](https://www.tripo3d.ai/)).
+Avatar e móveis: gerados com IA (imagens no Gemini, modelos e rig no [Tripo](https://www.tripo3d.ai/)). Animações extras do [Mixamo](https://www.mixamo.com/).
 
 Assets provisórios, todos CC0 (domínio público):
 
-- Móveis do escritório: [Furniture Kit](https://kenney.nl/assets/furniture-kit), Kenney
 - Sons: [Impact Sounds](https://kenney.nl/assets/impact-sounds) e [Interface Sounds](https://kenney.nl/assets/interface-sounds), Kenney
 - Céu (HDRI): [Kloofendal 48d Partly Cloudy (Pure Sky)](https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky), Poly Haven
 
