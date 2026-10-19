@@ -12,7 +12,9 @@ const OFF = '#FAFAF7'
 
 export default function TouchControls() {
   const touch = useIsTouch()
-  const playing = useGame(isPlaying)
+  // Na luta do saco o personagem não anda, mas o botão A continua na tela
+  // para emendar os golpes.
+  const playing = useGame((s) => isPlaying(s) || s.training !== null)
 
   // Botão A: no momento em que é apertado, interage com a estação próxima.
   useEffect(

@@ -84,9 +84,10 @@ function Respawn({ target, spawn }: { target: RefObject<EcctrlHandle | null>; sp
   return null
 }
 
-// No treino, encosta o personagem no saco: para a ~0,72 m do centro dele,
-// a distância em que o soco do chibi (≈0,5 m de alcance) chega no saco.
-const PUNCH_DISTANCE = 0.72
+// No treino, encosta o personagem no saco: para a ~0,62 m do centro dele
+// (o mínimo é 0,57: raio da cápsula + raio do saco). Mais longe, o direto
+// do chibi (≈0,42 m de alcance) não chegava no saco.
+const PUNCH_DISTANCE = 0.62
 const APPROACH_SPEED = 8
 
 function TrainingApproach({ target }: { target: RefObject<EcctrlHandle | null> }) {

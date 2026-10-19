@@ -4,12 +4,10 @@ import type { StationId } from '../data/stations'
 // Telas por cima do jogo: carregamento → ajuda (só no 1º acesso) → jogo.
 export type Screen = 'loading' | 'help' | 'play'
 
-// Golpes do treino no saco (animações do Mixamo em models/character/anims).
-export const ATTACKS = ['boxing-1', 'boxing-2', 'kick', 'roundhouse-kick'] as const
-export type Attack = (typeof ATTACKS)[number]
-
-// Treino em andamento: qual golpe e onde está o saco (x, z no mundo).
-export type Training = { attack: Attack; target: [number, number] }
+// Treino no saco, como num jogo de luta: cada E é um golpe da sequência
+// (`step`, índice em STRIKES no Character). Apertar durante um golpe deixa o
+// próximo guardado (`queued`) para emendar sem perder o ritmo.
+export type Training = { target: [number, number]; step: number; queued: boolean }
 
 // Último golpe que acertou o saco: `id` muda a cada acerto, `dir` é a direção
 // (x, z) do personagem para o saco, para ele balançar para o lado certo.
@@ -31,18 +29,15 @@ type GameState = {
   openStation: (id: StationId) => void
   close: () => void
   interact: () => void
+  nextStrike: () => void
   landHit: (dir: [number, number]) => void
   finishTraining: () => void
 }
 
-let lastAttack: Attack | null = null
-
-// Sorteia um golpe diferente do anterior.
-function pickAttack(): Attack {
-  const options = ATTACKS.filter((a) => a !== lastAttack)
-  lastAttack = options[Math.floor(Math.random() * options.length)]
-  return lastAttack
-}
+// Cada treino novo (chegar no saco, ou voltar depois que ele saiu da guarda)
+// começa num golpe sorteado; os seguintes seguem a sequência. O Character usa
+// `step % número de golpes`, então qualquer inteiro serve.
+const randomStep = () => Math.floor(Math.random() * 1000)
 
 export const useGame = create<GameState>((set, get) => ({
   screen: 'loading',
@@ -58,15 +53,20 @@ export const useGame = create<GameState>((set, get) => ({
   leave: (id) => set((s) => (s.nearby === id ? { nearby: null, nearbyAt: null } : s)),
   openStation: (id) => set({ open: id }),
   close: () => set({ open: null }),
-  // Tecla E / botão A. O saco é só diversão: o personagem dá um golpe e
-  // nenhum painel abre (o quadro de Skills vai para outro lugar depois).
-  // Nas outras estações abre o painel.
+  // Tecla E / botão A. O saco é só diversão: cada toque é um golpe e nenhum
+  // painel abre (o quadro de Skills vai para outro lugar depois). Nas outras
+  // estações abre o painel.
   interact: () => {
     const s = get()
+    if (s.training) {
+      set({ training: { ...s.training, queued: true } })
+      return
+    }
     if (!s.nearby || !isPlaying(s)) return
-    if (s.nearby === 'skills' && s.nearbyAt) set({ training: { attack: pickAttack(), target: s.nearbyAt } })
+    if (s.nearby === 'skills' && s.nearbyAt) set({ training: { target: s.nearbyAt, step: randomStep(), queued: false } })
     else set({ open: s.nearby })
   },
+  nextStrike: () => set((s) => (s.training ? { training: { ...s.training, step: s.training.step + 1, queued: false } } : s)),
   landHit: (dir) => set((s) => ({ hit: { id: (s.hit?.id ?? 0) + 1, dir } })),
   finishTraining: () => set({ training: null }),
 }))
