@@ -241,8 +241,13 @@ dumbbell rack, do not include the stand.
 
 ## Exterior (estilo jardim, parente do worawork)
 
-Do item 16 em diante, anexe sempre **duas imagens**: a referência do objeto e, como segunda, o **print da casa do
-worawork** (âncora de estilo do exterior). A última linha de cada prompt já pede para copiar só o estilo dele.
+Anexe sempre **duas imagens**: a referência do objeto e, como segunda, a âncora de estilo. A última linha de cada
+prompt já pede para copiar só o estilo dela.
+
+- **Fachada (16):** âncora = print da casa do worawork (recorte só da casa, não da área toda).
+- **Do 17 em diante:** âncora = a fachada aprovada (`refs/16-fachada.jpg`), como o suporte foi no interior.
+  Ela já está no estilo certo e é um objeto isolado, sem cenário em volta para o Gemini copiar.
+- **Árvores (22):** recorte do worawork só com as árvores (é a imagem principal, não a âncora).
 
 ### 16. Fachada da casa
 
@@ -276,8 +281,8 @@ the slot. Warm orange mailbox on a natural wood post. Soft rounded shapes, clay-
 smooth surfaces, cozy warm colors, Animal Crossing style, single object, centered,
 front three-quarter view, plain white background, even soft lighting, no shadow on the
 floor, no text, no logo.
-Match the art style, colors and lighting of the second attached image (a game
-screenshot). Only the mailbox, nothing else from the screenshot.
+Match the art style and lighting of the second attached image (only the style, keep
+the colors described above). Only the mailbox, do not include the house.
 ```
 
 ### 18. Golzinho
@@ -290,8 +295,8 @@ image, about 1.5 m wide and 1 m tall, white rounded posts and a soft white net. 
 rounded shapes, clay-like smooth surfaces, cozy warm colors, Animal Crossing style,
 single object, centered, front three-quarter view, plain white background, even soft
 lighting, no shadow on the floor, no text, no logo.
-Match the art style, colors and lighting of the second attached image (a game
-screenshot). Only the soccer goal, nothing else from the screenshot.
+Match the art style and lighting of the second attached image (only the style, keep
+the colors described above). Only the soccer goal, do not include the house.
 ```
 
 ### 20. Casinha do dog
@@ -304,8 +309,8 @@ pitched red roof, arched entrance, a small food bowl in front. Warm natural wood
 rounded shapes, clay-like smooth surfaces, cozy warm colors, Animal Crossing style,
 single object, centered, front three-quarter view, plain white background, even soft
 lighting, no shadow on the floor, no text, no logo.
-Match the art style, colors and lighting of the second attached image (a game
-screenshot). Only the dog house, nothing else from the screenshot.
+Match the art style and lighting of the second attached image (only the style, keep
+the colors described above). Only the dog house, do not include the house.
 ```
 
 ### 22. Árvores (duas variações)
