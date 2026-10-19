@@ -3,7 +3,8 @@ import { CuboidCollider, RigidBody } from '@react-three/rapier'
 import { useControls } from 'leva'
 import Station from './Station'
 import Prop from './Prop'
-import Grass, { groundPatches, type Area } from './Grass'
+import GrassClumps, { grassTexture, type Area } from './Grass'
+import Pond from './Pond'
 
 // Terreno (docs/planta.excalidraw, à esquerda): a planta tem 30 × 30 m com a
 // casa de 10 m; aqui a casa tem 5,6 m e o terreno 20 × 20 m, com a mesma
@@ -23,26 +24,28 @@ const WOOD = '#b98552'
 const WOOD_DARK = '#8a5a2b'
 
 function Ground() {
-  const { color } = useControls('Chão', { color: { value: '#afcbc0', label: 'cor' } })
-  const patches = useMemo(groundPatches, [])
+  // A cor vem da textura pintada; `tom` só tinge por cima (branco = original).
+  const { color } = useControls('Chão', { color: { value: '#ffffff', label: 'tom' } })
+  const map = useMemo(() => grassTexture(HALF * 2, 5), [])
   return (
     <RigidBody type="fixed" colliders={false}>
       <CuboidCollider args={[HALF, 0.1, HALF]} position={[0, -0.1, 0]} />
       {/* O plano nasce em pé (eixo XY); girar -90° em X deita ele no chão. */}
       <mesh rotation-x={-Math.PI / 2} receiveShadow>
         <planeGeometry args={[HALF * 2, HALF * 2]} />
-        <meshStandardMaterial color={color} map={patches} />
+        <meshStandardMaterial color={color} map={map} roughness={0.95} />
       </mesh>
     </RigidBody>
   )
 }
 
-// Onde não nasce grama: caminho, casa (com a varanda), mini campo e a caixa de correio.
+// Onde não nascem moitinhas: caminho, casa (com a varanda), mini campo e a caixa de correio.
 const NO_GRASS: Area[] = [
   { x: [-0.95, 0.95], z: [-1.2, HALF] },
   { x: [-4.1, 1.9], z: [-6.6, -0.9] },
   { x: [2.4, 8.8], z: [0.5, 4.7] },
   { x: [-2.1, -1.3], z: [0.6, 1.4] },
+  { x: [-6.1, -3.1], z: [4.7, 7.7] }, // laguinho
 ]
 
 type Box = { center: [number, number, number]; half: [number, number, number] }
@@ -203,7 +206,9 @@ export default function Exterior() {
       <Ground />
       <Borders />
       <Path />
-      <Grass half={HALF - BORDER} clear={NO_GRASS} />
+      <GrassClumps half={HALF - BORDER} clear={NO_GRASS} count={30} />
+      {/* Laguinho no canto da frente, à esquerda do caminho. */}
+      <Pond position={[-4.6, 0, 6.2]} />
 
       {/* Casa (item 16): 1 unidade de largura; 5,6 m. As janelas e os degraus
           vêm de scripts/house_glass.mts. Textura em 4k (o maior objeto da tela).
