@@ -94,7 +94,7 @@ function TrainingApproach({ target }: { target: RefObject<EcctrlHandle | null> }
   useFrame((_, delta) => {
     const training = useGame.getState().training
     const player = target.current
-    if (!training || !player) return
+    if (!training?.target || !player) return
     const pos = player.body.translation()
     const [tx, tz] = training.target
     const dx = pos.x - tx

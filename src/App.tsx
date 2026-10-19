@@ -13,11 +13,28 @@ import { isTouch } from './state/device'
 import { useGame } from './state/game'
 import './ui/screens.css'
 
+// Golpe secreto (easter egg, fora da tela de ajuda de propósito): a entrada
+// do hurricane kick do Street Fighter, ↓ ← + chute. Aqui: ↓ ← E (ou S A E),
+// tudo em menos de COMBO_MS. No celular é A+B (TouchControls).
+const DOWN = ['ArrowDown', 'KeyS']
+const BACK = ['ArrowLeft', 'KeyA']
+const COMBO_MS = 600
+
 // Tecla E: interage com a estação em cuja zona o personagem está.
 function useInteractKey() {
   useEffect(() => {
+    let down = 0
+    let back = 0
     const onKey = (e: KeyboardEvent) => {
-      if (e.code === 'KeyE' && !e.repeat) useGame.getState().interact()
+      if (e.repeat) return
+      const now = performance.now()
+      if (DOWN.includes(e.code)) down = now
+      else if (BACK.includes(e.code)) back = now
+      if (e.code !== 'KeyE') return
+      const combo = down > 0 && back > down && now - down < COMBO_MS
+      down = back = 0
+      if (combo) useGame.getState().special()
+      else useGame.getState().interact()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)

@@ -20,7 +20,11 @@ export default function TouchControls() {
   useEffect(
     () =>
       useButtonStore.subscribe((s, prev) => {
-        if (s.buttons.interact && !prev.buttons.interact) useGame.getState().interact()
+        // A+B juntos: golpe secreto (easter egg). Só o A: interagir.
+        const both = s.buttons.interact && s.buttons.run
+        const bothBefore = prev.buttons.interact && prev.buttons.run
+        if (both && !bothBefore) useGame.getState().special()
+        else if (s.buttons.interact && !prev.buttons.interact) useGame.getState().interact()
       }),
     [],
   )

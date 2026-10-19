@@ -21,8 +21,9 @@ const URL = '/models/character/avatar.glb'
 // cache do navegador (public/_headers), então trocar uma animação é trocar
 // de arquivo, nunca sobrescrever.
 // `spread`: quanto abrir os braços (graus) para não atravessarem a barriga do
-// chibi. Na luta é menor, para o soco ir reto no saco.
-const MIXAMO: Record<string, { url: string; spread: number }> = {
+// chibi. Na luta é menor, para o soco ir reto no saco. `inPlace`: trava o
+// deslocamento do quadril, para golpes que o Mixamo não oferece "In Place".
+const MIXAMO: Record<string, { url: string; spread: number; inPlace?: boolean }> = {
   idle: { url: '/models/character/anims/happy-idle.glb', spread: 22 },
   jog: { url: '/models/character/anims/jog.glb', spread: 22 },
   'fight-idle': { url: '/models/character/anims/fight-idle.glb', spread: 8 },
@@ -30,25 +31,34 @@ const MIXAMO: Record<string, { url: string; spread: number }> = {
   'boxing-2': { url: '/models/character/anims/boxing-2.glb', spread: 8 },
   kick: { url: '/models/character/anims/kick.glb', spread: 8 },
   'roundhouse-kick': { url: '/models/character/anims/roundhouse-kick.glb', spread: 8 },
+  hook: { url: '/models/character/anims/hook.glb', spread: 8 },
+  'illegal-knee': { url: '/models/character/anims/illegal-knee.glb', spread: 8 },
+  'hurricane-kick': { url: '/models/character/anims/hurricane-kick.glb', spread: 8, inPlace: true },
 }
 const MIXAMO_NAMES = Object.keys(MIXAMO)
 const MIXAMO_URLS = MIXAMO_NAMES.map((name) => MIXAMO[name].url)
 
 // Cada E no saco é um golpe só: um pedaço de uma animação do Mixamo, do
-// `start` ao `end` (s), com o impacto em `hit` (quando a mão ou o pé chega
-// mais à frente; medido no avatar, quadro a quadro). A sequência é um combo
-// que se repete (começando de um golpe sorteado): jab, direto, três socos,
-// chute e chute rodado. Ficaram de fora os golpes que não alcançam o saco.
-type Strike = { clip: string; start: number; hit: number; end: number }
+// `start` ao `end` (s), com os impactos em `hits` (quando a mão, o joelho ou
+// o pé chega mais à frente; medido no avatar, quadro a quadro). A sequência é
+// um combo que se repete (começando de um golpe sorteado): jab, direto, três
+// socos, hook, joelhada, chute e chute rodado. Ficaram de fora os golpes que
+// não alcançam o saco.
+type Strike = { clip: string; start: number; hits: number[]; end: number }
 const STRIKES: Strike[] = [
-  { clip: 'boxing-1', start: 0.22, hit: 0.5, end: 0.66 },
-  { clip: 'boxing-1', start: 0.6, hit: 0.73, end: 0.95 },
-  { clip: 'boxing-2', start: 0.18, hit: 0.43, end: 0.58 },
-  { clip: 'boxing-2', start: 0.55, hit: 0.67, end: 0.8 },
-  { clip: 'boxing-2', start: 0.78, hit: 0.9, end: 1.1 },
-  { clip: 'kick', start: 0.85, hit: 1.27, end: 1.6 },
-  { clip: 'roundhouse-kick', start: 0.55, hit: 1.1, end: 1.55 },
+  { clip: 'boxing-1', start: 0.22, hits: [0.5], end: 0.66 },
+  { clip: 'boxing-1', start: 0.6, hits: [0.73], end: 0.95 },
+  { clip: 'boxing-2', start: 0.18, hits: [0.43], end: 0.58 },
+  { clip: 'boxing-2', start: 0.55, hits: [0.67], end: 0.8 },
+  { clip: 'boxing-2', start: 0.78, hits: [0.9], end: 1.1 },
+  { clip: 'hook', start: 0.9, hits: [1.2], end: 1.45 },
+  { clip: 'illegal-knee', start: 0.5, hits: [0.87], end: 1.15 },
+  { clip: 'kick', start: 0.85, hits: [1.27], end: 1.6 },
+  { clip: 'roundhouse-kick', start: 0.55, hits: [1.1], end: 1.55 },
 ]
+// Golpe secreto (Shift+E, ou A+B no celular): o hurricane kick inteiro, com
+// três giros que acertam o saco se ele estiver perto.
+const SPECIAL: Strike = { clip: 'hurricane-kick', start: 0, hits: [0.43, 0.9, 1.37], end: 1.75 }
 // Golpes um pouco mais rápidos que o original, para ficar com cara de jogo.
 const STRIKE_SPEED = 1.4
 // Transição entre golpes: curta, para responder na hora.
@@ -85,7 +95,7 @@ const FADE = 0.2
 const TURN_SPEED = 12
 
 type Playing = { name: string; action: AnimationAction | null }
-type Fight = { step: number; phase: 'strike' | 'guard'; guard: number; hit: boolean }
+type Fight = { step: number; phase: 'strike' | 'guard'; guard: number; hits: number }
 
 export default function Character() {
   const group = useRef<Group>(null)
@@ -94,13 +104,16 @@ export default function Character() {
   const nodes = parser.json.nodes as GltfNode[]
   const clips = useMemo(() => {
     const converted = MIXAMO_NAMES.map((name, i) =>
-      retargetClip(mixamo[i].scene, mixamo[i].animations[0], scene, nodes, name, { armSpread: MIXAMO[name].spread }),
+      retargetClip(mixamo[i].scene, mixamo[i].animations[0], scene, nodes, name, {
+        armSpread: MIXAMO[name].spread,
+        inPlace: MIXAMO[name].inPlace,
+      }),
     )
     return [...animations, ...converted]
   }, [animations, mixamo, scene, nodes])
   const { actions } = useAnimations(clips, group)
   const current = useRef<Playing | null>(null)
-  const fight = useRef<Fight>({ step: -1, phase: 'guard', guard: 0, hit: false })
+  const fight = useRef<Fight>({ step: -1, phase: 'guard', guard: 0, hits: 0 })
   const tmp = useRef({ target: new Vector3(), self: new Vector3() })
 
   // Toda malha do modelo projeta e recebe sombra.
@@ -167,34 +180,44 @@ export default function Character() {
     }
     if (!model?.parent) return
 
-    // Vira o boneco para o saco. Quem gira é só o desenho: o corpo físico do
-    // ecctrl continua para onde estava, e o desenho volta ao normal no fim.
+    // Vira o boneco para o saco (se o golpe for nele). Quem gira é só o
+    // desenho: o corpo físico do ecctrl continua para onde estava, e o desenho
+    // volta ao normal no fim.
     const { target, self } = tmp.current
+    const bag = training.target
     model.parent.getWorldPosition(self)
-    target.set(training.target[0], self.y, training.target[1])
-    const local = model.parent.worldToLocal(target.clone())
-    model.rotation.y = MathUtils.damp(model.rotation.y, Math.atan2(local.x, local.z), TURN_SPEED, delta)
+    if (bag) {
+      target.set(bag[0], self.y, bag[1])
+      const local = model.parent.worldToLocal(target.clone())
+      model.rotation.y = MathUtils.damp(model.rotation.y, Math.atan2(local.x, local.z), TURN_SPEED, delta)
+    }
 
     const f = fight.current
-    const s = STRIKES[training.step % STRIKES.length]
+    const s = training.special ? SPECIAL : STRIKES[training.step % STRIKES.length]
 
-    // Golpe novo (primeiro E, ou o próximo emendado).
+    // Golpe novo (primeiro E, o próximo emendado, ou o secreto).
     if (f.step !== training.step) {
       f.step = training.step
       f.phase = 'strike'
-      f.hit = false
+      f.hits = 0
       strike(s)
     }
 
     if (f.phase === 'strike') {
       const time = current.current?.action?.time ?? s.end
-      // O impacto: som + saco balançando para longe.
-      if (!f.hit && time >= s.hit) {
-        f.hit = true
+      // Cada impacto no saco: som + saco balançando para longe.
+      while (f.hits < s.hits.length && time >= s.hits[f.hits]) {
+        f.hits++
+        if (!bag) continue
         game.landHit([target.x - self.x, target.z - self.z])
         playPunch()
       }
       if (time < s.end) return
+      // Golpe secreto longe do saco: acabou, volta a andar.
+      if (!bag) {
+        game.finishTraining()
+        return
+      }
       // Acabou o golpe: emenda o próximo se já foi pedido, senão entra na guarda.
       if (training.queued) {
         game.nextStrike()

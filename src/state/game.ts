@@ -7,7 +7,9 @@ export type Screen = 'loading' | 'help' | 'play'
 // Treino no saco, como num jogo de luta: cada E é um golpe da sequência
 // (`step`, índice em STRIKES no Character). Apertar durante um golpe deixa o
 // próximo guardado (`queued`) para emendar sem perder o ritmo.
-export type Training = { target: [number, number]; step: number; queued: boolean }
+// `special`: o golpe secreto (Shift+E, ou A+B no celular). Funciona em
+// qualquer lugar; `target` é o saco quando ele está perto, senão null.
+export type Training = { target: [number, number] | null; step: number; queued: boolean; special: boolean }
 
 // Último golpe que acertou o saco: `id` muda a cada acerto, `dir` é a direção
 // (x, z) do personagem para o saco, para ele balançar para o lado certo.
@@ -29,6 +31,7 @@ type GameState = {
   openStation: (id: StationId) => void
   close: () => void
   interact: () => void
+  special: () => void
   nextStrike: () => void
   landHit: (dir: [number, number]) => void
   finishTraining: () => void
@@ -38,6 +41,8 @@ type GameState = {
 // começa num golpe sorteado; os seguintes seguem a sequência. O Character usa
 // `step % número de golpes`, então qualquer inteiro serve.
 const randomStep = () => Math.floor(Math.random() * 1000)
+
+const bagNearby = (s: GameState) => (s.nearby === 'skills' ? s.nearbyAt : null)
 
 export const useGame = create<GameState>((set, get) => ({
   screen: 'loading',
@@ -59,14 +64,24 @@ export const useGame = create<GameState>((set, get) => ({
   interact: () => {
     const s = get()
     if (s.training) {
-      set({ training: { ...s.training, queued: true } })
+      if (s.training.target) set({ training: { ...s.training, queued: true } })
       return
     }
     if (!s.nearby || !isPlaying(s)) return
-    if (s.nearby === 'skills' && s.nearbyAt) set({ training: { target: s.nearbyAt, step: randomStep(), queued: false } })
+    const bag = bagNearby(s)
+    if (bag) set({ training: { target: bag, step: randomStep(), queued: false, special: false } })
     else set({ open: s.nearby })
   },
-  nextStrike: () => set((s) => (s.training ? { training: { ...s.training, step: s.training.step + 1, queued: false } } : s)),
+  // Golpe secreto: interrompe o golpe em andamento (mas não abre por cima de
+  // painel ou tela).
+  special: () => {
+    const s = get()
+    if (s.training?.special || (!s.training && !isPlaying(s))) return
+    const step = s.training ? s.training.step + 1 : randomStep()
+    set({ training: { target: bagNearby(s), step, queued: false, special: true } })
+  },
+  nextStrike: () =>
+    set((s) => (s.training ? { training: { ...s.training, step: s.training.step + 1, queued: false, special: false } } : s)),
   landHit: (dir) => set((s) => ({ hit: { id: (s.hit?.id ?? 0) + 1, dir } })),
   finishTraining: () => set({ training: null }),
 }))

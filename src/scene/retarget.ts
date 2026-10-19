@@ -92,6 +92,9 @@ export type RetargetOptions = {
   // Abre os braços para fora, em graus. As animações do Mixamo são feitas
   // para um corpo magro; num avatar gordinho os braços atravessam a barriga.
   armSpread?: number
+  // Tira o deslocamento para a frente e para os lados do quadril (fica só o
+  // sobe e desce), para golpes que o Mixamo não oferece "In Place".
+  inPlace?: boolean
 }
 
 export function retargetClip(
@@ -117,7 +120,7 @@ function convert(
   target: Object3D,
   targetNodes: GltfNode[],
   name: string,
-  { armSpread = 0 }: RetargetOptions,
+  { armSpread = 0, inPlace = false }: RetargetOptions,
 ) {
   // Cópias, para não mexer nas cenas que estão na tela.
   const src = clone(source)
@@ -189,7 +192,9 @@ function convert(
     }
 
     // Quadril: o quanto a origem subiu, desceu ou balançou, na escala do avatar.
-    src.getObjectByName(HIPS)!.getWorldPosition(p).sub(srcHips).multiplyScalar(scale).add(tgtHips)
+    src.getObjectByName(HIPS)!.getWorldPosition(p).sub(srcHips).multiplyScalar(scale)
+    if (inPlace) p.setX(0).setZ(0)
+    p.add(tgtHips)
     const hipsParent = tgtRest.get(HIPS)!.parent
     parentInverse.copy(hipsParent.matrixWorld).invert()
     p.applyMatrix4(parentInverse)
