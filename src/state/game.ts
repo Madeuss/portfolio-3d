@@ -58,8 +58,9 @@ export const useGame = create<GameState>((set, get) => ({
   leave: (id) => set((s) => (s.nearby === id ? { nearby: null, nearbyAt: null } : s)),
   openStation: (id) => set({ open: id }),
   close: () => set({ open: null }),
-  // Tecla E / botão A. No saco (Skills) o personagem treina primeiro e o
-  // painel abre no fim do golpe; nas outras estações abre direto.
+  // Tecla E / botão A. O saco é só diversão: o personagem dá um golpe e
+  // nenhum painel abre (o quadro de Skills vai para outro lugar depois).
+  // Nas outras estações abre o painel.
   interact: () => {
     const s = get()
     if (!s.nearby || !isPlaying(s)) return
@@ -67,7 +68,7 @@ export const useGame = create<GameState>((set, get) => ({
     else set({ open: s.nearby })
   },
   landHit: (dir) => set((s) => ({ hit: { id: (s.hit?.id ?? 0) + 1, dir } })),
-  finishTraining: () => set({ training: null, open: 'skills' }),
+  finishTraining: () => set({ training: null }),
 }))
 
 /** O personagem só anda quando nenhuma tela, painel ou treino está em curso. */

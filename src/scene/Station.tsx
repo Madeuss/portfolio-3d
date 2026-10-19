@@ -31,6 +31,7 @@ export default function Station({ id, position, zoneCenter, zoneSize, markerY, c
   const enter = useGame((s) => s.enter)
   const leave = useGame((s) => s.leave)
   const openStation = useGame((s) => s.openStation)
+  const interact = useGame((s) => s.interact)
   const showPrompt = useGame((s) => s.nearby === id && isPlaying(s))
   const t = useI18n((s) => s.t)
   // No celular quem interage é o botão A; no teclado, a tecla E.
@@ -50,7 +51,7 @@ export default function Station({ id, position, zoneCenter, zoneSize, markerY, c
         />
       </RigidBody>
 
-      <Marker position={[zoneCenter[0], markerY, zoneCenter[2]]} active={showPrompt} onClick={() => openStation(id)} />
+      <Marker position={[zoneCenter[0], markerY, zoneCenter[2]]} active={showPrompt} onClick={() => (id === 'skills' ? interact() : openStation(id))} />
 
       {/* Html: um elemento do DOM preso a um ponto 3D, que acompanha a câmera.
           Fica sempre montado e só troca de classe, para o CSS animar tanto a
