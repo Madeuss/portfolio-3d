@@ -10,16 +10,14 @@ import TouchControls from './ui/TouchControls'
 import SoundEffects from './audio/SoundEffects'
 import { useDocumentLocale } from './i18n'
 import { isTouch } from './state/device'
-import { isPlaying, useGame } from './state/game'
+import { useGame } from './state/game'
 import './ui/screens.css'
 
-// Tecla E: abre o painel da estação em cuja zona o personagem está.
+// Tecla E: interage com a estação em cuja zona o personagem está.
 function useInteractKey() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.code !== 'KeyE' || e.repeat) return
-      const state = useGame.getState()
-      if (state.nearby && isPlaying(state)) state.openStation(state.nearby)
+      if (e.code === 'KeyE' && !e.repeat) useGame.getState().interact()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)

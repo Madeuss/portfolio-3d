@@ -5,6 +5,7 @@ import Office from './Office'
 import { AiBag } from './AiBag'
 import { Mailbox, PunchingBag } from './Placeholders'
 import Station from './Station'
+import BagSwing from './BagSwing'
 import Player from './Player'
 
 // Cena de teste (tarefas 1.4 e 2.2–2.5): chão, caixas com física, luz de
@@ -105,7 +106,8 @@ export default function TestScene() {
           <Office />
         </Station>
         <Station id="skills" position={[4, 0, 1.5]} zoneCenter={[0, 0.75, 0]} zoneSize={[1.2, 0.75, 1.2]} markerY={2.2}>
-          {bag === 'provisório' ? <PunchingBag /> : <AiBag />}
+          {/* Pendurado a ~1,4 m: é dali que ele balança ao levar um golpe. */}
+          <BagSwing pivotY={1.4}>{bag === 'provisório' ? <PunchingBag /> : <AiBag />}</BagSwing>
         </Station>
         <Station id="contact" position={[-3.5, 0, 3]} zoneCenter={[0, 0.75, 0]} zoneSize={[1, 0.75, 1]} markerY={1.8}>
           <Mailbox />

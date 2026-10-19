@@ -84,6 +84,30 @@ function Respawn({ target, spawn }: { target: RefObject<EcctrlHandle | null>; sp
   return null
 }
 
+// No treino, encosta o personagem no saco: para a ~0,72 m do centro dele,
+// a distância em que o soco do chibi (≈0,5 m de alcance) chega no saco.
+const PUNCH_DISTANCE = 0.72
+const APPROACH_SPEED = 8
+
+function TrainingApproach({ target }: { target: RefObject<EcctrlHandle | null> }) {
+  useFrame((_, delta) => {
+    const training = useGame.getState().training
+    const player = target.current
+    if (!training || !player) return
+    const pos = player.body.translation()
+    const [tx, tz] = training.target
+    const dx = pos.x - tx
+    const dz = pos.z - tz
+    const dist = Math.hypot(dx, dz) || 1
+    const k = 1 - Math.exp(-APPROACH_SPEED * delta)
+    const x = pos.x + (tx + (dx / dist) * PUNCH_DISTANCE - pos.x) * k
+    const z = pos.z + (tz + (dz / dist) * PUNCH_DISTANCE - pos.z) * k
+    player.body.setTranslation({ x, y: pos.y, z }, true)
+  })
+
+  return null
+}
+
 type Props = { position: [number, number, number] }
 
 // Personagem jogável (tarefas 2.3 e 2.4): o ecctrl cuida da física numa
@@ -121,6 +145,7 @@ export default function Player({ position }: Props) {
 
       <MovementInputs target={ref} />
       <Respawn target={ref} spawn={position} />
+      <TrainingApproach target={ref} />
       <Footsteps />
       <FollowCamera target={ref} />
     </KeyboardControls>

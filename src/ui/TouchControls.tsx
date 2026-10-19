@@ -14,13 +14,11 @@ export default function TouchControls() {
   const touch = useIsTouch()
   const playing = useGame(isPlaying)
 
-  // Botão A: no momento em que é apertado, abre a estação próxima.
+  // Botão A: no momento em que é apertado, interage com a estação próxima.
   useEffect(
     () =>
       useButtonStore.subscribe((s, prev) => {
-        if (!s.buttons.interact || prev.buttons.interact) return
-        const game = useGame.getState()
-        if (game.nearby && isPlaying(game)) game.openStation(game.nearby)
+        if (s.buttons.interact && !prev.buttons.interact) useGame.getState().interact()
       }),
     [],
   )

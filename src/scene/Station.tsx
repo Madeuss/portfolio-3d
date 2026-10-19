@@ -45,7 +45,7 @@ export default function Station({ id, position, zoneCenter, zoneSize, markerY, c
           sensor
           args={zoneSize}
           position={zoneCenter}
-          onIntersectionEnter={(e) => isPlayer(e) && enter(id)}
+          onIntersectionEnter={(e) => isPlayer(e) && enter(id, [position[0] + zoneCenter[0], position[2] + zoneCenter[2]])}
           onIntersectionExit={(e) => isPlayer(e) && leave(id)}
         />
       </RigidBody>

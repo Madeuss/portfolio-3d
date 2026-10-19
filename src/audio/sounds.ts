@@ -49,6 +49,16 @@ export function playStep() {
   h.rate(0.9 + Math.random() * 0.2, id)
 }
 
+// Soco no saco: 4 variações (Kenney Impact Sounds, impactPunch_heavy).
+const PUNCHES = [0, 1, 2, 3].map((i) => `/sounds/punch-${i}.mp3`)
+
+export function playPunch() {
+  const src = PUNCHES[Math.floor(Math.random() * PUNCHES.length)]
+  const h = howl(src, 0.5)
+  const id = h.play()
+  h.rate(0.9 + Math.random() * 0.2, id)
+}
+
 let music: Howl | null = null
 
 export function startMusic() {
