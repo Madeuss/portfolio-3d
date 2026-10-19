@@ -330,7 +330,7 @@ gloves, do not include the stand.
 **Anexe:** buscar **"banco de supino reto"** ou **"flat weight bench"**.
 
 ```
-Create a stylized 3D game asset of a flat weight bench like the attached image, black
+Create a stylized 3D game asset of a incline/decline weight bench like the attached image, black
 padded seat with a thin royal blue (#0A3FB8) stripe on a glossy black steel frame.
 Soft rounded shapes, clean modern design, single object, centered, front three-quarter
 view, plain white background, even soft lighting, no shadow on the floor, no text, no
@@ -389,6 +389,8 @@ the colors described above). Only the mailbox, do not include the house.
 
 ### 18. Golzinho
 
+**Já feito em código** (traves e rede no site). Só gere se quiser trocar por um modelo.
+
 **Anexe:** buscar **"mini gol futebol"** ou **"mini soccer goal"** (gol pequeno de quintal, com rede).
 
 ```
@@ -407,7 +409,8 @@ the colors described above). Only the soccer goal, do not include the house.
 
 ```
 Create a stylized 3D game asset of a small wooden dog house like the attached image,
-pitched red roof, arched entrance, a small food bowl in front. Warm natural wood. Soft
+pitched dark grey roof (like the house), arched entrance, a small food bowl in front.
+Warm natural wood. Soft
 rounded shapes, clay-like smooth surfaces, cozy warm colors, Animal Crossing style,
 single object, centered, front three-quarter view, plain white background, even soft
 lighting, no shadow on the floor, no text, no logo.
@@ -428,7 +431,52 @@ colors, Animal Crossing style, single object, centered, front three-quarter view
 plain white background, even soft lighting, no shadow on the floor, no text, no logo.
 ```
 
-Segunda variação: `Same style as the attached tree, but taller and slimmer, with a darker green canopy.`
+Feito assim (19/10): em vez do print do worawork, foi anexada a árvore provisória do site, para não sair
+igual às dele. Resultado: [`refs/22-arvore.jpg`](refs/22-arvore.jpg), copa de "bexigas" de massinha.
+As variações anexam só essa árvore:
+
+- **Com laranjas** ([`refs/22-arvore-laranjas.jpg`](refs/22-arvore-laranjas.jpg)): `Create a second variation of the
+  attached stylized 3D tree, in the exact same art style [...] in the exact same vivid green as the attached tree,
+  with about ten small glossy orange fruits sitting on the surface of the canopy [...]`. Sem o "exact same vivid
+  green" ela sai verde-oliva.
+- **Alta** ([`refs/22-arvore-alta.jpg`](refs/22-arvore-alta.jpg)): `Create another variation of the attached
+  stylized 3D tree [...] taller and slimmer, with a longer trunk and a narrower canopy of stacked rounded clusters
+  in a deeper green.`
+
+### 32. Laguinho
+
+Um lago pequeno com borda de pedras, num canto do terreno. É um modelo só (água, pedras e plantinhas
+juntas); a água eu deixo animada no site trocando o material dela.
+
+**Anexe:** buscar **"lago de jardim pequeno com pedras"** ou **"small garden pond with stones"**.
+
+```
+Create a stylized 3D game asset of a small round garden pond like the attached image,
+about 2.5 m wide: calm light blue water surface, a ring of smooth rounded grey stones
+around the edge, two lily pads with a small pink flower and a few reeds on one side.
+Flat on the ground, no hill. Soft rounded shapes, clay-like smooth surfaces, cozy warm
+colors, Animal Crossing style, single object, centered, front three-quarter view, plain
+white background, even soft lighting, no shadow on the floor, no text, no logo.
+Match the art style and lighting of the second attached image (only the style, keep
+the colors described above). Only the pond, do not include the house.
+```
+
+### 23. Arbusto, flores e pedras (um modelo de cada, repetidos pelo terreno)
+
+**Anexe:** buscar **"arbusto redondo jardim"**, **"canteiro de margaridas"** e **"pedras de jardim"**.
+Mesmo prompt, trocando só a primeira linha:
+
+```
+Create a stylized 3D game asset of a round green bush like the attached image, about
+70 cm tall. Soft rounded shapes, clay-like smooth surfaces, cozy warm colors, Animal
+Crossing style, single object, centered, front three-quarter view, plain white
+background, even soft lighting, no shadow on the floor, no text, no logo.
+Match the art style and lighting of the second attached image (only the style). Only
+the bush, do not include the house.
+```
+
+- Flores: `a small cluster of white and yellow daisies with green leaves, about 30 cm tall` (e "Only the flowers").
+- Pedras: `a group of three smooth rounded grey rocks of different sizes` (e "Only the rocks").
 
 ---
 
@@ -436,6 +484,5 @@ Segunda variação: `Same style as the attached tree, but taller and slimmer, wi
 
 Mesmo esquema; troque o objeto no começo do prompt de exterior ou interior:
 
-- **23. Arbusto / flores / pedras**: `a round green bush`, `a small cluster of white daisies`, `a group of three smooth grey rocks`, exterior.
 - **24. Poste de luz**: `a small garden lamp post with a warm glowing lantern`, exterior.
 - **25. Portão**: `a short white wooden garden gate with two posts`, exterior.

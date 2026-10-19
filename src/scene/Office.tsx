@@ -17,6 +17,9 @@ const DESK_SCALE = 1.3
 const DESK_TOP = 0.583 * DESK_SCALE
 const DESK_CENTER: [number, number, number] = [0.73, 0, -0.05]
 const DESK_HALF = { x: 0.5 * DESK_SCALE, z: 0.25 * DESK_SCALE }
+// O Tripo entregou o tampo girado 3,8° (medido nos vértices do tampo): o giro
+// da mesa desconta isso para ela ficar reta.
+const DESK_YAW = Math.PI / 2 - (3.8 * Math.PI) / 180
 
 function Desk() {
   const { scene } = useGLTF(DESK_URL)
@@ -30,7 +33,7 @@ function Desk() {
   return (
     <RigidBody type="fixed" colliders={false} position={DESK_CENTER}>
       <CuboidCollider args={[DESK_HALF.x, DESK_TOP / 2, DESK_HALF.z]} position={[0, DESK_TOP / 2, 0]} />
-      <primitive object={scene} scale={DESK_SCALE} rotation-y={Math.PI / 2} />
+      <primitive object={scene} scale={DESK_SCALE} rotation-y={DESK_YAW} />
     </RigidBody>
   )
 }
@@ -41,8 +44,10 @@ export default function Office() {
     <>
       <Desk />
       {/* Setup (monitores, teclado, gabinete) numa base só: 1 unidade de
-          largura; 1,15 m, apoiado no tampo, um pouco para o fundo da mesa. */}
-      <Prop url={SETUP_URL} scale={1.15} position={[DESK_CENTER[0], DESK_TOP, DESK_CENTER[2] - 0.08]} />
+          largura; 1,05 m, apoiado no tampo, um pouco para o fundo da mesa. O
+          braço do monitor sobra à esquerda da base: o setup vai 6 cm para a
+          direita para a base ficar centrada no tampo. */}
+      <Prop url={SETUP_URL} scale={1.05} position={[DESK_CENTER[0] + 0.06, DESK_TOP, DESK_CENTER[2] - 0.08]} />
       {/* Cadeira de tela: 1 unidade de altura com o encosto de cabeça; 1,2 m.
           Vem de frente para +Z, então gira 180° para olhar para a mesa. */}
       <Prop url={CHAIR_URL} scale={1.2} position={[DESK_CENTER[0] + 0.1, 0, DESK_CENTER[2] + 0.75]} rotationY={Math.PI} />

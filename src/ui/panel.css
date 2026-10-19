@@ -87,6 +87,8 @@
 
 .panel__desc {
   margin: 0;
+  /* textos com mais de um parágrafo vêm separados por linha em branco */
+  white-space: pre-line;
   color: var(--ink-2);
   line-height: 1.55;
 }

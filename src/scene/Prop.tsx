@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useGLTF } from '@react-three/drei'
-import { CuboidCollider, RigidBody } from '@react-three/rapier'
+import { CuboidCollider, CylinderCollider, RigidBody } from '@react-three/rapier'
 import { Box3, Vector3, type Mesh } from 'three'
 
 // Móvel gerado por IA (public/models/ai), parado no chão, com uma caixa de
@@ -13,9 +13,11 @@ type Props = {
   scale: number
   position: [number, number, number]
   rotationY?: number
+  /** Raio (m) de um tronco no lugar da caixa: árvores não bloqueiam a copa toda. */
+  trunk?: number
 }
 
-export default function Prop({ url, scale, position, rotationY = 0 }: Props) {
+export default function Prop({ url, scale, position, rotationY = 0, trunk }: Props) {
   const { scene } = useGLTF(url)
   const { copy, half, center } = useMemo(() => {
     const c = scene.clone()
@@ -32,7 +34,11 @@ export default function Prop({ url, scale, position, rotationY = 0 }: Props) {
 
   return (
     <RigidBody type="fixed" colliders={false} position={position} rotation={[0, rotationY, 0]}>
-      <CuboidCollider args={[half.x, half.y, half.z]} position={[center.x, center.y, center.z]} />
+      {trunk ? (
+        <CylinderCollider args={[half.y, trunk]} position={[0, half.y, 0]} />
+      ) : (
+        <CuboidCollider args={[half.x, half.y, half.z]} position={[center.x, center.y, center.z]} />
+      )}
       <primitive object={copy} scale={scale} />
     </RigidBody>
   )

@@ -1,8 +1,9 @@
 import { useMemo } from 'react'
-import { CuboidCollider, CylinderCollider, RigidBody } from '@react-three/rapier'
+import { CuboidCollider, RigidBody } from '@react-three/rapier'
 import { useControls } from 'leva'
 import Station from './Station'
 import Prop from './Prop'
+import Grass, { groundPatches, type Area } from './Grass'
 
 // Terreno (docs/planta.excalidraw, à esquerda): a planta tem 30 × 30 m com a
 // casa de 10 m; aqui a casa tem 5,6 m e o terreno 20 × 20 m, com a mesma
@@ -23,17 +24,26 @@ const WOOD_DARK = '#8a5a2b'
 
 function Ground() {
   const { color } = useControls('Chão', { color: { value: '#afcbc0', label: 'cor' } })
+  const patches = useMemo(groundPatches, [])
   return (
     <RigidBody type="fixed" colliders={false}>
       <CuboidCollider args={[HALF, 0.1, HALF]} position={[0, -0.1, 0]} />
       {/* O plano nasce em pé (eixo XY); girar -90° em X deita ele no chão. */}
       <mesh rotation-x={-Math.PI / 2} receiveShadow>
         <planeGeometry args={[HALF * 2, HALF * 2]} />
-        <meshStandardMaterial color={color} />
+        <meshStandardMaterial color={color} map={patches} />
       </mesh>
     </RigidBody>
   )
 }
+
+// Onde não nasce grama: caminho, casa (com a varanda), mini campo e a caixa de correio.
+const NO_GRASS: Area[] = [
+  { x: [-0.95, 0.95], z: [-1.2, HALF] },
+  { x: [-4.1, 1.9], z: [-6.6, -0.9] },
+  { x: [2.4, 8.8], z: [0.5, 4.7] },
+  { x: [-2.1, -1.3], z: [0.6, 1.4] },
+]
 
 type Box = { center: [number, number, number]; half: [number, number, number] }
 
@@ -91,28 +101,25 @@ function Path() {
   )
 }
 
-// Árvore provisória (até gerar as do Tripo): tronco e copa em bolas facetadas.
-function Tree({ position, size = 1 }: { position: [number, number, number]; size?: number }) {
-  return (
-    <RigidBody type="fixed" colliders={false} position={position}>
-      <CylinderCollider args={[0.6 * size, 0.18 * size]} position={[0, 0.6 * size, 0]} />
-      <mesh position-y={0.6 * size} castShadow>
-        <cylinderGeometry args={[0.12 * size, 0.18 * size, 1.2 * size, 7]} />
-        <meshStandardMaterial color={WOOD_DARK} roughness={0.9} />
-      </mesh>
-      {[
-        [0, 1.55, 0, 0.75],
-        [0.35, 1.25, 0.15, 0.5],
-        [-0.3, 1.3, -0.1, 0.55],
-      ].map(([x, y, z, r], i) => (
-        <mesh key={i} position={[x * size, y * size, z * size]} castShadow>
-          <icosahedronGeometry args={[r * size, 1]} />
-          <meshStandardMaterial color={i === 0 ? '#5f9e4f' : '#6fae5c'} flatShading roughness={0.9} />
-        </mesh>
-      ))}
-    </RigidBody>
-  )
+type TreeKind = 'plain' | 'orange' | 'tall'
+const TREE_URL: Record<TreeKind, string> = {
+  plain: '/models/ai/22-arvore.glb',
+  orange: '/models/ai/22-arvore-laranjas.glb',
+  tall: '/models/ai/22-arvore-alta.glb',
 }
+const TREE_SCALE: Record<TreeKind, number> = { plain: 3, orange: 2.8, tall: 3.8 }
+// [tipo, x, z, giro]
+const TREES: [TreeKind, number, number, number][] = [
+  ['tall', -8.2, -8, 0],
+  ['plain', -6.4, -7.4, 1],
+  ['orange', -4.8, -8.2, 2],
+  ['orange', 4.6, -8, 0.5],
+  ['plain', 6.4, -7.3, 2.5],
+  ['tall', 8.2, -8.1, 1.2],
+  ['plain', -8.3, -2.2, 0.3],
+  ['tall', 8.4, 6.6, 0.8],
+  ['orange', -8.2, 7.4, 1.7],
+]
 
 const FIELD = { center: [5.6, 2.6] as const, half: [3, 1.9] as const }
 const LINE = 0.06
@@ -196,6 +203,7 @@ export default function Exterior() {
       <Ground />
       <Borders />
       <Path />
+      <Grass half={HALF - BORDER} clear={NO_GRASS} />
 
       {/* Casa (item 16): 1 unidade de largura; 5,6 m. As janelas e os degraus
           vêm de scripts/house_glass.mts. Textura em 4k (o maior objeto da tela).
@@ -205,10 +213,16 @@ export default function Exterior() {
       {/* Porta: no pé da escada, E entra na casa (troca de cena). */}
       <Station id="door" position={[0, 0, -0.4]} zoneCenter={[0, 0.75, 0]} zoneSize={[0.8, 0.75, 0.5]} markerY={1.6} />
 
-      {/* Fileira de árvores no fundo, dos dois lados da casa. */}
-      {[-8, -6.3, -4.6, 4.6, 6.3, 8].map((x, i) => (
-        <Tree key={x} position={[x, 0, -8 + (i % 2) * 0.7]} size={1.1 + (i % 3) * 0.15} />
+      {/* Árvores (item 22): fileira no fundo, dos dois lados da casa, e
+          algumas soltas. 1 unidade de altura: a lisa e a de laranjas com 3 m,
+          a alta com 3,8 m. Só o tronco colide. */}
+      {TREES.map(([kind, x, z, r], i) => (
+        <Prop key={i} url={TREE_URL[kind]} scale={TREE_SCALE[kind]} position={[x, 0, z]} rotationY={r} trunk={0.2} />
       ))}
+
+      {/* Casinha do dog (item 20): 1 unidade de fundo; 1,2 m. Vem de frente
+          para +z: gira um pouco para olhar para o caminho. */}
+      <Prop url="/models/ai/20-casinha-dog.glb" scale={1.2} position={[-6.8, 0, 3.4]} rotationY={Math.PI / 5} />
 
       {/* Portão / entrada: caixa de correio ao lado do caminho. */}
       <Station id="contact" position={[-1.7, 0, 1]} zoneCenter={[0, 0.75, 0]} zoneSize={[1, 0.75, 1]} markerY={1.8}>

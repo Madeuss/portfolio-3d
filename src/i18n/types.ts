@@ -31,6 +31,8 @@ export type Dictionary = {
       items: { name: string; year: string; tag: string; desc: string }[]
     }
     skills: { prompt: string; label: string; title: string; groups: Record<StackGroupId, string> }
+    /** Textos do Sobre do madeusdev; `stats` já com número e rótulo juntos. */
+    about: { prompt: string; label: string; title: string; paragraphs: string[]; statsTitle: string; stats: string[] }
     contact: { prompt: string; label: string; title: string; note: string; email: string }
   }
 }

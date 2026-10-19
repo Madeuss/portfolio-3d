@@ -61,6 +61,17 @@ const en: Dictionary = {
         observability: 'Observability',
       },
     },
+    about: {
+      prompt: 'About me',
+      label: '/About',
+      title: 'I make complex products feel simple, from component to deploy.',
+      paragraphs: [
+        "I'm a front-end and fullstack engineer with 6+ years of experience. For the last 4, I've been part of the team building the customer console of a Brazilian public cloud — virtual machines, Kubernetes, storage, VPC, IAM and billing — where I drive front-end architecture decisions: micro-frontends, independently published packages and platform migrations like Next.js 16 and React 19.",
+        "I don't stop at the browser: I ship Python (FastAPI) BFFs, OAuth 2.0 and SSO flows, GitLab CI/CD pipelines and Kubernetes (ArgoCD) and Kong API Gateway configuration across multiple regions. I also write ADRs and design docs, review code across teams and mentor developers on testing and front-end architecture.",
+      ],
+      statsTitle: 'By the numbers',
+      stats: ['6+ years of experience', '4+ years on a public cloud console', '1 school football tournament won'],
+    },
     contact: {
       prompt: 'Check the mail',
       label: '/Contact',

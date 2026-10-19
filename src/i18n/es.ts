@@ -61,6 +61,17 @@ const es: Dictionary = {
         observability: 'Observabilidad',
       },
     },
+    about: {
+      prompt: 'Sobre mí',
+      label: '/Sobre mí',
+      title: 'Hago que productos complejos parezcan simples, del componente al deploy.',
+      paragraphs: [
+        'Soy ingeniero front-end y fullstack, con más de 6 años de experiencia. En los últimos 4, formo parte del equipo que construye la consola de clientes de una nube pública brasileña — máquinas virtuales, Kubernetes, storage, VPC, IAM y billing —, donde impulso decisiones de arquitectura front-end: micro-frontends, paquetes publicados de forma independiente y migraciones de plataforma como Next.js 16 y React 19.',
+        'No me quedo en el navegador: entrego BFFs en Python (FastAPI), flujos de OAuth 2.0 y SSO, pipelines de CI/CD en GitLab y configuración de Kubernetes (ArgoCD) y Kong API Gateway en múltiples regiones. También escribo ADRs y documentos técnicos, reviso código entre equipos y mentoreo a desarrolladores en testing y arquitectura front-end.',
+      ],
+      statsTitle: 'En números',
+      stats: ['6+ años de experiencia', '4+ años en una consola de nube pública', '1 torneo interclases ganado'],
+    },
     contact: {
       prompt: 'Abrir buzón',
       label: '/Contacto',

@@ -1,7 +1,7 @@
 import type { Dictionary } from '../i18n'
 import { contact, projects, stack } from './content'
 
-export type StationId = 'projects' | 'skills' | 'contact'
+export type StationId = 'projects' | 'skills' | 'about' | 'contact'
 
 export type PanelLink = { label: string; href: string; primary?: boolean }
 
@@ -50,6 +50,10 @@ export function stationPages(id: StationId, t: Dictionary): PanelContent[] {
           groups: stack.map((g) => ({ title: s.groups[g.id], items: g.items })),
         },
       ]
+    }
+    case 'about': {
+      const s = t.stations.about
+      return [{ label: s.label, title: s.title, desc: s.paragraphs.join('\n\n'), groups: [{ title: s.statsTitle, items: s.stats }] }]
     }
     case 'contact': {
       const s = t.stations.contact
