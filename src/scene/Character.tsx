@@ -5,6 +5,7 @@ import { useEcctrlAnimationStore } from 'ecctrl/animation'
 import type { EcctrlAnimationState } from 'ecctrl/animation'
 import type { AnimationAction, Group, Mesh } from 'three'
 import { retargetClip, type GltfNode } from './retarget'
+import JerseyPrint from './JerseyPrint'
 
 // Seu avatar chibi (tarefa 4.x): gerado no Tripo a partir das imagens do
 // Gemini (docs/refs/01-avatar-*.jpg), com rig Mixamo e o andar do Tripo
@@ -58,13 +59,13 @@ export default function Character() {
   const group = useRef<Group>(null)
   const { scene, animations, parser } = useGLTF(URL)
   const mixamo = useGLTF(MIXAMO_URLS)
+  const nodes = parser.json.nodes as GltfNode[]
   const clips = useMemo(() => {
-    const nodes = parser.json.nodes as GltfNode[]
     const converted = Object.keys(MIXAMO).map((name, i) =>
       retargetClip(mixamo[i].scene, mixamo[i].animations[0], scene, nodes, name, { armSpread: ARM_SPREAD }),
     )
     return [...animations, ...converted]
-  }, [animations, mixamo, scene, parser])
+  }, [animations, mixamo, scene, nodes])
   const { actions } = useAnimations(clips, group)
   const current = useRef<{ name: string; action: AnimationAction | null } | null>(null)
 
@@ -99,6 +100,7 @@ export default function Character() {
   return (
     <group ref={group} position-y={FEET_Y} scale={SCALE}>
       <primitive object={scene} />
+      <JerseyPrint scene={scene} nodes={nodes} name="MADEUS" number="9" />
     </group>
   )
 }

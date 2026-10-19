@@ -70,7 +70,7 @@ export type GltfNode = {
 // pode já estar animada (parado, andando), e skeleton.pose() não serve: com a
 // malha quantizada pela dieta, ele põe o quadril no lugar errado e o boneco
 // afunda no chão.
-function resetToRest(root: Object3D, nodes: GltfNode[]) {
+export function resetToRest(root: Object3D, nodes: GltfNode[]) {
   const byName = new Map(nodes.filter((n) => n.name).map((n) => [PropertyBinding.sanitizeNodeName(n.name!), n]))
   root.traverse((obj) => {
     const node = byName.get(obj.name)
