@@ -124,10 +124,10 @@ export default function TestScene() {
         {/* Quarto provisório: cama de casal (1 unidade de comprimento; 2 m),
             com a cabeceira para o fundo. Limpa com scripts/clean_loose.py. */}
         <Prop url="/models/ai/10-cama.glb" scale={2} position={[-6.5, 0, -3]} />
-        {/* Casa (item 16), provisória: vai ser gerada de novo com vidro de
-            verdade nas janelas (hoje são vãos) e textura 4k. 1 unidade de
-            largura; 7 m. Textura mantida em 2k. */}
-        <Prop url="/models/ai/16-casa.glb" scale={7} position={[0, 0, -7]} />
+        {/* Casa (item 16): 1 unidade de largura; 5,6 m. As janelas do Tripo vêm
+            como vãos; o vidro âmbar aceso é colocado por scripts/house_glass.mts.
+            Textura em 4k (a casa é o maior objeto da tela). */}
+        <Prop url="/models/ai/16-casa-v2.glb" scale={5.6} position={[0, 0, -6.4]} />
         <Station id="contact" position={[-3.5, 0, 3]} zoneCenter={[0, 0.75, 0]} zoneSize={[1, 0.75, 1]} markerY={1.8}>
           {/* Caixa de correio no poste: 1 unidade de altura; 1,2 m. */}
           <Prop url="/models/ai/17-caixa-correio.glb" scale={1.2} position={[0, 0, 0]} />
