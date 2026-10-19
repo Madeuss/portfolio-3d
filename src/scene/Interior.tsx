@@ -1,4 +1,3 @@
-import { CuboidCollider, RigidBody } from '@react-three/rapier'
 import Office from './Office'
 import PunchingBag from './PunchingBag'
 import Station from './Station'
@@ -6,45 +5,24 @@ import BagSwing from './BagSwing'
 import BagStand, { HOOK_HEIGHT } from './BagStand'
 import Locker from './Locker'
 import Prop from './Prop'
+import InteriorShell, { Doormat } from './InteriorShell'
 
 // Interior da casa (docs/planta.excalidraw, à direita): 10 × 10 m sem teto e
-// sem paredes internas, com os cômodos em quatro cantos. Por enquanto só os
-// móveis no lugar; piso, paredes e o visual madeusdev vêm na tarefa do interior.
-// Os móveis ficam virados para o sul (para a câmera), mesmo onde a planta
+// sem paredes internas, com os cômodos em quatro cantos, separados pelo piso
+// (InteriorShell). Os móveis ficam virados para o sul (para a câmera), mesmo onde a planta
 // encosta eles na parede de lado.
 
-const HALF = 5
 // Onde o personagem aparece ao entrar: logo à frente do capacho, na porta sul.
 export const INTERIOR_SPAWN: [number, number, number] = [0, 2, 3.2]
-
-function Floor() {
-  return (
-    <RigidBody type="fixed" colliders={false}>
-      <CuboidCollider args={[HALF, 0.1, HALF]} position={[0, -0.1, 0]} />
-      {/* Paredes invisíveis por enquanto, para não sair da casa. */}
-      <CuboidCollider args={[HALF, 1, 0.1]} position={[0, 1, -HALF]} />
-      <CuboidCollider args={[HALF, 1, 0.1]} position={[0, 1, HALF]} />
-      <CuboidCollider args={[0.1, 1, HALF]} position={[-HALF, 1, 0]} />
-      <CuboidCollider args={[0.1, 1, HALF]} position={[HALF, 1, 0]} />
-      <mesh rotation-x={-Math.PI / 2} receiveShadow>
-        <planeGeometry args={[HALF * 2, HALF * 2]} />
-        <meshStandardMaterial color="#f1e0c5" />
-      </mesh>
-    </RigidBody>
-  )
-}
 
 export default function Interior() {
   return (
     <>
-      <Floor />
+      <InteriorShell />
 
       {/* Capacho na porta sul: E sai da casa. */}
-      <Station id="door" position={[0, 0, 4.4]} zoneCenter={[0, 0.75, 0]} zoneSize={[0.8, 0.75, 0.5]} markerY={1.6}>
-        <mesh rotation-x={-Math.PI / 2} position-y={0.01} receiveShadow>
-          <planeGeometry args={[1.4, 0.7]} />
-          <meshStandardMaterial color="#69a86b" />
-        </mesh>
+      <Station id="door" position={[0, 0, 4.35]} zoneCenter={[0, 0.75, 0]} zoneSize={[0.8, 0.75, 0.5]} markerY={1.6}>
+        <Doormat />
       </Station>
 
       {/* Academia (noroeste): saco de pancada e halteres. */}

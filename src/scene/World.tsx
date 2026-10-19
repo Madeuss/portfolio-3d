@@ -4,6 +4,7 @@ import { useControls } from 'leva'
 import { useGame } from '../state/game'
 import Exterior, { EXTERIOR_DOOR_SPAWN, EXTERIOR_SPAWN } from './Exterior'
 import Interior, { INTERIOR_SPAWN } from './Interior'
+import { BLUE } from './InteriorShell'
 import Player from './Player'
 
 // O mundo: luz de ambiente (HDRI), sombras, a cena atual (terreno ou
@@ -59,6 +60,8 @@ export default function World() {
   return (
     <>
       {stats && <Stats />}
+      {/* Fundo: claro no terreno; dentro da casa, o azul do madeusdev. */}
+      <color attach="background" args={[scene === 'interior' ? BLUE : '#FAFAF7']} />
       <Lights />
 
       {/* Tudo que colide fica dentro de <Physics>. `debug` desenha as formas

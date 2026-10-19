@@ -237,6 +237,108 @@ Match the art style, materials and lighting of the second attached image. Only t
 dumbbell rack, do not include the stand.
 ```
 
+### Móveis extras (para encher a casa)
+
+Mesmo esquema do interior: a foto do objeto + a âncora `refs/03-suporte-saco.jpg`. Em ordem do que
+mais enche a casa por crédito. Tapetes e a moldura do Corinthians eu faço em código.
+
+#### 15. Planta em vaso (usada várias vezes)
+
+**Anexe:** buscar **"costela de adão vaso branco"** ou **"monstera plant white pot"**.
+
+```
+Create a stylized 3D game asset of a potted monstera plant like the one in the attached
+image, about 1 m tall, a few big glossy green leaves in a simple off-white ceramic pot.
+Soft rounded shapes, clean modern design, single object, centered, front three-quarter
+view, plain white background, even soft lighting, no shadow on the floor, no text, no
+logo.
+Match the art style, materials and lighting of the second attached image. Only the
+plant, do not include the stand.
+```
+
+#### 27. Criado-mudo com abajur (usado 2 vezes, dos lados da cama)
+
+**Anexe:** buscar **"criado mudo com abajur"** ou **"nightstand with table lamp"**.
+
+```
+Create a stylized 3D game asset of a small bedside nightstand with a table lamp on top,
+like the attached image. Light wood nightstand with one drawer and thin black legs, a
+lamp with a round off-white fabric shade. Soft rounded shapes, clean modern design,
+single object, centered, front three-quarter view, plain white background, even soft
+lighting, no shadow on the floor, no text, no logo.
+Match the art style, materials and lighting of the second attached image. Only the
+nightstand and lamp, do not include the stand.
+```
+
+#### 28. Estante com livros (escritório)
+
+**Anexe:** buscar **"estante industrial livros"** ou **"open bookshelf with books and plants"**.
+
+```
+Create a stylized 3D game asset of a tall open bookshelf like the attached image, about
+1.8 m tall, glossy black metal frame with walnut wood shelves holding a few books,
+small plants and decor objects. Soft rounded shapes, clean modern design, single object,
+centered, front three-quarter view, plain white background, even soft lighting, no
+shadow on the floor, no readable text on the books, no logo.
+Match the art style, materials and lighting of the second attached image. Only the
+bookshelf, do not include the stand.
+```
+
+#### 29. Sofá (sala, junto do quarto)
+
+**Anexe:** buscar **"sofá 3 lugares moderno cinza"** ou **"modern three seater sofa"**.
+
+```
+Create a stylized 3D game asset of a modern three-seater sofa like the attached image,
+light grey fabric with a couple of cushions (one royal blue #0A3FB8), low thin black
+legs. Soft rounded shapes, clean modern design, cozy, single object, centered, front
+three-quarter view, plain white background, even soft lighting, no shadow on the floor,
+no text, no logo.
+Match the art style, materials and lighting of the second attached image. Only the
+sofa, do not include the stand.
+```
+
+#### 30. Rack com TV (de frente para o sofá)
+
+**Anexe:** buscar **"rack com tv moderno"** ou **"low tv console with flat tv"**.
+
+```
+Create a stylized 3D game asset of a low TV console with a flat TV on top, like the
+attached image. Walnut wood console with black handles, a thin black flat TV with a
+plain black screen, a small plant and a game console beside it. Soft rounded shapes,
+clean modern design, single object, centered, front three-quarter view, plain white
+background, even soft lighting, no shadow on the floor, no text, no logo.
+Match the art style, materials and lighting of the second attached image. Only the TV
+console, do not include the stand.
+```
+
+#### 13. Luvas de boxe penduradas (academia)
+
+**Anexe:** buscar **"luvas de boxe penduradas"** ou **"boxing gloves hanging by laces"**.
+
+```
+Create a stylized 3D game asset of a pair of red boxing gloves hanging by their laces
+from a small wall hook, like the attached image. Soft rounded shapes, slightly glossy
+leather, clean modern design, single object, centered, front three-quarter view, plain
+white background, even soft lighting, no shadow on the floor, no text, no logo.
+Match the art style, materials and lighting of the second attached image. Only the
+gloves, do not include the stand.
+```
+
+#### 31. Banco de musculação (academia)
+
+**Anexe:** buscar **"banco de supino reto"** ou **"flat weight bench"**.
+
+```
+Create a stylized 3D game asset of a flat weight bench like the attached image, black
+padded seat with a thin royal blue (#0A3FB8) stripe on a glossy black steel frame.
+Soft rounded shapes, clean modern design, single object, centered, front three-quarter
+view, plain white background, even soft lighting, no shadow on the floor, no text, no
+logo.
+Match the art style, materials and lighting of the second attached image. Only the
+weight bench, do not include the stand.
+```
+
 ---
 
 ## Exterior (estilo jardim, parente do worawork)
@@ -334,8 +436,6 @@ Segunda variação: `Same style as the attached tree, but taller and slimmer, wi
 
 Mesmo esquema; troque o objeto no começo do prompt de exterior ou interior:
 
-- **13. Luvas penduradas**: `a pair of boxing gloves hanging by their laces`, interior, luvas vermelhas ou pretas.
-- **15. Planta em vaso**: `a potted monstera plant in a white ceramic pot`, interior.
 - **23. Arbusto / flores / pedras**: `a round green bush`, `a small cluster of white daisies`, `a group of three smooth grey rocks`, exterior.
 - **24. Poste de luz**: `a small garden lamp post with a warm glowing lantern`, exterior.
 - **25. Portão**: `a short white wooden garden gate with two posts`, exterior.

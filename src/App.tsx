@@ -58,7 +58,6 @@ export default function App() {
       {/* dpr: resolução máxima em telas de alta densidade. Acima de 1,5 (2 no
           desktop) o custo cresce muito e a diferença quase não aparece. */}
       <Canvas shadows="percentage" dpr={[1, isTouch() ? 1.5 : 2]} camera={{ position: [5, 6, 7], fov: 40 }}>
-        <color attach="background" args={['#FAFAF7']} />
         <World />
       </Canvas>
 
