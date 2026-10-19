@@ -40,8 +40,10 @@ function drawTexture(name: string, number: string) {
   ctx.fillStyle = '#ffffff'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'alphabetic'
-  ctx.font = `800 ${size * 0.27}px Archivo, sans-serif`
-  ctx.fillText(name, size / 2, size * 0.27, size * 0.98)
+  // As bordas da plaquinha dobram para os lados do corpo e somem atrás dos
+  // braços: o nome fica só no miolo (62% da largura), que é o que aparece.
+  ctx.font = `800 ${size * 0.24}px Archivo, sans-serif`
+  ctx.fillText(name, size / 2, size * 0.26, size * 0.62)
   ctx.font = `800 ${size * 0.66}px Archivo, sans-serif`
   ctx.fillText(number, size / 2, size * 0.96)
   const texture = new CanvasTexture(canvas)
