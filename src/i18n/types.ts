@@ -16,8 +16,8 @@ export type Dictionary = {
   hud: { help: string; soundOn: string; soundOff: string }
   help: {
     title: string
-    keys: { move: string; run: string; jump: string; interact: string; zoom: string }
-    labels: { space: string; wheel: string }
+    keys: { move: string; run: string; interact: string; zoom: string }
+    labels: { wheel: string }
     close: string
   }
   panel: { close: string; escHint: string; prev: string; next: string; site: string }

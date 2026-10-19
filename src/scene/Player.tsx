@@ -15,7 +15,6 @@ const KEYS = [
   { name: 'backward', keys: ['ArrowDown', 'KeyS'] },
   { name: 'leftward', keys: ['ArrowLeft', 'KeyA'] },
   { name: 'rightward', keys: ['ArrowRight', 'KeyD'] },
-  { name: 'jump', keys: ['Space'] },
   { name: 'run', keys: ['Shift'] },
 ]
 
@@ -24,6 +23,16 @@ const KEYS = [
 const RADIUS = 0.3
 const HALF_HEIGHT = 0.35
 const FLOAT = 0.3
+
+// Velocidades em m/s (o padrão do ecctrl é 2 andando e 5 correndo). Mais
+// baixas, combinam com o passo curto do avatar sem o pé patinar.
+const WALK_SPEED = 1.3
+const RUN_SPEED = 2.2
+
+// Mola que gira o corpo para a direção do movimento (padrão 0,08 e 0,006).
+// Mais fraca, o personagem vira devagar em vez de "estalar" de lado.
+const TURN_SPRING = 0.03
+const TURN_DAMPING = 0.0037
 
 // O ecctrl 2 não lê o teclado sozinho: a cada quadro a gente junta o estado
 // das teclas com o do joystick e do botão B (celular, tarefa 7.3) e entrega
@@ -40,7 +49,8 @@ function MovementInputs({ target }: { target: RefObject<EcctrlHandle | null> }) 
     const keys = getKeys() as MovementInput
     const { x, y } = useJoystickStore.getState().joysticks.default ?? NO_STICK
     const runButton = useButtonStore.getState().buttons.run ?? false
-    target.current?.setMovement({ ...keys, joystick: { x, y }, run: keys.run || runButton })
+    // Sem pulo no jogo: jump sempre falso.
+    target.current?.setMovement({ ...keys, joystick: { x, y }, run: keys.run || runButton, jump: false })
   })
 
   return null
@@ -88,6 +98,10 @@ export default function Player({ position }: Props) {
         capsuleRadius={RADIUS}
         capsuleHalfHeight={HALF_HEIGHT}
         floatHeight={FLOAT}
+        maxWalkVel={WALK_SPEED}
+        maxRunVel={RUN_SPEED}
+        autoBalanceSpringOnY={TURN_SPRING}
+        autoBalanceDampingOnY={TURN_DAMPING}
         // Por padrão o Shift liga/desliga a corrida; assim é "segurar para correr".
         enableToggleRun={false}
         // O ecctrl repassa estas props direto para o RigidBody do personagem.

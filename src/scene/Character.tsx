@@ -4,59 +4,65 @@ import { useAnimations, useGLTF } from '@react-three/drei'
 import { useEcctrlAnimationStore } from 'ecctrl/animation'
 import type { EcctrlAnimationState } from 'ecctrl/animation'
 import type { AnimationAction, Group, Mesh } from 'three'
-import { LoopOnce, LoopRepeat } from 'three'
+import { retargetClip, type GltfNode } from './retarget'
 
-// Personagem provisório (tarefas 2.1 e 2.4): Viking do Ultimate Animated
-// Character Pack, do Quaternius (CC0). Na fase 4 entra o seu avatar; se as
-// animações tiverem os mesmos nomes (Idle, Walk, Run, Jump), basta trocar o URL.
-const URL = '/models/character/viking.glb'
+// Seu avatar chibi (tarefa 4.x): gerado no Tripo a partir das imagens do
+// Gemini (docs/refs/01-avatar-*.jpg), com rig Mixamo e o andar do Tripo
+// exportado "no lugar". Depois da dieta: texturas 1024 em WebP + meshopt.
+const URL = '/models/character/avatar.glb'
 
-// O modelo tem 3,6 unidades de altura; 0,42 deixa ele com ~1,5 m.
-const SCALE = 0.42
+// Animações do Mixamo (in place, sem malha), convertidas de FBX para GLB e
+// adaptadas ao avatar pelo retarget. Em anims/ também ficam fight-idle,
+// boxing-1, boxing-2, kick e roundhouse-kick, para a estação da academia.
+const MIXAMO = {
+  idle: '/models/character/anims/idle.glb', // Breathing Idle
+  jog: '/models/character/anims/jog.glb', // Jog Forward
+} as const
+const MIXAMO_URLS = Object.values(MIXAMO)
+
+// O modelo vem com 1 unidade de altura; 1,3 deixa ele com 1,3 m (chibi).
+const SCALE = 1.3
 // Os pés ficam na base da cápsula, que flutua acima do chão: meia altura
 // (0,35) + raio (0,3) + flutuação (0,3) abaixo do centro.
 const FEET_Y = -0.95
 
-// Estado do ecctrl → nome da animação no arquivo.
+// Estado do ecctrl → nome da animação. O jogo não tem pulo: os estados de
+// pulo só aparecem ao cair de algum degrau, e aí fica parado.
 const CLIPS: Record<EcctrlAnimationState, string> = {
-  IDLE: 'Idle',
-  WALK: 'Walk',
-  RUN: 'Run',
-  JUMP_START: 'Jump',
-  JUMP_IDLE: 'Jump',
-  JUMP_FALL: 'Jump',
-  JUMP_LAND: 'Idle',
+  IDLE: 'idle',
+  WALK: 'walk',
+  RUN: 'jog',
+  JUMP_START: 'idle',
+  JUMP_IDLE: 'idle',
+  JUMP_FALL: 'idle',
+  JUMP_LAND: 'idle',
 }
+
+// Velocidade de cada animação (1 = original). Os valores casam com as
+// velocidades do Player (WALK_SPEED e RUN_SPEED); se o pé patinar, mexa nos
+// dois juntos.
+const SPEED: Record<string, number> = { walk: 1.25 }
+
+// Quanto abrir os braços nas animações do Mixamo (graus), para não
+// atravessarem a barriga do chibi.
+const ARM_SPREAD = 22
 
 // Tempo da transição entre uma animação e outra, em segundos.
 const FADE = 0.2
-// O clipe Jump começa agachando (0 a 0,13 s); pulamos direto para o impulso.
-const JUMP_SKIP = 0.13
-// Depois de começar o pulo, ignora pedidos de troca por este tempo. Na saída
-// do chão o ecctrl ainda acha que está "no chão" por alguns centímetros, e
-// sem isso o pulo era trocado por Idle e recomeçava do agachamento.
-const JUMP_HOLD = 0.35
 
 export default function Character() {
   const group = useRef<Group>(null)
-  const { scene, animations } = useGLTF(URL)
-
-  // O Jump do Quaternius já sobe o corpo ~50 cm. Como quem faz o personagem
-  // subir é a física, tiramos esse movimento vertical e fica só a pose.
-  const clips = useMemo(
-    () =>
-      animations.map((clip) => {
-        if (clip.name !== 'Jump') return clip
-        const copy = clip.clone()
-        copy.tracks = copy.tracks.filter((t) => t.name !== 'Body.position')
-        return copy
-      }),
-    [animations],
-  )
-
+  const { scene, animations, parser } = useGLTF(URL)
+  const mixamo = useGLTF(MIXAMO_URLS)
+  const clips = useMemo(() => {
+    const nodes = parser.json.nodes as GltfNode[]
+    const converted = Object.keys(MIXAMO).map((name, i) =>
+      retargetClip(mixamo[i].scene, mixamo[i].animations[0], scene, nodes, name, { armSpread: ARM_SPREAD }),
+    )
+    return [...animations, ...converted]
+  }, [animations, mixamo, scene, parser])
   const { actions } = useAnimations(clips, group)
-  const current = useRef<{ name: string; action: AnimationAction } | null>(null)
-  const jumpTime = useRef(0)
+  const current = useRef<{ name: string; action: AnimationAction | null } | null>(null)
 
   // Toda malha do modelo projeta e recebe sombra.
   useEffect(() => {
@@ -65,33 +71,24 @@ export default function Character() {
     })
   }, [scene])
 
-  // A troca acontece aqui (a cada quadro) e não num useEffect, para poder
-  // segurar o pulo pelo tempo mínimo sem re-renderizar o React.
-  useFrame((_, delta) => {
+  // A troca acontece aqui (a cada quadro), lendo a store do ecctrl sem
+  // re-renderizar o React.
+  useFrame(() => {
     const name = CLIPS[useEcctrlAnimationStore.getState().animationState]
     const playing = current.current
-
-    if (playing?.name === 'Jump') {
-      jumpTime.current += delta
-      if (name !== 'Jump' && jumpTime.current < JUMP_HOLD) return
-    }
     if (playing?.name === name) return
 
-    const next = actions[name]
-    if (!next) return
-
-    const jump = name === 'Jump'
-    next.reset()
-    next.setLoop(jump ? LoopOnce : LoopRepeat, Infinity)
-    // A AnimationAction do three.js é configurada por atribuição mesmo.
-    // oxlint-disable-next-line react/immutability
-    next.clampWhenFinished = jump
-    if (jump) {
-      next.time = JUMP_SKIP
-      jumpTime.current = 0
+    // Sem a animação, para tudo e o boneco volta para a pose de descanso
+    // (fadeOut só desliga a ação e congela o último quadro).
+    const next = actions[name] ?? null
+    if (next) {
+      next.reset()
+      next.setEffectiveTimeScale(SPEED[name] ?? 1)
+      next.fadeIn(FADE).play()
+      playing?.action?.fadeOut(FADE)
+    } else {
+      playing?.action?.stop()
     }
-    next.fadeIn(FADE).play()
-    playing?.action.fadeOut(FADE)
     current.current = { name, action: next }
   })
 
@@ -103,3 +100,4 @@ export default function Character() {
 }
 
 useGLTF.preload(URL)
+useGLTF.preload(MIXAMO_URLS)

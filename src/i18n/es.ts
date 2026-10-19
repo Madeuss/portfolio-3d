@@ -12,8 +12,8 @@ const es: Dictionary = {
   hud: { help: 'Cómo jugar', soundOn: 'Activar sonido', soundOff: 'Silenciar' },
   help: {
     title: '/Cómo jugar',
-    keys: { move: 'caminar', run: 'correr', jump: 'saltar', interact: 'interactuar', zoom: 'zoom' },
-    labels: { space: 'Espacio', wheel: 'Rueda' },
+    keys: { move: 'caminar', run: 'correr', interact: 'interactuar', zoom: 'zoom' },
+    labels: { wheel: 'Rueda' },
     close: 'Entendido',
   },
   panel: { close: 'Cerrar', escHint: 'Esc cierra', prev: 'anterior', next: 'siguiente', site: 'Sitio' },

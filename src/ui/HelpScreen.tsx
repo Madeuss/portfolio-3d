@@ -31,7 +31,7 @@ export default function HelpScreen() {
   if (!open) return null
 
   const { keys, labels } = t.help
-  // No celular: joystick e botões A/B (o pulo e o zoom ficam só no teclado).
+  // No celular: joystick e botões A/B (o zoom fica só no teclado).
   const rows: [string, string][] = touch
     ? [
         ['Joystick', keys.move],
@@ -41,7 +41,6 @@ export default function HelpScreen() {
     : [
         ['WASD', keys.move],
         ['Shift', keys.run],
-        [labels.space, keys.jump],
         ['E', keys.interact],
         [labels.wheel, keys.zoom],
       ]

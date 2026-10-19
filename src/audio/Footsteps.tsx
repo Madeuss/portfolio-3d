@@ -4,8 +4,10 @@ import { useEcctrlAnimationStore } from 'ecctrl/animation'
 import { useGame } from '../state/game'
 import { playStep } from './sounds'
 
-// Intervalo entre passos (s), casado com o ritmo das animações Walk e Run.
-const INTERVAL = { WALK: 0.42, RUN: 0.29 } as const
+// Intervalo entre passos (s), casado com o ritmo das animações do avatar:
+// walk tem 4 passos em 2,33 s, tocada a 125%; a corrida (jog do Mixamo) tem
+// 2 passos em 0,83 s (velocidades no Character).
+const INTERVAL = { WALK: 0.47, RUN: 0.42 } as const
 
 // Toca um passo a cada intervalo enquanto o personagem anda ou corre no chão.
 // Quando o cenário real tiver pisos diferentes, o som muda conforme o chão
