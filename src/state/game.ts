@@ -25,6 +25,7 @@ type GameState = {
   open: StationId | null
   training: Training | null
   hit: Hit | null
+  dizzy: boolean
   setScreen: (screen: Screen) => void
   enter: (id: StationId, at: [number, number]) => void
   leave: (id: StationId) => void
@@ -32,6 +33,7 @@ type GameState = {
   close: () => void
   interact: () => void
   special: () => void
+  endSpecial: () => boolean
   nextStrike: () => void
   landHit: (dir: [number, number]) => void
   finishTraining: () => void
@@ -44,6 +46,15 @@ const randomStep = () => Math.floor(Math.random() * 1000)
 
 const bagNearby = (s: GameState) => (s.nearby === 'skills' ? s.nearbyAt : null)
 
+// Easter egg do easter egg: 4 hurricane kicks seguidos (cada um começando até
+// 3 s depois do fim do anterior) e o personagem fica tonto por 6,5 s: anda de
+// bêbado, não corre e não luta até passar.
+const DIZZY_SPINS = 4
+const SPIN_GAP_MS = 3000
+const DIZZY_MS = 6500
+let spins = 0
+let lastSpinEnd = 0
+
 export const useGame = create<GameState>((set, get) => ({
   screen: 'loading',
   nearby: null,
@@ -51,6 +62,7 @@ export const useGame = create<GameState>((set, get) => ({
   open: null,
   training: null,
   hit: null,
+  dizzy: false,
   setScreen: (screen) => set({ screen }),
   enter: (id, at) => set({ nearby: id, nearbyAt: at }),
   // Só limpa se for a mesma estação: ao passar de uma zona para outra
@@ -69,6 +81,7 @@ export const useGame = create<GameState>((set, get) => ({
     }
     if (!s.nearby || !isPlaying(s)) return
     const bag = bagNearby(s)
+    if (bag && s.dizzy) return
     if (bag) set({ training: { target: bag, step: randomStep(), queued: false, special: false } })
     else set({ open: s.nearby })
   },
@@ -76,9 +89,21 @@ export const useGame = create<GameState>((set, get) => ({
   // painel ou tela).
   special: () => {
     const s = get()
-    if (s.training?.special || (!s.training && !isPlaying(s))) return
+    if (s.dizzy || s.training?.special || (!s.training && !isPlaying(s))) return
+    if (performance.now() - lastSpinEnd > SPIN_GAP_MS) spins = 0
     const step = s.training ? s.training.step + 1 : randomStep()
     set({ training: { target: bagNearby(s), step, queued: false, special: true } })
+  },
+  // Fim de um hurricane kick: conta o giro e, no 4º seguido, fica tonto.
+  // Devolve true se ficou tonto (o treino acaba na hora).
+  endSpecial: () => {
+    lastSpinEnd = performance.now()
+    spins++
+    if (spins < DIZZY_SPINS) return false
+    spins = 0
+    set({ dizzy: true, training: null })
+    setTimeout(() => set({ dizzy: false }), DIZZY_MS)
+    return true
   },
   nextStrike: () =>
     set((s) => (s.training ? { training: { ...s.training, step: s.training.step + 1, queued: false, special: false } } : s)),

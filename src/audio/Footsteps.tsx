@@ -8,6 +8,8 @@ import { playStep } from './sounds'
 // walk tem 4 passos em 2,33 s, tocada a 125%; a corrida (jog do Mixamo) tem
 // 2 passos em 0,83 s (velocidades no Character).
 const INTERVAL = { WALK: 0.47, RUN: 0.42 } as const
+// Tonto: o drunk-walk tem 4 passos em 3 s, andando ou "correndo".
+const DIZZY_INTERVAL = 0.75
 
 // Toca um passo a cada intervalo enquanto o personagem anda ou corre no chão.
 // Quando o cenário real tiver pisos diferentes, o som muda conforme o chão
@@ -24,7 +26,8 @@ export default function Footsteps() {
       return
     }
     timer.current += delta
-    if (timer.current >= INTERVAL[state]) {
+    const interval = useGame.getState().dizzy ? DIZZY_INTERVAL : INTERVAL[state]
+    if (timer.current >= interval) {
       timer.current = 0
       playStep()
     }

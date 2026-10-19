@@ -28,6 +28,9 @@ const FLOAT = 0.3
 // baixas, combinam com o passo curto do avatar sem o pé patinar.
 const WALK_SPEED = 1.3
 const RUN_SPEED = 2.2
+// Tonto (state/game.ts): anda devagar e não corre. Casa com o drunk-walk do
+// Mixamo (4 passos em 3 s, ≈0,6 m por passo).
+const DIZZY_SPEED = 0.8
 
 // Mola que gira o corpo para a direção do movimento (padrão 0,08 e 0,006).
 // Mais fraca, o personagem vira devagar em vez de "estalar" de lado.
@@ -115,6 +118,7 @@ type Props = { position: [number, number, number] }
 // cápsula invisível, e o Character desenha o boneco animado dentro dela.
 export default function Player({ position }: Props) {
   const ref = useRef<EcctrlHandle>(null)
+  const dizzy = useGame((s) => s.dizzy)
 
   return (
     <KeyboardControls map={KEYS}>
@@ -123,8 +127,8 @@ export default function Player({ position }: Props) {
         capsuleRadius={RADIUS}
         capsuleHalfHeight={HALF_HEIGHT}
         floatHeight={FLOAT}
-        maxWalkVel={WALK_SPEED}
-        maxRunVel={RUN_SPEED}
+        maxWalkVel={dizzy ? DIZZY_SPEED : WALK_SPEED}
+        maxRunVel={dizzy ? DIZZY_SPEED : RUN_SPEED}
         autoBalanceSpringOnY={TURN_SPRING}
         autoBalanceDampingOnY={TURN_DAMPING}
         // Por padrão o Shift liga/desliga a corrida; assim é "segurar para correr".

@@ -6,6 +6,7 @@ import type { EcctrlAnimationState } from 'ecctrl/animation'
 import { LoopOnce, LoopRepeat, MathUtils, Vector3, type AnimationAction, type Group, type Mesh } from 'three'
 import { retargetClip, type GltfNode } from './retarget'
 import JerseyPrint from './JerseyPrint'
+import DizzyStars from './DizzyStars'
 import { useGame } from '../state/game'
 import { playPunch } from '../audio/sounds'
 
@@ -34,6 +35,9 @@ const MIXAMO: Record<string, { url: string; spread: number; inPlace?: boolean }>
   hook: { url: '/models/character/anims/hook.glb', spread: 8 },
   'illegal-knee': { url: '/models/character/anims/illegal-knee.glb', spread: 8 },
   'hurricane-kick': { url: '/models/character/anims/hurricane-kick.glb', spread: 8, inPlace: true },
+  // Tonto, depois de 4 hurricane kicks seguidos (regras em state/game.ts).
+  'drunk-idle': { url: '/models/character/anims/drunk-idle.glb', spread: 22 },
+  'drunk-walk': { url: '/models/character/anims/drunk-walk.glb', spread: 22 },
 }
 const MIXAMO_NAMES = Object.keys(MIXAMO)
 const MIXAMO_URLS = MIXAMO_NAMES.map((name) => MIXAMO[name].url)
@@ -82,6 +86,17 @@ const CLIPS: Record<EcctrlAnimationState, string> = {
   JUMP_IDLE: 'idle',
   JUMP_FALL: 'idle',
   JUMP_LAND: 'idle',
+}
+
+// Tonto: parado cambaleia; andando ou "correndo", anda de bêbado.
+const DIZZY_CLIPS: Record<EcctrlAnimationState, string> = {
+  IDLE: 'drunk-idle',
+  WALK: 'drunk-walk',
+  RUN: 'drunk-walk',
+  JUMP_START: 'drunk-idle',
+  JUMP_IDLE: 'drunk-idle',
+  JUMP_FALL: 'drunk-idle',
+  JUMP_LAND: 'drunk-idle',
 }
 
 // Velocidade de cada animação (1 = original). Os valores casam com as
@@ -174,7 +189,8 @@ export default function Character() {
     // Fora do treino: o estado do ecctrl (parado, andando, correndo).
     if (!training) {
       fight.current.step = -1
-      loop(CLIPS[useEcctrlAnimationStore.getState().animationState])
+      const state = useEcctrlAnimationStore.getState().animationState
+      loop((game.dizzy ? DIZZY_CLIPS : CLIPS)[state])
       if (model) model.rotation.y = MathUtils.damp(model.rotation.y, 0, TURN_SPEED, delta)
       return
     }
@@ -213,7 +229,9 @@ export default function Character() {
         playPunch()
       }
       if (time < s.end) return
-      // Golpe secreto longe do saco: acabou, volta a andar.
+      // Fim do golpe secreto: conta o giro (no 4º seguido ele fica tonto e o
+      // treino acaba ali); longe do saco, volta a andar.
+      if (training.special && game.endSpecial()) return
       if (!bag) {
         game.finishTraining()
         return
@@ -243,6 +261,7 @@ export default function Character() {
     <group ref={group} position-y={FEET_Y} scale={SCALE}>
       <primitive object={scene} />
       <JerseyPrint scene={scene} nodes={nodes} name="MADEUS" number="9" />
+      <DizzyStars scene={scene} nodes={nodes} />
     </group>
   )
 }
