@@ -9,11 +9,18 @@ import Prop from './Prop'
 import InteriorShell, { Doormat } from './InteriorShell'
 import { JerseyFrame, OfficeRug, RoundRug } from './Decor'
 import InteriorWindow, { SunPatch } from './InteriorWindow'
+import SeatZone from './SeatZone'
+import type { Seat } from '../state/game'
 
 // Interior da casa (docs/planta.excalidraw, à direita): 10 × 10 m sem teto e
 // sem paredes internas, com os cômodos em quatro cantos, separados pelo piso
 // (InteriorShell). Os móveis ficam virados para o sul (para a câmera), mesmo onde a planta
 // encosta eles na parede de lado.
+
+// Assentos: o meio do sofá (que olha para a TV, +x) e o banco do vestiário
+// (de frente para a câmera, +z). Medidos nos modelos.
+const SOFA: Seat = { center: [2.02, -1.5], yaw: Math.PI / 2, height: 0.385, depth: 0.3, edge: 0.05 }
+const LOCKER_BENCH: Seat = { center: [-3.45, 2.8], yaw: 0, height: 0.445, depth: 0.2, edge: 0.03 }
 
 // Armários do vestiário, na ordem das experiências (data/stations.ts).
 const LOCKERS: { id: ExperienceId; x: number; name: string }[] = [
@@ -78,6 +85,7 @@ export default function Interior() {
       <RoundRug position={[3.3, 0, -1.5]} radius={0.95} />
       {/* Sofá: 1 unidade de largura; 2,1 m. Vem de frente para +z: gira para +x. */}
       <Prop url="/models/ai/29-sofa.glb" scale={2.1} position={[1.85, 0, -1.5]} rotationY={Math.PI / 2} />
+      <SeatZone seat={SOFA} width={0.7} />
       {/* Rack com TV: 1 unidade de largura; 1,7 m. Gira para olhar para −x. */}
       <Prop url="/models/ai/30-rack-tv.glb" scale={1.7} position={[4.5, 0, -1.5]} rotationY={-Math.PI / 2} />
       {/* Sobre mim: a camisa do Corinthians emoldurada na parede do fundo,
@@ -108,7 +116,8 @@ export default function Interior() {
         </Station>
       ))}
       {/* Banco: 1 unidade de comprimento; 1,3 m e 44 cm de altura. */}
-      <Prop url="/models/ai/11-banco.glb" scale={1.3} position={[-3.45, 0, 2.8]} rotationY={Math.PI / 2} />
+      <Prop url="/models/ai/11-banco.glb" scale={1.3} position={[-3.45, 0, 2.8]} rotationY={Math.PI / 2} minHeight={1} />
+      <SeatZone seat={LOCKER_BENCH} width={0.55} />
     </>
   )
 }

@@ -1,11 +1,12 @@
 import { Suspense, useRef, type RefObject } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { KeyboardControls, useKeyboardControls } from '@react-three/drei'
+import { interactionGroups } from '@react-three/rapier'
 import { Ecctrl, type EcctrlHandle, type MovementInput } from 'ecctrl'
 import { EcctrlAnimationStateController } from 'ecctrl/animation'
 import { useButtonStore, useJoystickStore } from 'ecctrl/input'
 import { isPlaying, useGame } from '../state/game'
-import { player as tracked } from '../state/player'
+import { PLAYER_GROUP, player as tracked } from '../state/player'
 import Character from './Character'
 import FollowCamera from './FollowCamera'
 
@@ -44,8 +45,15 @@ function MovementInputs({ target }: { target: RefObject<EcctrlHandle | null> }) 
   const [, getKeys] = useKeyboardControls()
 
   useFrame(() => {
+    // Sentado: qualquer tecla de andar (ou o joystick) levanta.
+    const game = useGame.getState()
+    if (game.sitting?.phase === 'sit') {
+      const k = getKeys() as MovementInput
+      const stick = useJoystickStore.getState().joysticks.default ?? NO_STICK
+      if (k.forward || k.backward || k.leftward || k.rightward || Math.hypot(stick.x, stick.y) > 0.3) game.standUp()
+    }
     // Com painel, ajuda ou carregamento por cima, o personagem fica parado.
-    if (!isPlaying(useGame.getState())) {
+    if (!isPlaying(game)) {
       target.current?.setMovement(STOPPED)
       return
     }
@@ -132,6 +140,27 @@ function Tracker({ target }: { target: RefObject<EcctrlHandle | null> }) {
   return null
 }
 
+// Ao sentar, o corpo físico vai para a frente do assento (o desenho é que
+// recua e sobe até ele, no Character): a cápsula não entra no móvel.
+const SEAT_GAP = 0.32
+function SitPlace({ target }: { target: RefObject<EcctrlHandle | null> }) {
+  useFrame((_, delta) => {
+    const sitting = useGame.getState().sitting
+    const player = target.current
+    if (!sitting || sitting.phase === 'up' || !player) return
+    const { center, yaw, depth } = sitting.seat
+    const d = depth + SEAT_GAP
+    const tx = center[0] + Math.sin(yaw) * d
+    const tz = center[1] + Math.cos(yaw) * d
+    const pos = player.body.translation()
+    const k = 1 - Math.exp(-APPROACH_SPEED * delta)
+    player.body.setTranslation({ x: pos.x + (tx - pos.x) * k, y: pos.y, z: pos.z + (tz - pos.z) * k }, true)
+    player.body.setLinvel({ x: 0, y: player.body.linvel().y, z: 0 }, true)
+  })
+
+  return null
+}
+
 type Props = { position: [number, number, number] }
 
 // Personagem jogável (tarefas 2.3 e 2.4): o ecctrl cuida da física numa
@@ -157,6 +186,7 @@ export default function Player({ position }: Props) {
         // userData.player: é assim que as zonas das estações reconhecem ele.
         position={position}
         userData={{ player: true }}
+        collisionGroups={interactionGroups(PLAYER_GROUP)}
       >
         {/* Suspense: enquanto o modelo baixa, nada aparece (sem travar a cena). */}
         <Suspense fallback={null}>
@@ -171,6 +201,7 @@ export default function Player({ position }: Props) {
       <MovementInputs target={ref} />
       <Respawn target={ref} spawn={position} />
       <TrainingApproach target={ref} />
+      <SitPlace target={ref} />
       <Tracker target={ref} />
       <FollowCamera target={ref} />
     </KeyboardControls>

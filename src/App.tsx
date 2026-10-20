@@ -32,6 +32,8 @@ function useInteractKey() {
       const now = performance.now()
       if (DOWN.includes(e.code)) down = now
       else if (BACK.includes(e.code)) back = now
+      // Shift no meio da embaixadinha: bicicleta (easter egg).
+      if (e.key === 'Shift' && useGame.getState().training?.juggle) useGame.getState().bicycle()
       if (e.code !== 'KeyE') return
       const combo = down > 0 && back > down && now - down < COMBO_MS
       down = back = 0

@@ -11,6 +11,8 @@ import Dog from './Dog'
 import SteppingStones from './SteppingStones'
 import { Bench, Flowers, Lamp, Sign } from './Garden'
 import Clothesline from './Clothesline'
+import SeatZone from './SeatZone'
+import type { Seat } from '../state/game'
 import { Birds, Butterflies, Pebbles } from './Critters'
 
 // Terreno (docs/planta.excalidraw, à esquerda): a planta tem 30 × 30 m com a
@@ -54,7 +56,7 @@ const NO_GRASS: Area[] = [
   { x: [1.1, 7.5], z: [0.2, 4.2] },
   { x: [-2.1, -1.3], z: [1.1, 1.9] },
   { x: [-5.7, -2.7], z: [3.1, 6.1] }, // laguinho
-  { x: [-6.6, -5.8], z: [3.9, 5.3] }, // banco
+  { x: [-6.8, -6.2], z: [3.9, 5.3] }, // banco
   { x: [-5.5, -3.35], z: [-0.3, 0.6] }, // varal
 ]
 
@@ -104,6 +106,14 @@ function Borders() {
   )
 }
 
+// Colisão da casa (unidades do modelo, medidas na malha): o corpo até a
+// frente da varanda e, à parte, os degraus que saem dela. Uma caixa só ia até
+// a ponta dos degraus e fechava a passagem na frente da varanda à esquerda.
+const HOUSE_BOXES: [number, number, number, number, number, number][] = [
+  [-0.45, 0, -0.41, 0.45, 0.72, 0.34],
+  [0.12, 0, 0.34, 0.29, 0.2, 0.48],
+]
+
 // Lampiões dos dois lados do caminho, do portão até a casa.
 const LAMPS: [number, number][] = [
   [-1.15, 6.3],
@@ -112,6 +122,10 @@ const LAMPS: [number, number][] = [
   [1.1, 3.4],
   [1.1, 0.7],
 ]
+// Banco no canto esquerdo, ao lado do lago, olhando para ele (+x); assento a
+// 46 cm. Longe o bastante para o corpo de quem senta não encostar no lago.
+const POND_BENCH: Seat = { center: [-6.5, 4.6], yaw: Math.PI / 2, height: 0.465, depth: 0.22, edge: 0.03 }
+
 // Passarinhos ciscando pelo gramado (voltam para cá depois de fugir).
 const BIRDS = [
   { home: [2.4, -1.4] as [number, number], color: '#6b7a8f' },
@@ -192,13 +206,12 @@ const TREES: [TreeKind, number, number, number, number][] = [
   ['plain', -6.8, -4.6, 0.3, 0.95],
   ['orange', -6.7, -2.6, 1.1, 0.9],
   ['tall', -6.9, -0.6, 2.2, 0.85],
-  ['plain', -6.8, 6.2, 1.7, 1],
   // lado leste (direita), menos onde está o campo
   ['orange', 6.8, -4.6, 0.8, 1],
   ['tall', 6.9, -2.5, 2.9, 0.9],
-  ['plain', 6.8, 5.6, 0.4, 0.95],
+  ['plain', 6.8, 6.75, 0.4, 0.82],
   // na frente, perto da cerca-viva
-  ['orange', 4.2, 6.3, 1.4, 0.85],
+  ['orange', 3.7, 6.75, 1.4, 0.8],
   ['tall', -2.7, 6.6, 0.6, 0.8],
 ]
 
@@ -230,8 +243,9 @@ export default function Exterior() {
       <Pebbles half={HALF - BORDER - 0.3} clear={NO_GRASS} />
       {/* Varal no gramado à esquerda da varanda, longe das copas. */}
       <Clothesline from={[-5.3, 1.5, 0.05]} to={[-3.55, 1.5, 0.25]} />
-      {/* Banco de madeira à esquerda do lago, olhando para ele. */}
-      <Bench position={[-6.2, 0, 4.6]} rotationY={Math.PI / 2} />
+      {/* Banco de madeira no canto esquerdo, olhando para o lago. */}
+      <Bench position={[-6.5, 0, 4.6]} rotationY={Math.PI / 2} />
+      <SeatZone seat={POND_BENCH} />
       <GrassClumps half={HALF - BORDER} clear={NO_GRASS} count={30} />
       {/* Laguinho no canto da frente, à esquerda do caminho. */}
       <Pond position={[-4.2, 0, 4.6]} />
@@ -240,7 +254,7 @@ export default function Exterior() {
           vêm de scripts/house_glass.mts. Textura em 4k (o maior objeto da tela).
           Os degraus ficam 1,13 m à direita do centro da casa: ela vai 1,13 m
           para a esquerda para eles caírem no caminho (z ≈ −0,5). */}
-      <Prop url="/models/ai/16-casa-v2.glb" scale={5.6} position={[-1.13, 0, -3.2]} />
+      <Prop url="/models/ai/16-casa-v2.glb" scale={5.6} position={[-1.13, 0, -3.2]} boxes={HOUSE_BOXES} />
       {/* Porta: no pé da escada, E entra na casa (troca de cena). */}
       <Station id="door" position={[0, 0, 0]} zoneCenter={[0, 0.75, 0]} zoneSize={[0.8, 0.75, 0.5]} markerY={1.6} />
 

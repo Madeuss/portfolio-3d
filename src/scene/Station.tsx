@@ -11,7 +11,7 @@ type Vec3 = [number, number, number]
 
 type Props = {
   /** Estação, a porta da casa (troca de cena) ou o saco (luta). */
-  id: Exclude<ZoneId, 'ball'>
+  id: Exclude<ZoneId, 'ball' | 'seat'>
   /** Ícone do marcador flutuante; null = sem marcador (o saco: medalha só onde
       abre painel). Por padrão, o da estação. */
   icon?: MarkerIcon | null

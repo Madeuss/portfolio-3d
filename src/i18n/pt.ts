@@ -17,6 +17,7 @@ const pt: Dictionary = {
     close: 'Entendi',
   },
   soccer: { kick: 'Chutar', goal: 'GOL!', score: 'GOLS' },
+  seat: 'Sentar',
   door: { enter: 'Entrar na casa', exit: 'Sair' },
   panel: { close: 'Fechar', escHint: 'Esc fecha', prev: 'anterior', next: 'próximo', site: 'Site' },
   stations: {

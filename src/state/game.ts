@@ -10,8 +10,8 @@ export type Scene = 'exterior' | 'interior'
 
 // Zona perto da qual o personagem pode estar: uma estação (abre painel), a
 // porta da casa (troca de cena, dos dois lados), o saco de pancada (luta, só
-// diversão) ou a bola (chute).
-export type ZoneId = StationId | 'door' | 'bag' | 'ball'
+// diversão), a bola (chute) ou um assento.
+export type ZoneId = StationId | 'door' | 'bag' | 'ball' | 'seat'
 
 // Gol no campinho: `id` muda a cada gol, `at` é onde soltar o confete.
 export type Goal = { id: number; at: [number, number] }
@@ -35,11 +35,22 @@ export type Training = {
   special: boolean
   ball: boolean
   juggle: boolean
+  /** Easter egg: no meio da embaixadinha, Shift (ou B) vira bicicleta. */
+  bicycle?: boolean
 }
+
+// Lugar para sentar (sofá, bancos). `center`: meio do assento; `yaw`: para
+// onde quem senta olha; `height`: altura do assento; `depth`: do meio do
+// assento até a frente do móvel (onde o corpo físico fica parado); `edge`:
+// quanto o quadril fica à frente do meio do assento.
+export type Seat = { center: [number, number]; yaw: number; height: number; depth: number; edge: number }
+// Sentado: descendo, parado ou levantando.
+export type Sitting = { seat: Seat; phase: 'down' | 'sit' | 'up' }
 
 // Cada toque da embaixadinha: a bola vai até a altura `y` (centro, m) em
 // `flight` segundos, numa parábola; `release` = último toque, a bola sai na física.
-export type JuggleTouch = { id: number; y: number; flight: number; release: boolean }
+// `at`: onde a bola para (x, z); sem ele, no alvo do treino (na frente do pé).
+export type JuggleTouch = { id: number; y: number; flight: number; release: boolean; at?: [number, number] }
 
 // Segurar o botão por PRESS_HOLD_MS perto da bola vira embaixadinha; soltar antes é passe.
 const PRESS_HOLD_MS = 220
@@ -47,7 +58,7 @@ let holdTimer: ReturnType<typeof setTimeout> | null = null
 
 // Último golpe que acertou o saco: `id` muda a cada acerto, `dir` é a direção
 // (x, z) do personagem para o saco, para ele balançar para o lado certo.
-export type Hit = { id: number; dir: [number, number] }
+export type Hit = { id: number; dir: [number, number]; bicycle?: boolean }
 
 // Estado do jogo compartilhado entre a cena 3D e a interface HTML.
 // `nearby`: estação em cuja zona o personagem está (mostra o "E ...").
@@ -70,6 +81,9 @@ type GameState = {
   juggle: JuggleTouch | null
   /** Botão de ação (E / A) apertado agora. */
   holding: boolean
+  /** Assento perto do personagem (o "E Sentar" aparece) e o assento em uso. */
+  seatNear: Seat | null
+  sitting: Sitting | null
   /** Gols nesta visita (placar do campinho). */
   goals: number
   dizzy: boolean
@@ -84,12 +98,17 @@ type GameState = {
   /** Botão de ação apertado / solto (teclado e toque). */
   press: () => void
   release: () => void
-  juggleTouch: (y: number, flight: number, release: boolean) => void
+  juggleTouch: (y: number, flight: number, release: boolean, at?: [number, number]) => void
+  bicycle: () => void
+  nearSeat: (seat: Seat | null) => void
+  standUp: () => void
+  setSitPhase: (phase: Sitting['phase']) => void
+  finishSitting: () => void
   special: () => void
   endSpecial: () => boolean
   nextStrike: () => void
   landHit: (dir: [number, number]) => void
-  kickBall: (dir: [number, number]) => void
+  kickBall: (dir: [number, number], bicycle?: boolean) => void
   scoreGoal: (at: [number, number]) => void
   finishTraining: () => void
 }
@@ -124,11 +143,14 @@ export const useGame = create<GameState>((set, get) => ({
   goal: null,
   juggle: null,
   holding: false,
+  seatNear: null,
+  sitting: null,
   goals: 0,
   dizzy: false,
   setScreen: (screen) => set({ screen }),
   // Trocar de cena desmonta as zonas sem avisar a saída: limpa tudo junto.
-  setScene: (scene, spawn = 'start') => set({ scene, spawn, nearby: null, nearbyAt: null, open: null, training: null }),
+  setScene: (scene, spawn = 'start') =>
+    set({ scene, spawn, nearby: null, nearbyAt: null, open: null, training: null, sitting: null, seatNear: null }),
   // Passa pela porta: escurece, troca para a outra cena (aparecendo na porta
   // de lá) e clareia.
   goThrough: () => {
@@ -152,8 +174,14 @@ export const useGame = create<GameState>((set, get) => ({
       if (s.training.target && !s.training.ball) set({ training: { ...s.training, queued: true } })
       return
     }
+    // Sentado: E levanta.
+    if (s.sitting) return s.standUp()
     if (!s.nearby || !isPlaying(s)) return
     if (s.nearby === 'door') return s.goThrough()
+    if (s.nearby === 'seat') {
+      if (s.seatNear && !s.dizzy) set({ sitting: { seat: s.seatNear, phase: 'down' } })
+      return
+    }
     if (s.nearby === 'ball') {
       if (s.nearbyAt && !s.dizzy) set({ training: { target: s.nearbyAt, step: 0, queued: false, special: false, ball: true, juggle: false } })
       return
@@ -184,11 +212,24 @@ export const useGame = create<GameState>((set, get) => ({
     holdTimer = null
     get().interact()
   },
-  juggleTouch: (y, flight, release) => set((s) => ({ juggle: { id: (s.juggle?.id ?? 0) + 1, y, flight, release } })),
+  juggleTouch: (y, flight, release, at) => set((s) => ({ juggle: { id: (s.juggle?.id ?? 0) + 1, y, flight, release, at } })),
+  // Bicicleta: só no meio de uma embaixadinha (a bola já está no ar).
+  bicycle: () => {
+    const t = get().training
+    if (!t?.juggle || t.bicycle) return
+    set({ training: { ...t, bicycle: true, step: t.step + 1 } })
+  },
+  nearSeat: (seat) => set({ seatNear: seat }),
+  standUp: () => set((s) => (s.sitting && s.sitting.phase !== 'up' ? { sitting: { ...s.sitting, phase: 'up' } } : s)),
+  setSitPhase: (phase) => set((s) => (s.sitting ? { sitting: { ...s.sitting, phase } } : s)),
+  // Terminou de levantar: volta a andar.
+  finishSitting: () => set({ sitting: null }),
   // Golpe secreto: interrompe o golpe em andamento (mas não abre por cima de
   // painel ou tela).
   special: () => {
     const s = get()
+    // A+B (ou Shift) no meio da embaixadinha: bicicleta, não o hurricane kick.
+    if (s.training?.juggle) return s.bicycle()
     if (s.dizzy || s.training?.special || (!s.training && !isPlaying(s))) return
     if (performance.now() - lastSpinEnd > SPIN_GAP_MS) spins = 0
     const step = s.training ? s.training.step + 1 : randomStep()
@@ -208,10 +249,11 @@ export const useGame = create<GameState>((set, get) => ({
   nextStrike: () =>
     set((s) => (s.training ? { training: { ...s.training, step: s.training.step + 1, queued: false, special: false } } : s)),
   landHit: (dir) => set((s) => ({ hit: { id: (s.hit?.id ?? 0) + 1, dir } })),
-  kickBall: (dir) => set((s) => ({ kick: { id: (s.kick?.id ?? 0) + 1, dir } })),
+  kickBall: (dir, bicycle = false) => set((s) => ({ kick: { id: (s.kick?.id ?? 0) + 1, dir, bicycle } })),
   scoreGoal: (at) => set((s) => ({ goal: { id: (s.goal?.id ?? 0) + 1, at }, goals: s.goals + 1 })),
   finishTraining: () => set({ training: null }),
 }))
 
 /** O personagem só anda quando nenhuma tela, painel ou treino está em curso. */
-export const isPlaying = (s: GameState) => s.screen === 'play' && s.open === null && s.training === null && !s.fading
+export const isPlaying = (s: GameState) =>
+  s.screen === 'play' && s.open === null && s.training === null && s.sitting === null && !s.fading

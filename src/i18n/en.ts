@@ -17,6 +17,7 @@ const en: Dictionary = {
     close: 'Got it',
   },
   soccer: { kick: 'Kick', goal: 'GOAL!', score: 'GOALS' },
+  seat: 'Sit',
   door: { enter: 'Go inside', exit: 'Go outside' },
   panel: { close: 'Close', escHint: 'Esc closes', prev: 'previous', next: 'next', site: 'Website' },
   stations: {

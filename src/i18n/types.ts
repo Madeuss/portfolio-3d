@@ -22,6 +22,8 @@ export type Dictionary = {
   }
   /** Campinho: aviso de chute, a comemoração e o título do placar. */
   soccer: { kick: string; goal: string; score: string }
+  /** Aviso perto do sofá e dos bancos. */
+  seat: string
   /** Porta da casa: o aviso de fora e o de dentro. */
   door: { enter: string; exit: string }
   panel: { close: string; escHint: string; prev: string; next: string; site: string }

@@ -3,11 +3,12 @@ import { useFrame } from '@react-three/fiber'
 import { useAnimations, useGLTF } from '@react-three/drei'
 import { useEcctrlAnimationStore } from 'ecctrl/animation'
 import type { EcctrlAnimationState } from 'ecctrl/animation'
-import { LoopOnce, LoopRepeat, MathUtils, Vector3, type AnimationAction, type Group, type Mesh } from 'three'
+import { LoopOnce, LoopRepeat, MathUtils, Vector3, type AnimationAction, type Group, type Mesh, type Object3D } from 'three'
 import { retargetClip, type GltfNode } from './retarget'
 import JerseyPrint from './JerseyPrint'
 import DizzyStars from './DizzyStars'
 import { useGame } from '../state/game'
+import { player } from '../state/player'
 import { playPunch } from '../audio/sounds'
 
 // Seu avatar chibi (tarefa 4.x): gerado no Tripo a partir das imagens do
@@ -40,6 +41,11 @@ const MIXAMO: Record<string, { url: string; spread: number; inPlace?: boolean }>
   'soccer-kick': { url: '/models/character/anims/soccer-kick.glb', spread: 8 },
   'soccer-knee': { url: '/models/character/anims/soccer-knee.glb', spread: 8 },
   'soccer-header': { url: '/models/character/anims/soccer-header.glb', spread: 8 },
+  // Easter egg: bicicleta no meio da embaixadinha.
+  'scissor-kick': { url: '/models/character/anims/scissor-kick.glb', spread: 8 },
+  // Sentar no sofá e nos bancos: sentando (e, ao contrário, levantando) e sentado.
+  'sit-down': { url: '/models/character/anims/sit-down.glb', spread: 22 },
+  sitting: { url: '/models/character/anims/sitting.glb', spread: 22 },
   // Tonto, depois de 4 hurricane kicks seguidos (regras em state/game.ts).
   'drunk-idle': { url: '/models/character/anims/drunk-idle.glb', spread: 22 },
   'drunk-walk': { url: '/models/character/anims/drunk-walk.glb', spread: 22 },
@@ -83,6 +89,22 @@ const JUGGLE_ORDER = ['foot', 'foot', 'knee', 'foot', 'knee', 'head'] as const
 const touchAt = (step: number) => TOUCHES[JUGGLE_ORDER[step % JUGGLE_ORDER.length]]
 // A embaixadinha na velocidade original: mais lenta que a luta, dá tempo de ver.
 const JUGGLE_SPEED = 1
+// Bicicleta: o pé direito passa por cima da cabeça em 0,85 s, a uns 65 cm do
+// chão (medido no avatar); a bola sobe até lá e sai para trás.
+const BICYCLE: Strike = { clip: 'scissor-kick', start: 0.2, hits: [0.85], end: 2.7 }
+const BICYCLE_HEIGHT = 0.72
+// Sentar: no sit-down o quadril desce até 1,5 s (e o fim da animação pula de
+// volta para de pé, por isso ela para antes). Sentado, o quadril fica a 22 cm
+// do chão e 17 cm para trás; o desenho recua e sobe até o assento.
+const SIT_START = 0.35
+const SIT_END = 1.5
+const SIT_SPEED = 1.3
+const SIT_HIP = 0.22
+const SIT_BACK = 0.17
+const SEAT_GAP = 0.32 // distância do corpo físico até a frente do móvel (Player)
+const SIT_CUSHION = 0.03 // senta em cima da almofada, não dentro dela
+// Sentado, o osso do quadril fica uns 10 cm acima do assento (o bumbum embaixo dele).
+const HIP_ABOVE_SEAT = 0.1
 // Golpes um pouco mais rápidos que o original, para ficar com cara de jogo.
 const STRIKE_SPEED = 1.4
 // Transição entre golpes: curta, para responder na hora.
@@ -129,6 +151,13 @@ const FADE = 0.2
 // Rapidez com que o desenho vira para o saco (e volta) durante o treino.
 const TURN_SPEED = 12
 
+// Gira o desenho até `to` pelo caminho mais curto. Sem isso, perto de ±180°
+// o alvo pula de um lado para o outro e o boneco fica virando sem parar.
+function dampAngle(from: number, to: number, delta: number) {
+  const diff = Math.atan2(Math.sin(to - from), Math.cos(to - from))
+  return from + diff * (1 - Math.exp(-TURN_SPEED * delta))
+}
+
 type Playing = { name: string; action: AnimationAction | null }
 type Fight = { step: number; phase: 'strike' | 'guard'; guard: number; hits: number; released: boolean }
 
@@ -149,7 +178,10 @@ export default function Character() {
   const { actions } = useAnimations(clips, group)
   const current = useRef<Playing | null>(null)
   const fight = useRef<Fight>({ step: -1, phase: 'guard', guard: 0, hits: 0, released: false })
-  const tmp = useRef({ target: new Vector3(), self: new Vector3() })
+  const tmp = useRef({ target: new Vector3(), self: new Vector3(), hip: new Vector3(), goal: new Vector3() })
+  const footBone = useRef<Object3D | null>(null)
+  const hipsBone = useRef<Object3D | null>(null)
+  const sitPlace = useRef(new Vector3())
 
   // Toda malha do modelo projeta e recebe sombra.
   useEffect(() => {
@@ -165,6 +197,9 @@ export default function Character() {
   useFrame((_, delta) => {
     const model = group.current
     const game = useGame.getState()
+    // pé direito no mundo (a bola da bicicleta sai dele)
+    footBone.current ??= scene.getObjectByName('mixamorigRightFoot') ?? null
+    footBone.current?.getWorldPosition(player.foot)
     const training = game.training
 
     // Animação em loop (parado, andando, correndo, guarda).
@@ -206,12 +241,87 @@ export default function Character() {
       current.current = { name: `strike:${s.clip}`, action: next }
     }
 
+    // Sentando, sentado ou levantando: o desenho vira para onde o assento olha
+    // e vai até ele (recua e sobe), suave.
+    const sitting = game.sitting
+    if (sitting && model?.parent) {
+      const { seat, phase } = sitting
+      const { self, target } = tmp.current
+      model.parent.getWorldPosition(self)
+      target.set(self.x + Math.sin(seat.yaw), self.y, self.z + Math.cos(seat.yaw))
+      const local = model.parent.worldToLocal(target.clone())
+      const face = Math.atan2(local.x, local.z)
+      model.rotation.y = dampAngle(model.rotation.y, face, delta)
+      const sit = actions['sit-down']
+      // recuo e subida (no espaço do corpo), até onde o quadril senta
+      const back = seat.depth + SEAT_GAP - SIT_BACK - seat.edge
+      const lift = seat.height - SIT_HIP + SIT_CUSHION
+      const progress = MathUtils.clamp(((sit?.time ?? SIT_START) - SIT_START) / (SIT_END - SIT_START), 0, 1)
+      const want = phase === 'sit' ? 1 : progress
+      model.position.x = -Math.sin(face) * back * want
+      model.position.z = -Math.cos(face) * back * want
+      model.position.y = FEET_Y + lift * want
+      // Já sentado, o desenho é posto de forma que o osso do quadril caia
+      // exatamente sobre o assento: mede onde o quadril está em relação ao
+      // próprio boneco (fixo na pose sentada) e desconta. Sem acumular: o corpo
+      // físico balança na mola do ecctrl e uma correção acumulada disparava.
+      const hips = (hipsBone.current ??= scene.getObjectByName('mixamorigHips') ?? null)
+      if (phase === 'sit' && hips) {
+        const { hip, goal } = tmp.current
+        const offset = model.parent.worldToLocal(hips.getWorldPosition(hip)).sub(model.position)
+        goal.set(seat.center[0] + Math.sin(seat.yaw) * seat.edge, seat.height + HIP_ABOVE_SEAT, seat.center[1] + Math.cos(seat.yaw) * seat.edge)
+        const place = model.parent.worldToLocal(goal).sub(offset)
+        sitPlace.current.lerp(place, sitPlace.current.lengthSq() ? 1 - Math.exp(-12 * delta) : 1)
+        model.position.copy(sitPlace.current)
+      } else {
+        sitPlace.current.copy(model.position)
+      }
+      if (phase === 'down') {
+        if (current.current?.name !== 'sit-down' && sit) {
+          sit.reset()
+          sit.setLoop(LoopOnce, 1)
+          sit.clampWhenFinished = true
+          sit.setEffectiveTimeScale(SIT_SPEED)
+          sit.time = SIT_START
+          sit.fadeIn(FADE).play()
+          current.current?.action?.fadeOut(FADE)
+          current.current = { name: 'sit-down', action: sit }
+        }
+        if (!sit || sit.time >= SIT_END) {
+          game.setSitPhase('sit')
+          loop('sitting')
+        }
+      } else if (phase === 'sit') {
+        loop('sitting')
+      } else if (sit) {
+        // levantando: o mesmo sit-down, de trás para a frente
+        if (current.current?.name !== 'stand-up') {
+          sit.reset()
+          sit.setLoop(LoopOnce, 1)
+          sit.clampWhenFinished = true
+          sit.time = SIT_END
+          sit.setEffectiveTimeScale(-SIT_SPEED)
+          sit.fadeIn(FADE).play()
+          current.current?.action?.fadeOut(FADE)
+          current.current = { name: 'stand-up', action: sit }
+        }
+        if (sit.time <= SIT_START + 0.02) {
+          model.position.set(0, FEET_Y, 0)
+          game.finishSitting()
+        }
+      } else {
+        game.finishSitting()
+      }
+      return
+    }
+
     // Fora do treino: o estado do ecctrl (parado, andando, correndo).
     if (!training) {
+      if (model) model.position.set(0, FEET_Y, 0)
       fight.current.step = -1
       const state = useEcctrlAnimationStore.getState().animationState
       loop((game.dizzy ? DIZZY_CLIPS : CLIPS)[state])
-      if (model) model.rotation.y = MathUtils.damp(model.rotation.y, 0, TURN_SPEED, delta)
+      if (model) model.rotation.y = dampAngle(model.rotation.y, 0, delta)
       return
     }
     if (!model?.parent) return
@@ -225,12 +335,13 @@ export default function Character() {
     if (bag) {
       target.set(bag[0], self.y, bag[1])
       const local = model.parent.worldToLocal(target.clone())
-      model.rotation.y = MathUtils.damp(model.rotation.y, Math.atan2(local.x, local.z), TURN_SPEED, delta)
+      model.rotation.y = dampAngle(model.rotation.y, Math.atan2(local.x, local.z), delta)
     }
 
     const f = fight.current
     const juggle = training.juggle
-    const s = juggle ? touchAt(training.step) : training.ball ? PASS : training.special ? SPECIAL : STRIKES[training.step % STRIKES.length]
+    const bicycle = juggle && training.bicycle
+    const s = bicycle ? BICYCLE : juggle ? touchAt(training.step) : training.ball ? PASS : training.special ? SPECIAL : STRIKES[training.step % STRIKES.length]
     const speed = juggle ? JUGGLE_SPEED : STRIKE_SPEED
 
     // Golpe novo (primeiro E, o próximo emendado, ou o secreto).
@@ -244,6 +355,13 @@ export default function Character() {
         f.released = false
         game.juggleTouch(touchAt(0).height, (s.hits[0] - s.start) / speed, false)
       }
+      // Bicicleta: a bola sobe até em cima do personagem, onde o pé vai passar.
+      if (bicycle && !f.released) {
+        const fx = target.x - self.x
+        const fz = target.z - self.z
+        const len = Math.hypot(fx, fz) || 1
+        game.juggleTouch(BICYCLE_HEIGHT, (s.hits[0] - s.start) / speed, false, [self.x + (fx / len) * 0.12, self.z + (fz / len) * 0.12])
+      }
     }
 
     if (f.phase === 'strike') {
@@ -252,6 +370,15 @@ export default function Character() {
       while (f.hits < s.hits.length && time >= s.hits[f.hits]) {
         f.hits++
         if (!bag) continue
+        if (bicycle) {
+          // O pé passou por cima: a bola sai para trás, forte e subindo.
+          if (!f.released) {
+            f.released = true
+            game.juggleTouch(0, 0, true)
+            game.kickBall([self.x - target.x, self.z - target.z], true)
+          }
+          continue
+        }
         if (juggle) {
           // Segurando: manda a bola para o próximo toque. Soltou: este é o
           // último, a bola cai na frente.

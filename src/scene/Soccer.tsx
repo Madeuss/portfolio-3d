@@ -1,12 +1,12 @@
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
-import { BallCollider, CuboidCollider, RigidBody, interactionGroups, type RapierRigidBody } from '@react-three/rapier'
+import { BallCollider, CuboidCollider, RigidBody, interactionGroups, type RapierCollider, type RapierRigidBody } from '@react-three/rapier'
 import { CanvasTexture, Color, DoubleSide, Float32BufferAttribute, IcosahedronGeometry, Object3D, SRGBColorSpace, Vector3, type Group, type InstancedMesh } from 'three'
 import { useI18n } from '../i18n'
 import { useIsTouch } from '../state/device'
 import { isPlaying, useGame } from '../state/game'
-import { ball as ballState, player } from '../state/player'
+import { PLAYER_GROUP, ball as ballState, player } from '../state/player'
 import { play } from '../audio/sounds'
 
 // Mini campo de futebol: a bola é conduzida encostando nela, chutada com E e
@@ -30,6 +30,9 @@ const DRIBBLE_BOOST = 1.3
 // Chute: velocidade de saída (m/s) e um pouco para cima.
 const KICK_SPEED = 7
 const KICK_LIFT = 1.4
+// Bicicleta: sai para trás, mais forte e mais alta que o passe.
+const BICYCLE_SPEED = 6.5
+const BICYCLE_LIFT = 2.6
 // Quique nas linhas do campo (bola presa) e na rede, que amortece.
 const BOUNCE = 0.6
 const NET_BOUNCE = 0.2
@@ -66,7 +69,12 @@ function netTexture() {
 // bola não o enxerga (ela entra no gol e quem a segura na rede é o código).
 const GOAL_GROUP = 2
 const GOAL_SOLID = interactionGroups(GOAL_GROUP)
-const BALL_GROUPS = interactionGroups(1, [0, 1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15])
+const ALL_GROUPS = Array.from({ length: 16 }, (_, i) => i)
+const BALL_GROUPS = interactionGroups(1, ALL_GROUPS.filter((g) => g !== GOAL_GROUP))
+// Logo depois da bicicleta a bola também ignora o personagem (sai do pé dele,
+// que está em cima do corpo).
+const BALL_GHOST = interactionGroups(1, ALL_GROUPS.filter((g) => g !== GOAL_GROUP && g !== PLAYER_GROUP))
+const GHOST_MS = 500
 
 // Golzinho: traves e travessão brancos e a rede quadriculada. As traves batem
 // em tudo; o volume da rede só segura o personagem.
@@ -349,11 +357,12 @@ function classicBall(radius: number) {
 
 function Ball() {
   const body = useRef<RapierRigidBody>(null)
+  const collider = useRef<RapierCollider>(null)
   const label = useRef<Group>(null)
   const ballGeometry = useMemo(() => classicBall(BALL_R), [])
   const scoring = useRef(false)
   // Embaixadinha: o trecho de parábola atual (alturas, início e duração em s).
-  const flight = useRef<{ y0: number; y1: number; t0: number; dur: number } | null>(null)
+  const flight = useRef<{ y0: number; y1: number; t0: number; dur: number; from: [number, number]; at?: [number, number] } | null>(null)
   const t = useI18n((s) => s.t)
   const key = useIsTouch() ? 'A' : 'E'
   const showPrompt = useGame((s) => s.nearby === 'ball' && isPlaying(s))
@@ -368,7 +377,16 @@ function Ball() {
         if (!b || !s.kick || s.kick === prev.kick) return
         const [dx, dz] = s.kick.dir
         const len = Math.hypot(dx, dz) || 1
-        b.setLinvel({ x: (dx / len) * KICK_SPEED, y: KICK_LIFT, z: (dz / len) * KICK_SPEED }, true)
+        const speed = s.kick.bicycle ? BICYCLE_SPEED : KICK_SPEED
+        // Bicicleta: a bola sai do pé direito, que está por cima do corpo; por
+        // meio segundo ela atravessa o personagem em vez de bater nele.
+        if (s.kick.bicycle) {
+          const { x, y, z } = player.foot
+          b.setTranslation({ x, y: Math.max(y, BALL_R), z }, true)
+          collider.current?.setCollisionGroups(BALL_GHOST)
+          setTimeout(() => collider.current?.setCollisionGroups(BALL_GROUPS), GHOST_MS)
+        }
+        b.setLinvel({ x: (dx / len) * speed, y: s.kick.bicycle ? BICYCLE_LIFT : KICK_LIFT, z: (dz / len) * speed }, true)
         play('kick')
       }),
     [],
@@ -395,7 +413,7 @@ function Ball() {
         }
         // o primeiro trecho só tira a bola do chão; os outros são toques
         if (flight.current) play('juggle')
-        flight.current = { y0: pos.y, y1: e.y, t0: performance.now() / 1000, dur: Math.max(e.flight, 0.05) }
+        flight.current = { y0: pos.y, y1: e.y, t0: performance.now() / 1000, dur: Math.max(e.flight, 0.05), from: [pos.x, pos.z], at: e.at }
       }),
     [],
   )
@@ -410,11 +428,15 @@ function Ball() {
       const f = flight.current
       const u = Math.min(1, (performance.now() / 1000 - f.t0) / f.dur)
       const y = f.y0 + (f.y1 - f.y0) * u + ((GRAVITY * f.dur * f.dur) / 8) * 4 * u * (1 - u)
+      // sem `at`, a bola fica no alvo (na frente do pé); com ele, vai até lá
+      const [ex, ez] = f.at ?? juggling
+      const x = f.at ? f.from[0] + (ex - f.from[0]) * u : ex
+      const z = f.at ? f.from[1] + (ez - f.from[1]) * u : ez
       b.setGravityScale(0, true)
-      b.setTranslation({ x: juggling[0], y, z: juggling[1] }, true)
+      b.setTranslation({ x, y, z }, true)
       b.setLinvel({ x: 0, y: 0, z: 0 }, true)
       b.setAngvel({ x: 4, y: 0, z: 0 }, true)
-      label.current?.position.set(juggling[0], y + 0.75, juggling[1])
+      label.current?.position.set(x, y + 0.75, z)
       return
     }
     if (!juggling && b.gravityScale() === 0) {
@@ -512,7 +534,7 @@ function Ball() {
         angularDamping={0.6}
         ccd
       >
-        <BallCollider args={[BALL_R]} mass={0.4} collisionGroups={BALL_GROUPS} />
+        <BallCollider ref={collider} args={[BALL_R]} mass={0.4} collisionGroups={BALL_GROUPS} />
         <mesh geometry={ballGeometry} castShadow>
           <meshStandardMaterial vertexColors roughness={0.45} />
         </mesh>

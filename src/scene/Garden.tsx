@@ -186,7 +186,9 @@ export function Bench({ position, rotationY = 0 }: { position: [number, number, 
   const L = 1.3
   return (
     <RigidBody type="fixed" colliders={false} position={position} rotation={[0, rotationY, 0]}>
-      <CuboidCollider args={[L / 2, 0.24, 0.22]} position-y={0.24} />
+      {/* colisão mais alta que o banco: a cápsula do personagem flutua 30 cm
+          e, com um banco baixo, subia nele em vez de esbarrar */}
+      <CuboidCollider args={[L / 2, 0.5, 0.22]} position-y={0.5} />
       {[-0.13, 0, 0.13].map((z) => (
         <mesh key={z} position={[0, 0.44, z]} castShadow receiveShadow>
           <boxGeometry args={[L, 0.05, 0.11]} />
