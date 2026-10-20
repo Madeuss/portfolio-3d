@@ -42,7 +42,7 @@ const waterFragment = /* glsl */ `
 
 // Pedra: esfera com a superfície empelotada (deslocada por uma soma de senos),
 // para não ficar lisa como sabonete. `seed` muda o formato de cada uma.
-function stoneGeometry(seed: number) {
+export function stoneGeometry(seed: number) {
   const g = new IcosahedronGeometry(1, 4)
   const p = g.getAttribute('position')
   const v = new Vector3()

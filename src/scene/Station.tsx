@@ -5,13 +5,16 @@ import { stationPrompt } from '../data/stations'
 import { useI18n } from '../i18n'
 import { useIsTouch } from '../state/device'
 import { isPlaying, useGame, type ZoneId } from '../state/game'
-import Marker from './Marker'
+import Marker, { type MarkerIcon } from './Marker'
 
 type Vec3 = [number, number, number]
 
 type Props = {
-  /** Estação, ou a porta da casa (troca de cena em vez de abrir painel). */
+  /** Estação, a porta da casa (troca de cena) ou o saco (luta). */
   id: Exclude<ZoneId, 'ball'>
+  /** Ícone do marcador flutuante; null = sem marcador (o saco: medalha só onde
+      abre painel). Por padrão, o da estação. */
+  icon?: MarkerIcon | null
   position: Vec3
   /** Centro da zona de interação, relativo a `position`. */
   zoneCenter: Vec3
@@ -24,13 +27,17 @@ type Props = {
   children?: ReactNode
 }
 
+const defaultIcon = (id: Props['id']): MarkerIcon | null =>
+  id === 'bag' ? null : id.startsWith('exp-') ? 'experience' : (id as MarkerIcon)
+
 const isPlayer = ({ other }: IntersectionEnterPayload) =>
   (other.rigidBody?.userData as { player?: boolean } | undefined)?.player === true
 
 // Estação interativa (tarefa 2.6): o objeto + uma zona invisível em volta.
 // A zona é um collider "sensor": não empurra nada, só avisa quando o
 // personagem entra e sai. Dentro dela aparece "E ..." e a tecla E abre o painel.
-export default function Station({ id, position, zoneCenter, zoneSize, markerY, markerAt, children }: Props) {
+export default function Station({ id, position, zoneCenter, zoneSize, markerY, markerAt, icon, children }: Props) {
+  const markerIcon = icon === undefined ? defaultIcon(id) : icon
   const [mx, mz] = markerAt ?? [zoneCenter[0], zoneCenter[2]]
   const enter = useGame((s) => s.enter)
   const leave = useGame((s) => s.leave)
@@ -57,7 +64,14 @@ export default function Station({ id, position, zoneCenter, zoneSize, markerY, m
         />
       </RigidBody>
 
-      <Marker position={[mx, markerY, mz]} icon={id} active={showPrompt} onClick={() => (id === 'door' ? goThrough() : id === 'skills' ? interact() : openStation(id))} />
+      {markerIcon && (
+        <Marker
+          position={[mx, markerY, mz]}
+          icon={markerIcon}
+          active={showPrompt}
+          onClick={() => (id === 'door' ? goThrough() : id === 'bag' ? interact() : openStation(id))}
+        />
+      )}
 
       {/* Html: um elemento do DOM preso a um ponto 3D, que acompanha a câmera.
           Fica sempre montado e só troca de classe, para o CSS animar tanto a

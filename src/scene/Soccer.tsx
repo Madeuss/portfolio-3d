@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
-import { BallCollider, CuboidCollider, RigidBody, type RapierRigidBody } from '@react-three/rapier'
+import { BallCollider, CuboidCollider, RigidBody, interactionGroups, type RapierRigidBody } from '@react-three/rapier'
 import { CanvasTexture, Color, DoubleSide, Float32BufferAttribute, IcosahedronGeometry, Object3D, SRGBColorSpace, Vector3, type Group, type InstancedMesh } from 'three'
 import { useI18n } from '../i18n'
 import { useIsTouch } from '../state/device'
@@ -62,7 +62,14 @@ function netTexture() {
   return t
 }
 
-// Golzinho: traves e travessão brancos (só eles colidem) e a rede quadriculada.
+// Grupos de colisão: o corpo do gol (rede) é sólido para o personagem, mas a
+// bola não o enxerga (ela entra no gol e quem a segura na rede é o código).
+const GOAL_GROUP = 2
+const GOAL_SOLID = interactionGroups(GOAL_GROUP)
+const BALL_GROUPS = interactionGroups(1, [0, 1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15])
+
+// Golzinho: traves e travessão brancos e a rede quadriculada. As traves batem
+// em tudo; o volume da rede só segura o personagem.
 function Goal({ x, facing }: { x: number; facing: 1 | -1 }) {
   const { w, h, d } = GOAL
   const net = useMemo(netTexture, [])
@@ -70,6 +77,7 @@ function Goal({ x, facing }: { x: number; facing: 1 | -1 }) {
   return (
     <group position={[x, 0, 0]} rotation-y={facing === 1 ? 0 : Math.PI}>
       <RigidBody type="fixed" colliders={false}>
+        <CuboidCollider args={[d / 2, h / 2, w]} position={[-d / 2, h / 2, 0]} collisionGroups={GOAL_SOLID} />
         {[-w, w].map((z) => (
           <group key={z}>
             <CuboidCollider args={[POST, h / 2, POST]} position={[0, h / 2, z]} />
@@ -84,7 +92,7 @@ function Goal({ x, facing }: { x: number; facing: 1 | -1 }) {
         <cylinderGeometry args={[POST, POST, w * 2, 8]} />
         <meshStandardMaterial color="#ffffff" />
       </mesh>
-      {/* rede: fundo, laterais e teto (sem colisão: quem segura a bola é o código) */}
+      {/* rede: fundo, laterais e teto */}
       <mesh position={[-d, h / 2, 0]} rotation-y={Math.PI / 2}>
         <planeGeometry args={[w * 2, h]} />
         {netMat}
@@ -103,8 +111,34 @@ function Goal({ x, facing }: { x: number; facing: 1 | -1 }) {
   )
 }
 
+// Gramado de estádio (como o da Neo Química Arena): verde escuro em faixas de
+// corte alternadas, uma mais clara e outra mais escura, ao longo do campo.
+const TURF = ['#1f5e26', '#2a7230']
+const STRIPES = 10
+
+function turfTexture() {
+  const c = document.createElement('canvas')
+  c.width = 512
+  c.height = 64
+  const g = c.getContext('2d')!
+  const w = c.width / STRIPES
+  for (let i = 0; i < STRIPES; i++) {
+    g.fillStyle = TURF[i % 2]
+    g.fillRect(i * w, 0, w, c.height)
+  }
+  // fiapos de grama para não ficar chapado
+  for (let i = 0; i < 1800; i++) {
+    g.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.06)'
+    g.fillRect(Math.random() * c.width, Math.random() * c.height, 1, 2)
+  }
+  const t = new CanvasTexture(c)
+  t.colorSpace = SRGBColorSpace
+  return t
+}
+
 function Pitch() {
   const [hx, hz] = FIELD.half
+  const turf = useMemo(turfTexture, [])
   const lines: [number, number, number, number][] = [
     // [x, z, largura, comprimento]
     [0, -hz, hx * 2, LINE],
@@ -117,7 +151,7 @@ function Pitch() {
     <>
       <mesh rotation-x={-Math.PI / 2} position-y={0.006} receiveShadow>
         <planeGeometry args={[hx * 2 + 0.4, hz * 2 + 0.4]} />
-        <meshStandardMaterial color="#8fc98a" />
+        <meshStandardMaterial map={turf} roughness={0.9} />
       </mesh>
       {lines.map(([x, z, w, l], i) => (
         <mesh key={i} rotation-x={-Math.PI / 2} position={[x, 0.008, z]}>
@@ -478,7 +512,7 @@ function Ball() {
         angularDamping={0.6}
         ccd
       >
-        <BallCollider args={[BALL_R]} mass={0.4} />
+        <BallCollider args={[BALL_R]} mass={0.4} collisionGroups={BALL_GROUPS} />
         <mesh geometry={ballGeometry} castShadow>
           <meshStandardMaterial vertexColors roughness={0.45} />
         </mesh>

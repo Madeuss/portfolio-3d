@@ -2,9 +2,7 @@ import { useMemo, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useCursor } from '@react-three/drei'
 import { DoubleSide, ExtrudeGeometry, Shape, type Group } from 'three'
-import type { ZoneId } from '../state/game'
-
-export type MarkerIcon = Exclude<ZoneId, 'ball'>
+export type MarkerIcon = 'contact' | 'skills' | 'projects' | 'about' | 'experience' | 'door'
 
 type Props = { position: [number, number, number]; icon: MarkerIcon; active?: boolean; onClick: () => void }
 
@@ -60,16 +58,6 @@ function envelope() {
   return [s]
 }
 
-// Luva de boxe: a mão (círculo grande), o polegar e o punho.
-function glove() {
-  const hand = new Shape()
-  hand.absellipse(0.01, 0.03, 0.095, 0.1, 0, Math.PI * 2, false, 0)
-  const thumb = new Shape()
-  thumb.absellipse(-0.085, -0.005, 0.04, 0.055, 0, Math.PI * 2, false, 0.4)
-  const cuff = roundRect(-0.07, -0.13, 0.15, 0.07, 0.015)
-  return [hand, thumb, cuff]
-}
-
 // Monitor: tela (moldura com o vão), pé e base.
 function monitor() {
   const screen = roundRect(-0.13, -0.03, 0.26, 0.17, 0.02)
@@ -99,6 +87,28 @@ function jersey() {
   return [s]
 }
 
+// Halter: duas anilhas de cada lado e a barra no meio.
+function dumbbell() {
+  const bar = new Shape()
+  rect(bar, -0.1, -0.015, 0.2, 0.03)
+  const plates = [-0.11, 0.08].map((x) => roundRect(x, -0.08, 0.035, 0.16, 0.012))
+  const outer = [-0.135, 0.11].map((x) => roundRect(x, -0.055, 0.025, 0.11, 0.01))
+  return [bar, ...plates, ...outer]
+}
+
+// Maleta: corpo com a alça vazada em cima e uma faixa no meio.
+function briefcase() {
+  const body = roundRect(-0.13, -0.1, 0.26, 0.16, 0.022)
+  const handle = roundRect(-0.05, 0.05, 0.1, 0.06, 0.015)
+  const grip = hole()
+  rect(grip, -0.03, 0.06, 0.06, 0.03)
+  handle.holes.push(grip)
+  const band = hole()
+  rect(band, -0.13, -0.035, 0.26, 0.012)
+  body.holes.push(band)
+  return [body, handle]
+}
+
 // Casa: telhado em triângulo e a porta vazada.
 function house() {
   const s = new Shape()
@@ -118,7 +128,8 @@ function house() {
 
 const ICONS: Record<MarkerIcon, () => Shape[]> = {
   contact: envelope,
-  skills: glove,
+  skills: dumbbell,
+  experience: briefcase,
   projects: monitor,
   about: jersey,
   door: house,

@@ -84,6 +84,17 @@ function PanelDialog({ id }: { id: StationId }) {
             </div>
           ))}
 
+          {content.list && (
+            <div className="panel__group">
+              <h3 className="panel__group-title">{content.list.title}</h3>
+              <ul className="panel__list">
+                {content.list.items.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {content.links && content.links.length > 0 && (
             <div className="panel__links">
               {content.links.map((l) => (

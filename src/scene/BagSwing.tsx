@@ -11,8 +11,11 @@ import { useGame } from '../state/game'
 const STIFFNESS = 30
 const DAMPING = 3.2
 const KICK = 1.6
-// Ângulo máximo, para nenhum combo jogar o saco na horizontal.
+// Ângulo máximo, para nenhum combo jogar o saco na horizontal. Na volta (em
+// direção a quem bateu) ele quase não passa do meio: a cabeça grande do chibi
+// fica perto do saco e entraria nele.
 const MAX_ANGLE = 0.45
+const MAX_BACK = 0.06
 
 const UP = new Vector3(0, 1, 0)
 
@@ -36,7 +39,13 @@ export default function BagSwing({ pivotY, children }: Props) {
 
     const dt = Math.min(delta, 1 / 30)
     s.speed += (-STIFFNESS * s.angle - DAMPING * s.speed) * dt
-    s.angle = Math.max(-MAX_ANGLE, Math.min(MAX_ANGLE, s.angle + s.speed * dt))
+    s.angle += s.speed * dt
+    if (s.angle < -MAX_BACK) {
+      // bateu no limite da volta: perde o embalo, como um saco pesado
+      s.angle = -MAX_BACK
+      s.speed *= -0.3
+    }
+    s.angle = Math.min(MAX_ANGLE, s.angle)
     swing.current?.quaternion.copy(q.current.setFromAxisAngle(s.axis, s.angle))
   })
 

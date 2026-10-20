@@ -10,6 +10,8 @@ import Soccer from './Soccer'
 import Dog from './Dog'
 import SteppingStones from './SteppingStones'
 import { Bench, Flowers, Lamp, Sign } from './Garden'
+import Clothesline from './Clothesline'
+import { Birds, Butterflies, Pebbles } from './Critters'
 
 // Terreno (docs/planta.excalidraw, à esquerda): a planta tem 30 × 30 m com a
 // casa de 10 m; aqui a casa tem 5,6 m e o terreno 16 × 16 m, com a mesma
@@ -53,6 +55,7 @@ const NO_GRASS: Area[] = [
   { x: [-2.1, -1.3], z: [1.1, 1.9] },
   { x: [-5.7, -2.7], z: [3.1, 6.1] }, // laguinho
   { x: [-6.6, -5.8], z: [3.9, 5.3] }, // banco
+  { x: [-5.5, -3.35], z: [-0.3, 0.6] }, // varal
 ]
 
 
@@ -109,9 +112,16 @@ const LAMPS: [number, number][] = [
   [1.1, 3.4],
   [1.1, 0.7],
 ]
+// Passarinhos ciscando pelo gramado (voltam para cá depois de fugir).
+const BIRDS = [
+  { home: [2.4, -1.4] as [number, number], color: '#6b7a8f' },
+  { home: [-3.2, 1.6] as [number, number], color: '#c46a3d' },
+  { home: [5.4, 5.1] as [number, number], color: '#6b7a8f' },
+  { home: [-5.6, -1.6] as [number, number], color: '#e0c25a' },
+]
 // Canteiros de margaridas: [x, z, quantas].
 const FLOWER_BEDS: [number, number, number][] = [
-  [-3.6, -0.1, 9],
+  [-2.9, 0.8, 9],
   [1.5, -0.1, 7],
   [-2.3, 3.2, 8],
   [-6.2, 2.6, 7],
@@ -214,6 +224,12 @@ export default function Exterior() {
         <Lamp key={`${x},${z}`} position={[x, 0, z]} />
       ))}
       <Flowers beds={FLOWER_BEDS} />
+      {/* Bichinhos: borboletas nos canteiros e passarinhos que fogem de perto. */}
+      <Butterflies around={FLOWER_BEDS.filter((_, i) => i % 2 === 0).map(([x, z]) => [x, z] as [number, number])} />
+      <Birds birds={BIRDS} />
+      <Pebbles half={HALF - BORDER - 0.3} clear={NO_GRASS} />
+      {/* Varal no gramado à esquerda da varanda, longe das copas. */}
+      <Clothesline from={[-5.3, 1.5, 0.05]} to={[-3.55, 1.5, 0.25]} />
       {/* Banco de madeira à esquerda do lago, olhando para ele. */}
       <Bench position={[-6.2, 0, 4.6]} rotationY={Math.PI / 2} />
       <GrassClumps half={HALF - BORDER} clear={NO_GRASS} count={30} />

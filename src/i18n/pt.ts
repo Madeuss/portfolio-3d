@@ -51,7 +51,8 @@ const pt: Dictionary = {
       ],
     },
     skills: {
-      prompt: 'Treinar',
+      prompt: 'Ver stack',
+      train: 'Treinar',
       label: '/Skills',
       title: 'Stack',
       groups: {
@@ -61,6 +62,38 @@ const pt: Dictionary = {
         infra: 'Infra & DevOps',
         observability: 'Observabilidade',
       },
+    },
+    experience: {
+      prompt: 'Ver experiência',
+      label: '/Experiências',
+      highlights: 'Conquistas',
+      jobs: [
+          {
+            period: '05/2022 — atual',
+            company: 'Luizalabs · Magalu Cloud',
+            role: 'Senior Front-End / Fullstack',
+            desc: 'Faço parte do time que constrói o console de clientes da nuvem pública, do front-end em React e Next.js ao BFF em Python e à configuração de plataforma.',
+            highlights: [
+              'Liderei a migração da plataforma para Next.js 16 e React 19 em um monorepo TypeScript de 7 pacotes, sem downtime para os clientes.',
+              'Conduzi a migração de monorepo para polyrepo: micro-frontends viraram pacotes versionados em um registry npm privado, e cada time passou a lançar seu produto de forma independente.',
+              'Construí o produto de IAM de ponta a ponta — membros, papéis, permissões, grupos e RBAC por projeto —, do front-end em React aos endpoints do BFF em FastAPI.',
+              'Implantei um fluxo spec-first: specs OpenAPI geram clientes tipados compartilhados entre os produtos, acabando com tipos escritos à mão e divergência de contrato.',
+              'Configuração de plataforma em múltiplas regiões: rotas no Kong API Gateway (400+ mudanças revisadas) e deploys no Kubernetes via ArgoCD.',
+            ],
+          },
+          {
+            period: '08/2024 — 02/2025',
+            company: 'Jinboo',
+            role: 'Front-End Developer · Contrato',
+            desc: 'Contrato em paralelo: novas features nas aplicações web e mobile nativa do produto OBT, estabilização de bugs no front-end e correção de defeitos de API no back-end em Go.',
+          },
+          {
+            period: '07/2020 — 05/2022',
+            company: 'AutoSeg',
+            role: 'Front-End Developer · Trainee → Júnior',
+            desc: 'Landing pages e interfaces de produto do conceito à produção, refatoração de páginas legadas em JavaScript para componentes React e TypeScript, integração com o back-end em Ruby on Rails e os primeiros testes automatizados do código.',
+          },
+      ],
     },
     about: {
       prompt: 'Sobre mim',

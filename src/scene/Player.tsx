@@ -87,10 +87,11 @@ function Respawn({ target, spawn }: { target: RefObject<EcctrlHandle | null>; sp
   return null
 }
 
-// No treino, encosta o personagem no saco: para a ~0,62 m do centro dele
+// No treino, encosta o personagem no saco: para a ~0,66 m do centro dele
 // (o mínimo é 0,57: raio da cápsula + raio do saco). Mais longe, o direto
-// do chibi (≈0,42 m de alcance) não chegava no saco.
-const PUNCH_DISTANCE = 0.62
+// do chibi (≈0,42 m de alcance) não chega no saco; mais perto, a cabeça
+// grande entra nele.
+const PUNCH_DISTANCE = 0.66
 // No passe, para a 0,55 m do centro da bola (cápsula 0,3 + bola 0,2 + folga).
 // Na embaixadinha a bola sobe bem na frente do pé, mais perto.
 const KICK_DISTANCE = 0.55

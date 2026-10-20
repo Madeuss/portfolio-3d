@@ -32,7 +32,15 @@ export type Dictionary = {
       /** Mesma ordem de `projects` em data/content.ts. */
       items: { name: string; year: string; tag: string; desc: string }[]
     }
-    skills: { prompt: string; label: string; title: string; groups: Record<StackGroupId, string> }
+    /** `prompt`: nos halteres (abre a stack); `train`: no saco (só diversão). */
+    skills: { prompt: string; train: string; label: string; title: string; groups: Record<StackGroupId, string> }
+    /** Mesma ordem dos armários (data/stations.ts, EXPERIENCES). */
+    experience: {
+      prompt: string
+      label: string
+      highlights: string
+      jobs: { company: string; role: string; period: string; desc: string; highlights?: string[] }[]
+    }
     /** Textos do Sobre do madeusdev; `stats` já com número e rótulo juntos. */
     about: { prompt: string; label: string; title: string; paragraphs: string[]; statsTitle: string; stats: string[] }
     contact: { prompt: string; label: string; title: string; note: string; email: string }

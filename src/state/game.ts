@@ -9,8 +9,9 @@ export type Screen = 'loading' | 'help' | 'play'
 export type Scene = 'exterior' | 'interior'
 
 // Zona perto da qual o personagem pode estar: uma estação (abre painel), a
-// porta da casa (troca de cena, dos dois lados) ou a bola (chute).
-export type ZoneId = StationId | 'door' | 'ball'
+// porta da casa (troca de cena, dos dois lados), o saco de pancada (luta, só
+// diversão) ou a bola (chute).
+export type ZoneId = StationId | 'door' | 'bag' | 'ball'
 
 // Gol no campinho: `id` muda a cada gol, `at` é onde soltar o confete.
 export type Goal = { id: number; at: [number, number] }
@@ -98,7 +99,7 @@ type GameState = {
 // `step % número de golpes`, então qualquer inteiro serve.
 const randomStep = () => Math.floor(Math.random() * 1000)
 
-const bagNearby = (s: GameState) => (s.nearby === 'skills' ? s.nearbyAt : null)
+const bagNearby = (s: GameState) => (s.nearby === 'bag' ? s.nearbyAt : null)
 
 // Easter egg do easter egg: 4 hurricane kicks seguidos (cada um começando até
 // 3 s depois do fim do anterior) e o personagem fica tonto por 6,5 s: anda de
@@ -160,7 +161,7 @@ export const useGame = create<GameState>((set, get) => ({
     const bag = bagNearby(s)
     if (bag && s.dizzy) return
     if (bag) set({ training: { target: bag, step: randomStep(), queued: false, special: false, ball: false, juggle: false } })
-    else set({ open: s.nearby })
+    else if (s.nearby !== 'bag') set({ open: s.nearby })
   },
   // Perto da bola, o botão espera PRESS_HOLD_MS para saber se é passe (toque
   // rápido) ou embaixadinha (segurou). Fora dela, interage na hora.

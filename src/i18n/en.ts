@@ -51,7 +51,8 @@ const en: Dictionary = {
       ],
     },
     skills: {
-      prompt: 'Train',
+      prompt: 'See stack',
+      train: 'Train',
       label: '/Skills',
       title: 'Stack',
       groups: {
@@ -61,6 +62,38 @@ const en: Dictionary = {
         infra: 'Infra & DevOps',
         observability: 'Observability',
       },
+    },
+    experience: {
+      prompt: 'See experience',
+      label: '/Experience',
+      highlights: 'Highlights',
+      jobs: [
+          {
+            period: '05/2022 — present',
+            company: 'Luizalabs · Magalu Cloud',
+            role: 'Senior Front-End / Fullstack',
+            desc: "Part of the team building the public cloud's customer console, from the React and Next.js front-end to the Python BFF and platform configuration.",
+            highlights: [
+              'Led the platform-wide migration to Next.js 16 and React 19 across a 7-package TypeScript monorepo, with no customer-facing downtime.',
+              'Drove the monorepo-to-polyrepo migration: micro-frontends became versioned packages on a private npm registry, so each team ships its product independently.',
+              'Built the IAM product end to end — members, roles, permissions, groups and project-scoped RBAC — from the React front-end to the FastAPI BFF endpoints.',
+              'Set up a spec-first API workflow: OpenAPI specs generate typed clients shared across products, removing hand-written types and contract drift.',
+              'Platform configuration across multiple regions: Kong API Gateway routing (400+ reviewed changes) and Kubernetes deploys via ArgoCD.',
+            ],
+          },
+          {
+            period: '08/2024 — 02/2025',
+            company: 'Jinboo',
+            role: 'Front-End Developer · Contract',
+            desc: 'Concurrent contract: new features across the web and native mobile apps of the OBT product, front-end bug fixing and API defect fixes in the Go back-end.',
+          },
+          {
+            period: '07/2020 — 05/2022',
+            company: 'AutoSeg',
+            role: 'Front-End Developer · Trainee → Junior',
+            desc: 'Landing pages and product interfaces from concept to production, refactoring legacy JavaScript pages into React and TypeScript components, integrating with the Ruby on Rails back-end and introducing the first automated tests.',
+          },
+      ],
     },
     about: {
       prompt: 'About me',

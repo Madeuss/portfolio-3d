@@ -4,6 +4,7 @@ import Station from './Station'
 import BagSwing from './BagSwing'
 import BagStand, { HOOK_HEIGHT } from './BagStand'
 import Locker from './Locker'
+import type { ExperienceId } from '../data/stations'
 import Prop from './Prop'
 import InteriorShell, { Doormat } from './InteriorShell'
 import { JerseyFrame, OfficeRug, RoundRug } from './Decor'
@@ -13,6 +14,13 @@ import InteriorWindow, { SunPatch } from './InteriorWindow'
 // sem paredes internas, com os cômodos em quatro cantos, separados pelo piso
 // (InteriorShell). Os móveis ficam virados para o sul (para a câmera), mesmo onde a planta
 // encosta eles na parede de lado.
+
+// Armários do vestiário, na ordem das experiências (data/stations.ts).
+const LOCKERS: { id: ExperienceId; x: number; name: string }[] = [
+  { id: 'exp-magalu', x: -4.1, name: 'MAGALU' },
+  { id: 'exp-jinboo', x: -3.45, name: 'JINBOO' },
+  { id: 'exp-autoseg', x: -2.8, name: 'AUTOSEG' },
+]
 
 // Onde o personagem aparece ao entrar: logo à frente do capacho, na porta sul.
 export const INTERIOR_SPAWN: [number, number, number] = [0, 2, 3.2]
@@ -36,8 +44,9 @@ export default function Interior() {
         <Doormat />
       </Station>
 
-      {/* Academia (noroeste): saco de pancada e halteres. */}
-      <Station id="skills" position={[-2.4, 0, -2.2]} zoneCenter={[0, 0.75, 0]} zoneSize={[1.2, 0.75, 1.2]} markerY={2.4}>
+      {/* Academia (noroeste): o saco é só diversão (E = golpe, sem marcador
+          flutuante); quem abre a stack são os halteres. */}
+      <Station id="bag" position={[-2.4, 0, -2.2]} zoneCenter={[0, 0.75, 0]} zoneSize={[1.2, 0.75, 1.2]} markerY={2.4}>
         <BagStand />
         {/* Pendurado no gancho: é dali que ele balança ao levar um golpe. O
             saco tem 1,4 m com a corrente, então a base fica a 30 cm do chão. */}
@@ -48,7 +57,9 @@ export default function Interior() {
         </BagSwing>
       </Station>
       {/* Halteres no rack: 1 unidade de altura; 90 cm. */}
-      <Prop url="/models/ai/12-halteres.glb" scale={0.9} position={[-4.1, 0, -3.6]} rotationY={Math.PI / 6} />
+      <Station id="skills" position={[-4.1, 0, -3.6]} zoneCenter={[0.35, 0.75, 0.6]} zoneSize={[0.75, 0.75, 0.6]} markerY={1.45} markerAt={[0, 0]}>
+        <Prop url="/models/ai/12-halteres.glb" scale={0.9} position={[0, 0, 0]} rotationY={Math.PI / 6} />
+      </Station>
       {/* Banco de musculação: 1 unidade de altura com o encosto; 1,2 m. */}
       <Prop url="/models/ai/31-banco-musculacao.glb" scale={1.2} position={[-4, 0, -1.6]} />
       {/* Luvas penduradas no gancho, na parede do fundo: 1 unidade com o
@@ -89,10 +100,13 @@ export default function Interior() {
       <Prop url="/models/ai/15-planta.glb" scale={1.1} position={[4.35, 0, 4.4]} />
       <Prop url="/models/ai/15-planta.glb" scale={1.1} position={[-1.05, 0, 4.4]} />
 
-      {/* Vestiário (sudoeste): os 3 armários lado a lado e o banco na frente. */}
-      <Locker position={[-4.1, 0, 1.6]} shirt />
-      <Locker position={[-3.45, 0, 1.6]} shirt />
-      <Locker position={[-2.8, 0, 1.6]} shirt />
+      {/* Vestiário (sudoeste): os 3 armários lado a lado e o banco na frente.
+          Cada armário é uma experiência, com o nome da empresa e o 7 na camisa. */}
+      {LOCKERS.map(({ id, x, name }) => (
+        <Station key={id} id={id} position={[x, 0, 1.6]} zoneCenter={[0, 0.75, 0.62]} zoneSize={[0.3, 0.75, 0.4]} markerY={2.15} markerAt={[0, 0.25]}>
+          <Locker position={[0, 0, 0]} shirt={name} />
+        </Station>
+      ))}
       {/* Banco: 1 unidade de comprimento; 1,3 m e 44 cm de altura. */}
       <Prop url="/models/ai/11-banco.glb" scale={1.3} position={[-3.45, 0, 2.8]} rotationY={Math.PI / 2} />
     </>

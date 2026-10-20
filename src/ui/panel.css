@@ -291,3 +291,17 @@
     animation: none;
   }
 }
+
+/* Conquistas da experiência: frases longas, em lista com marcador azul. */
+.panel__list {
+  margin: 0;
+  padding: 0 0 0 18px;
+  display: grid;
+  gap: 6px;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+
+.panel__list li::marker {
+  color: var(--accent);
+}
