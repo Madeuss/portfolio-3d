@@ -6,7 +6,7 @@ import { CanvasTexture, Color, DoubleSide, Float32BufferAttribute, IcosahedronGe
 import { useI18n } from '../i18n'
 import { useIsTouch } from '../state/device'
 import { isPlaying, useGame } from '../state/game'
-import { player } from '../state/player'
+import { ball as ballState, player } from '../state/player'
 import { play } from '../audio/sounds'
 
 // Mini campo de futebol: a bola é conduzida encostando nela, chutada com E e
@@ -14,7 +14,7 @@ import { play } from '../audio/sounds'
 // passou inteira da linha entre as traves: comemoração, placar e a bola volta
 // para o meio.
 
-const FIELD = { center: [5.6, 2.6] as const, half: [3, 1.9] as const }
+const FIELD = { center: [4.3, 2.2] as const, half: [2.6, 1.7] as const }
 const LINE = 0.06
 
 // Golzinho: meia-largura, altura e fundo (m).
@@ -30,8 +30,9 @@ const DRIBBLE_BOOST = 1.3
 // Chute: velocidade de saída (m/s) e um pouco para cima.
 const KICK_SPEED = 7
 const KICK_LIFT = 1.4
-// Quique nas linhas do campo (bola presa).
+// Quique nas linhas do campo (bola presa) e na rede, que amortece.
 const BOUNCE = 0.6
+const NET_BOUNCE = 0.2
 // Depois do gol, a bola volta para o meio em RESET_MS.
 const RESET_MS = 2200
 // Fim da embaixadinha: a bola cai um pouco à frente.
@@ -212,8 +213,13 @@ function Confetti() {
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true
   }, [])
 
+  // Gol que já aconteceu antes de o campo montar (ao voltar de dentro da
+  // casa) não solta confete: só os gols novos.
+  const seen = useRef(useGame.getState().goal?.id ?? 0)
+
   useEffect(() => {
-    if (!goal) return
+    if (!goal || goal.id === seen.current) return
+    seen.current = goal.id
     const [x, z] = goal.at
     parts.current = Array.from({ length: CONFETTI }, () => {
       const a = Math.random() * Math.PI * 2
@@ -384,6 +390,7 @@ function Ball() {
     }
     const pos = b.translation()
     const vel = b.linvel()
+    ballState.pos.set(pos.x, pos.y, pos.z)
     label.current?.position.set(pos.x, pos.y + 0.75, pos.z)
 
     // Perto o bastante para chutar: mostra o "E Chutar" (posição atualizada
@@ -413,12 +420,41 @@ function Ball() {
       }
     }
 
-    if (scoring.current) return
+    // Bola presa no campo: nas linhas ela quica de volta, menos na boca do
+    // gol, onde entra até a rede (fundo, laterais e teto), que segura a bola
+    // e amortece. Vale também durante a comemoração do gol.
     const lx = pos.x - cx
     const lz = pos.z - cz
+    const mouth = Math.abs(lz) < GOAL.w - BALL_R && pos.y < GOAL.h
+    const inGoal = Math.abs(lx) > hx
+    let { x, y, z } = pos
+    let { x: vx, y: vy, z: vz } = vel
+    let hit = false
+    const bounce = inGoal ? NET_BOUNCE : BOUNCE
+    const maxX = mouth || inGoal ? hx + GOAL.d - BALL_R : hx - BALL_R
+    if (Math.abs(lx) > maxX) {
+      x = cx + Math.sign(lx) * maxX
+      vx = -Math.sign(lx) * Math.abs(vx) * bounce
+      hit = true
+    }
+    const maxZ = inGoal ? GOAL.w - BALL_R : hz - BALL_R
+    if (Math.abs(lz) > maxZ) {
+      z = cz + Math.sign(lz) * maxZ
+      vz = -Math.sign(lz) * Math.abs(vz) * bounce
+      hit = true
+    }
+    if (inGoal && y > GOAL.h - BALL_R) {
+      y = GOAL.h - BALL_R
+      vy = -Math.abs(vy) * bounce
+      hit = true
+    }
+    if (hit) {
+      b.setTranslation({ x, y, z }, true)
+      b.setLinvel({ x: vx, y: vy, z: vz }, true)
+    }
 
-    // Gol: a bola passou inteira da linha, entre as traves.
-    if (Math.abs(lx) > hx + BALL_R && Math.abs(lz) < GOAL.w) {
+    // Gol: a bola passou inteira da linha, entre as traves e abaixo do travessão.
+    if (!scoring.current && Math.abs(lx) > hx + BALL_R && Math.abs(lz) < GOAL.w && pos.y < GOAL.h) {
       scoring.current = true
       game.scoreGoal([cx + Math.sign(lx) * (hx + GOAL.d / 2), cz])
       setTimeout(() => {
@@ -427,31 +463,6 @@ function Ball() {
         body.current?.setAngvel({ x: 0, y: 0, z: 0 }, true)
         scoring.current = false
       }, RESET_MS)
-      return
-    }
-
-    // Bola presa no campo: nas linhas ela quica de volta, menos na boca do
-    // gol, onde entra até a rede (fundo e laterais).
-    const mouth = Math.abs(lz) < GOAL.w - BALL_R
-    const inGoal = Math.abs(lx) > hx
-    let { x, z } = pos
-    let { x: vx, z: vz } = vel
-    let hit = false
-    const maxX = mouth || inGoal ? hx + GOAL.d - BALL_R : hx - BALL_R
-    if (Math.abs(lx) > maxX) {
-      x = cx + Math.sign(lx) * maxX
-      vx = -Math.sign(lx) * Math.abs(vx) * BOUNCE
-      hit = true
-    }
-    const maxZ = inGoal ? GOAL.w - BALL_R : hz - BALL_R
-    if (Math.abs(lz) > maxZ) {
-      z = cz + Math.sign(lz) * maxZ
-      vz = -Math.sign(lz) * Math.abs(vz) * BOUNCE
-      hit = true
-    }
-    if (hit) {
-      b.setTranslation({ x, y: pos.y, z }, true)
-      b.setLinvel({ x: vx, y: vel.y, z: vz }, true)
     }
   })
 

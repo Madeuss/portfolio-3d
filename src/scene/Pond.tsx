@@ -59,7 +59,7 @@ function stoneGeometry(seed: number) {
 }
 
 // Textura de pedra: cinza claro com pintinhas, manchas e veios finos.
-function stoneTexture() {
+export function stoneTexture() {
   const s = 256
   const c = document.createElement('canvas')
   c.width = c.height = s
