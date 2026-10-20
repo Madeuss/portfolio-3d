@@ -268,7 +268,7 @@ export default function Exterior() {
       {/* Casinha do dog (item 20): 1 unidade de fundo; 1,2 m. Vem de frente
           para +z: gira um pouco para olhar para o caminho. */}
       <Prop url="/models/ai/20-casinha-dog.glb" scale={1.2} position={[-5.6, 0, 1.2]} rotationY={Math.PI / 5} />
-      <Dog start={[-4.6, 0.4]} half={HALF - BORDER - 0.5} avoid={DOG_AVOID} />
+      <Dog start={[-3.6, 1.3]} half={HALF - BORDER - 0.5} avoid={DOG_AVOID} />
 
       {/* Portão / entrada: caixa de correio ao lado do caminho. */}
       <Station id="contact" position={[-1.7, 0, 1.5]} zoneCenter={[0, 0.75, 0]} zoneSize={[1, 0.75, 1]} markerY={1.8}>

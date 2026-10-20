@@ -47,14 +47,17 @@ export default function Dog({ start, half, avoid }: Props) {
   const state = useRef({ x: start[0], z: start[1], yaw: 0, tx: start[0], tz: start[1], wait: 1, walk: 0 })
 
   // Próximo ponto: sorteado na área livre, com o caminho reto até ele também livre.
+  // Se ele já está numa área proibida (nasceu ou foi empurrado para lá), só o
+  // destino precisa ser livre: senão nenhum caminho passa e ele trava ali.
   const pickTarget = () => {
     const s = state.current
+    const escaping = blocked(s.x, s.z, avoid)
     for (let i = 0; i < 30; i++) {
       const tx = (Math.random() * 2 - 1) * half
       const tz = (Math.random() * 2 - 1) * half
       if (Math.hypot(tx - s.x, tz - s.z) < 2) continue
-      let free = true
-      for (let k = 1; k <= 12 && free; k++) {
+      let free = !blocked(tx, tz, avoid)
+      for (let k = 1; k <= 12 && free && !escaping; k++) {
         const u = k / 12
         free = !blocked(s.x + (tx - s.x) * u, s.z + (tz - s.z) * u, avoid)
       }
