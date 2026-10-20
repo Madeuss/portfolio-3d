@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { RoundedBox } from '@react-three/drei'
 import { CanvasTexture, SRGBColorSpace } from 'three'
-import { BLUE } from './InteriorShell'
+import { BLUE } from './places'
 
 // Enfeites do interior feitos em código (sem gastar crédito no Tripo):
 // tapetes e a camisa do Corinthians emoldurada (estação Sobre mim).

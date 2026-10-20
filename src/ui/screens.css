@@ -64,7 +64,10 @@
   display: block;
   height: 100%;
   background: var(--accent);
-  transition: width 0.3s var(--ease-out);
+  /* transform, não width: anima fora da thread principal, então não trava
+     enquanto o 3D compila por trás */
+  transform-origin: left;
+  transition: transform 0.3s var(--ease-out);
 }
 
 .loading__pct {

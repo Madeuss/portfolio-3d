@@ -17,9 +17,14 @@ export type ZoneId = StationId | 'door' | 'bag' | 'ball' | 'seat'
 export type Goal = { id: number; at: [number, number] }
 
 // Troca de cena pela porta: a tela escurece em FADE_MS, a cena troca no
-// escuro e clareia de novo depois de HOLD_MS (tempo de a nova cena montar).
+// escuro e só clareia quando a nova cena avisa que já desenhou (arrived, no
+// World), no mínimo HOLD_MS depois; ARRIVE_MAX_MS é a garantia se o aviso
+// não vier.
 const FADE_MS = 350
 const HOLD_MS = 250
+const ARRIVE_MAX_MS = 6000
+let holdUntil = 0
+let arriveTimer: ReturnType<typeof setTimeout> | null = null
 
 // Treino no saco, como num jogo de luta: cada E é um golpe da sequência
 // (`step`, índice em STRIKES no Character). Apertar durante um golpe deixa o
@@ -65,6 +70,8 @@ export type Hit = { id: number; dir: [number, number]; bicycle?: boolean }
 // `open`: estação com o painel aberto.
 type GameState = {
   screen: Screen
+  /** Shaders compilados e texturas na placa de vídeo: o "Entrar" pode liberar. */
+  warm: boolean
   scene: Scene
   /** Onde o personagem aparece na cena: no começo (portão) ou na porta. */
   spawn: 'start' | 'door'
@@ -88,8 +95,11 @@ type GameState = {
   goals: number
   dizzy: boolean
   setScreen: (screen: Screen) => void
+  setWarm: () => void
   setScene: (scene: Scene, spawn?: 'start' | 'door') => void
   goThrough: () => void
+  /** A cena nova montou e desenhou o primeiro quadro: pode clarear. */
+  arrived: () => void
   enter: (id: ZoneId, at: [number, number]) => void
   leave: (id: ZoneId) => void
   openStation: (id: StationId) => void
@@ -131,6 +141,7 @@ let lastSpinEnd = 0
 
 export const useGame = create<GameState>((set, get) => ({
   screen: 'loading',
+  warm: false,
   scene: 'exterior',
   spawn: 'start',
   fading: false,
@@ -148,6 +159,7 @@ export const useGame = create<GameState>((set, get) => ({
   goals: 0,
   dizzy: false,
   setScreen: (screen) => set({ screen }),
+  setWarm: () => set({ warm: true }),
   // Trocar de cena desmonta as zonas sem avisar a saída: limpa tudo junto.
   setScene: (scene, spawn = 'start') =>
     set({ scene, spawn, nearby: null, nearbyAt: null, open: null, training: null, sitting: null, seatNear: null }),
@@ -156,8 +168,17 @@ export const useGame = create<GameState>((set, get) => ({
   goThrough: () => {
     if (get().fading) return
     set({ fading: true })
-    setTimeout(() => get().setScene(get().scene === 'exterior' ? 'interior' : 'exterior', 'door'), FADE_MS)
-    setTimeout(() => set({ fading: false }), FADE_MS + HOLD_MS)
+    setTimeout(() => {
+      holdUntil = performance.now() + HOLD_MS
+      get().setScene(get().scene === 'exterior' ? 'interior' : 'exterior', 'door')
+      arriveTimer = setTimeout(() => set({ fading: false }), ARRIVE_MAX_MS)
+    }, FADE_MS)
+  },
+  arrived: () => {
+    if (!get().fading || !arriveTimer) return
+    clearTimeout(arriveTimer)
+    arriveTimer = null
+    setTimeout(() => set({ fading: false }), Math.max(0, holdUntil - performance.now()))
   },
   enter: (id, at) => set({ nearby: id, nearbyAt: at }),
   // Só limpa se for a mesma estação: ao passar de uma zona para outra

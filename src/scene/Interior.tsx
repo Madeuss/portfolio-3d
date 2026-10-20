@@ -1,3 +1,4 @@
+import { useGLTF } from '@react-three/drei'
 import Office from './Office'
 import PunchingBag from './PunchingBag'
 import Station from './Station'
@@ -19,7 +20,9 @@ import type { Seat } from '../state/game'
 
 // Assentos: o meio do sofá (que olha para a TV, +x) e o banco do vestiário
 // (de frente para a câmera, +z). Medidos nos modelos.
-const SOFA: Seat = { center: [2.02, -1.5], yaw: Math.PI / 2, height: 0.385, depth: 0.3, edge: 0.05 }
+// O sofá tem almofadas fofas e encosto grosso: o quadril fica mais à frente
+// (edge) e um pouco acima do assento medido, senão o corpo entra no encosto.
+const SOFA: Seat = { center: [2.02, -1.5], yaw: Math.PI / 2, height: 0.41, depth: 0.3, edge: 0.13 }
 const LOCKER_BENCH: Seat = { center: [-3.45, 2.8], yaw: 0, height: 0.445, depth: 0.2, edge: 0.03 }
 
 // Armários do vestiário, na ordem das experiências (data/stations.ts).
@@ -29,8 +32,20 @@ const LOCKERS: { id: ExperienceId; x: number; name: string }[] = [
   { id: 'exp-autoseg', x: -2.8, name: 'AUTOSEG' },
 ]
 
-// Onde o personagem aparece ao entrar: logo à frente do capacho, na porta sul.
-export const INTERIOR_SPAWN: [number, number, number] = [0, 2, 3.2]
+// Móveis soltos (Prop): baixam junto com este arquivo, antes de entrar na casa.
+const MODELS = [
+  '/models/ai/10-cama.glb',
+  '/models/ai/11-banco.glb',
+  '/models/ai/12-halteres.glb',
+  '/models/ai/13-luvas.glb',
+  '/models/ai/15-planta.glb',
+  '/models/ai/27-criado-mudo.glb',
+  '/models/ai/28-estante.glb',
+  '/models/ai/29-sofa.glb',
+  '/models/ai/30-rack-tv.glb',
+  '/models/ai/31-banco-musculacao.glb',
+]
+useGLTF.preload(MODELS)
 
 export default function Interior() {
   return (
@@ -82,7 +97,7 @@ export default function Interior() {
       <Prop url="/models/ai/27-criado-mudo.glb" scale={0.85} position={[4.25, 0, -4.5]} />
       {/* Sala no mesmo cômodo: sofá de frente para o rack na parede leste,
           com o tapete redondo entre os dois. */}
-      <RoundRug position={[3.3, 0, -1.5]} radius={0.95} />
+      <RoundRug position={[3.3, 0, -1.65]} radius={0.85} />
       {/* Sofá: 1 unidade de largura; 2,1 m. Vem de frente para +z: gira para +x. */}
       <Prop url="/models/ai/29-sofa.glb" scale={2.1} position={[1.85, 0, -1.5]} rotationY={Math.PI / 2} />
       <SeatZone seat={SOFA} width={0.7} />

@@ -69,7 +69,15 @@ export default function App() {
           "percentage" = PCF: o tipo "soft" padrão do R3F saiu do three.js. */}
       {/* dpr: resolução máxima em telas de alta densidade. Acima de 1,5 (2 no
           desktop) o custo cresce muito e a diferença quase não aparece. */}
-      <Canvas shadows="percentage" dpr={[1, isTouch() ? 1.5 : 2]} camera={{ position: [5, 6, 7], fov: 40 }}>
+      {/* frameloop: atrás da tela de carregamento a cena só desenha quando
+          pedem (o aquecimento, World), em vez de 60 quadros por segundo. Com o
+          processador livre, o clique em "Entrar" responde na hora. */}
+      <Canvas
+        shadows="percentage"
+        dpr={[1, isTouch() ? 1.5 : 2]}
+        camera={{ position: [5, 6, 7], fov: 40 }}
+        frameloop={loading ? 'demand' : 'always'}
+      >
         <World />
       </Canvas>
 

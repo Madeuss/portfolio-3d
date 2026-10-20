@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { RoundedBox } from '@react-three/drei'
 import { CuboidCollider, RigidBody } from '@react-three/rapier'
 import { CanvasTexture, RepeatWrapping, SRGBColorSpace } from 'three'
+import { BLUE } from './places'
 
 // Casca do interior (docs/conceito.md, "dentro = madeusdev"): a casa sem teto
 // numa laje, com o piso de cada cômodo diferente, paredes off-white e o fundo
@@ -16,7 +17,6 @@ const DOOR = 0.8 // meia-largura da porta (sul, no meio)
 const SLAB = 0.35 // espessura da laje
 
 const OFF_WHITE = '#FAFAF7'
-export const BLUE = '#0A3FB8'
 
 // ---- Texturas desenhadas num canvas (sem arquivos) ---------------------
 

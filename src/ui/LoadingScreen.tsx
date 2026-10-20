@@ -7,8 +7,9 @@ import LangSwitch from './LangSwitch'
 import SimpleLink from './SimpleLink'
 
 // Tela de carregamento (tarefa 7.1). A barra é o progresso real dos arquivos
-// (useProgress do drei escuta o carregador do three.js). Ao terminar aparece
-// "Entrar": o clique é o gesto que o navegador exige para liberar o áudio.
+// (useProgress do drei escuta o carregador do three.js). Ao terminar, e depois
+// do aquecimento da placa de vídeo (World), aparece "Entrar": o clique é o
+// gesto que o navegador exige para liberar o áudio.
 export default function LoadingScreen() {
   const { progress, active } = useProgress()
   const t = useI18n((s) => s.t)
@@ -24,7 +25,17 @@ export default function LoadingScreen() {
     return () => window.clearTimeout(id)
   }, [])
 
-  const ready = (!active && progress === 100) || timedOut
+  const warm = useGame((s) => s.warm)
+  const ready = (warm && !active) || timedOut
+
+  // O que a barra mostra: o progresso do drei é "baixados ÷ pedidos", e o total
+  // cresce no meio (um modelo só é pedido quando outro chega), então ele volta.
+  // Aqui só anda para a frente, e os últimos 10% são o aquecimento (World).
+  const [peak, setPeak] = useState(0)
+  const target = ready ? 100 : Math.min(progress, 100) * 0.9
+  if (target > peak) setPeak(target)
+  const shown = Math.max(peak, target)
+  const pct = Math.round(shown)
 
   const enter = () => {
     setLeaving(true)
@@ -59,11 +70,11 @@ export default function LoadingScreen() {
             aria-label={t.loading.loading}
             aria-valuemin={0}
             aria-valuemax={100}
-            aria-valuenow={Math.round(progress)}
+            aria-valuenow={pct}
           >
-            <i style={{ width: `${progress}%` }} />
+            <i style={{ transform: `scaleX(${shown / 100})` }} />
           </div>
-          <span className="loading__pct">{Math.round(progress)}%</span>
+          <span className="loading__pct">{pct}%</span>
         </div>
 
         <button type="button" className="loading__enter" onClick={enter} disabled={!ready} autoFocus>
