@@ -15,7 +15,6 @@ const SFX = {
   click: { src: '/sounds/click.mp3', volume: 0.4 },
   // Trocar de página num painel (‹ anterior / próximo ›): Kenney Interface Sounds, click_001.
   page: { src: '/sounds/page-turn.mp3', volume: 0.5 },
-  toggle: { src: '/sounds/toggle.mp3', volume: 0.5 },
   // Porta da casa (Kenney RPG Audio, doorOpen_1 e doorClose_1).
   'door-open': { src: '/sounds/door-open.mp3', volume: 0.1 },
   'door-close': { src: '/sounds/door-close.mp3', volume: 0.1 },
@@ -29,10 +28,12 @@ const SFX = {
 
 export type SfxName = keyof typeof SFX
 
-// Música de fundo: escolha sua (Pixabay ou Freesound, licença livre). Coloque
-// o arquivo em public/sounds e o caminho aqui; null = sem música.
-const MUSIC_URL: string | null = null
-const MUSIC_VOLUME = 0.25
+// Música de fundo: "Relaxing Birds and Piano Music", de Innertune (Pixabay,
+// sem exigir crédito). A faixa original tem 37 min: aqui vão 3 min recortados
+// com o fim misturado no começo, para o loop emendar sem corte. Baixa só
+// depois do "Entrar" (não pesa no carregamento) e obedece o botão de mudo.
+const MUSIC_URL: string | null = '/sounds/music-birds-piano.mp3'
+const MUSIC_VOLUME = 0.22
 
 const cache = new Map<string, Howl>()
 
@@ -93,7 +94,7 @@ export const useAudio = create<AudioState>((set, get) => {
       const next = !get().muted
       Howler.mute(next)
       set({ muted: next })
-      if (!next) play('toggle')
+      if (!next) play('panel-open') // o mesmo clique de abrir os painéis
       try {
         localStorage.setItem(MUTED_KEY, next ? '1' : '0')
       } catch {

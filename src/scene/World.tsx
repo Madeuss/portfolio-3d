@@ -112,6 +112,8 @@ function Warmup() {
 const HDRI = '/hdri/kloofendal_48d_partly_cloudy_puresky_256.hdr'
 // Mapa de sombra: 4096 no computador; no celular, 2048 (a sombra é desenhada
 // de novo a cada quadro e pesa na placa de vídeo do telefone).
+// Quanto o dia acelera com o personagem deitado na rede.
+const NAP_SPEED = 15
 const SHADOW_MAP = isTouch() ? 2048 : 4096
 
 function Lights() {
@@ -142,7 +144,9 @@ function Lights() {
       three.environmentIntensity = envIntensity
       return
     }
-    stepSky(delta)
+    // deitado na rede, o tempo voa (como um cochilo): o dia passa em ~30 s
+    const napping = useGame.getState().sitting?.phase === 'lie'
+    stepSky(delta * (napping ? NAP_SPEED : 1))
     sunDirection(light.position, 19)
     light.color.copy(sky.light)
     light.intensity = sunIntensity * (1 - sky.night * 0.82)

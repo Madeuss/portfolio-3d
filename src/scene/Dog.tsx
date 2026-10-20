@@ -116,15 +116,19 @@ export default function Dog({ start, half, avoid }: Props) {
   const pickTarget = () => {
     const s = state.current
     const escaping = blocked(s.x, s.z, avoid)
-    for (let i = 0; i < 30; i++) {
+    // (com o quintal cheio, muitos sorteios caem em caminho bloqueado: tenta
+    // bastante; o destino pode ser mais perto, para achar um livre)
+    for (let i = 0; i < 120; i++) {
       const tx = (Math.random() * 2 - 1) * half
       const tz = (Math.random() * 2 - 1) * half
-      if (Math.hypot(tx - s.x, tz - s.z) < 2) continue
+      if (Math.hypot(tx - s.x, tz - s.z) < 1.2) continue
       if (!freePath(s.x, s.z, tx, tz, escaping)) continue
       s.tx = tx
       s.tz = tz
       return
     }
+    // nada livre: tenta de novo logo
+    s.wait = 0.4
   }
 
   // Arremesso: um ponto livre a 3–5 m do personagem, de preferência para o
@@ -203,7 +207,7 @@ export default function Dog({ start, half, avoid }: Props) {
         f.inMouth = false
         f.rest.set(s.x + Math.sin(s.yaw) * 0.35, BALL_R, s.z + Math.cos(s.yaw) * 0.35)
         f.mode = 'wander'
-        s.wait = 2 + Math.random() * 2
+        s.wait = 1.5 + Math.random() * 1.5
       }
     } else if (toPlayer < NOTICE) {
       // Olha para o personagem (colado nele, a direção não serve: ficava girando).
@@ -212,7 +216,7 @@ export default function Dog({ start, half, avoid }: Props) {
       s.wait -= dt
       if (s.wait <= 0) pickTarget()
     } else if (walkTo(s.tx, s.tz, SPEED)) {
-      s.wait = 1.5 + Math.random() * 3
+      s.wait = 1 + Math.random() * 2
     }
 
     // Vira pelo caminho mais curto.
