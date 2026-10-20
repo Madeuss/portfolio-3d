@@ -3,11 +3,9 @@
 # - 'wasm-unsafe-eval': o Rapier (física) roda em WebAssembly;
 # - style-src 'unsafe-inline': estilos injetados em tempo de execução (Leva, drei Html);
 # - blob:/data:: texturas e áudio decodificados pelo three.js e pelo Howler.
-# A CSP está em modo Report-Only: só avisa no console, não bloqueia. Depois de
-# conferir que o console fica limpo, trocar o nome para Content-Security-Policy.
 
 /*
-  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob: data:; connect-src 'self' blob: data: https://cloudflareinsights.com; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob: data:; connect-src 'self' blob: data: https://cloudflareinsights.com; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
   Strict-Transport-Security: max-age=31536000; includeSubDomains
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
