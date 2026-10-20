@@ -1,6 +1,7 @@
 import { useLayoutEffect, useMemo, useRef } from 'react'
 import { CanvasTexture, Color, IcosahedronGeometry, InstancedMesh, MeshStandardMaterial, Object3D, RepeatWrapping, SRGBColorSpace } from 'three'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
+import { addWind } from './wind'
 
 // Grama no estilo do worawork: em vez de folhas em pé, o volume vem de uma
 // textura pintada no chão (verde vivo, manchas e pinceladas curtas, como
@@ -106,7 +107,12 @@ type Props = {
 export default function GrassClumps({ half, clear, count = 140 }: Props) {
   const ref = useRef<InstancedMesh>(null)
   const geometry = useMemo(clumpGeometry, [])
-  const material = useMemo(() => new MeshStandardMaterial({ color: '#5f9b3e', roughness: 0.85, flatShading: true }), [])
+  const material = useMemo(() => {
+    const m = new MeshStandardMaterial({ color: '#5f9b3e', roughness: 0.85, flatShading: true })
+    // vento: o topo das bolinhas balança, a base fica no chão
+    addWind(m, { from: 0.02, to: 0.15, amount: 0.012, speed: 1.4 })
+    return m
+  }, [])
 
   const placed = useMemo(() => {
     const rnd = seeded(42)

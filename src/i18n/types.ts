@@ -24,6 +24,10 @@ export type Dictionary = {
   soccer: { kick: string; goal: string; score: string }
   /** Aviso perto do sofá e dos bancos. */
   seat: string
+  /** Aviso no balanço. */
+  swing: string
+  /** Aviso perto do cachorro (jogar a bolinha para ele buscar). */
+  dog: string
   /** Porta da casa: o aviso de fora e o de dentro. */
   door: { enter: string; exit: string }
   panel: { close: string; escHint: string; prev: string; next: string; site: string }

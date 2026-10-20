@@ -11,7 +11,7 @@ export type Scene = 'exterior' | 'interior'
 // Zona perto da qual o personagem pode estar: uma estação (abre painel), a
 // porta da casa (troca de cena, dos dois lados), o saco de pancada (luta, só
 // diversão), a bola (chute) ou um assento.
-export type ZoneId = StationId | 'door' | 'bag' | 'ball' | 'seat'
+export type ZoneId = StationId | 'door' | 'bag' | 'ball' | 'seat' | 'dog'
 
 // Gol no campinho: `id` muda a cada gol, `at` é onde soltar o confete.
 export type Goal = { id: number; at: [number, number] }
@@ -105,6 +105,8 @@ type GameState = {
   openStation: (id: StationId) => void
   close: () => void
   interact: () => void
+  /** Bolinhas jogadas para o cachorro (cada uma muda o número; o Dog reage). */
+  fetch: number
   /** Botão de ação apertado / solto (teclado e toque). */
   press: () => void
   release: () => void
@@ -156,6 +158,7 @@ export const useGame = create<GameState>((set, get) => ({
   holding: false,
   seatNear: null,
   sitting: null,
+  fetch: 0,
   goals: 0,
   dizzy: false,
   setScreen: (screen) => set({ screen }),
@@ -203,6 +206,7 @@ export const useGame = create<GameState>((set, get) => ({
       if (s.seatNear && !s.dizzy) set({ sitting: { seat: s.seatNear, phase: 'down' } })
       return
     }
+    if (s.nearby === 'dog') return set({ fetch: s.fetch + 1 })
     if (s.nearby === 'ball') {
       if (s.nearbyAt && !s.dizzy) set({ training: { target: s.nearbyAt, step: 0, queued: false, special: false, ball: true, juggle: false } })
       return

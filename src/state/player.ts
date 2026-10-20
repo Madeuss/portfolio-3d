@@ -11,3 +11,6 @@ export const PLAYER_GROUP = 3
 
 // Posição da bola do campinho, atualizada pela própria bola (Soccer).
 export const ball = { pos: new Vector3() }
+
+// Posição do cachorro (Dog): o gato foge quando ele chega perto.
+export const dog = { pos: new Vector3(99, 0, 99) }

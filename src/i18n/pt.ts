@@ -18,6 +18,8 @@ const pt: Dictionary = {
   },
   soccer: { kick: 'Chutar', goal: 'GOL!', score: 'GOLS' },
   seat: 'Sentar',
+  swing: 'Balançar',
+  dog: 'Jogar a bolinha',
   door: { enter: 'Entrar na casa', exit: 'Sair' },
   panel: { close: 'Fechar', escHint: 'Esc fecha', prev: 'anterior', next: 'próximo', site: 'Site' },
   stations: {

@@ -1,14 +1,17 @@
-import { lazy, Suspense, useEffect } from 'react'
-import { useThree } from '@react-three/fiber'
+import { lazy, Suspense, useEffect, useRef } from 'react'
+import { useFrame, useThree } from '@react-three/fiber'
 import { Environment, Stats, useProgress } from '@react-three/drei'
 import { Physics } from '@react-three/rapier'
 import { useControls } from 'leva'
-import { Texture, type Material, type Mesh } from 'three'
+import { Color, Texture, type AmbientLight, type DirectionalLight, type Material, type Mesh } from 'three'
 import { isTouch } from '../state/device'
 import { useGame } from '../state/game'
 import Exterior, { EXTERIOR_DOOR_SPAWN, EXTERIOR_SPAWN } from './Exterior'
 import { BLUE, INTERIOR_SPAWN } from './places'
 import Player from './Player'
+import { windTime } from './wind'
+import { sky, stepSky, sunDirection } from './sky'
+import { LAMP_GLOW } from './Garden'
 
 // O interior fica num arquivo à parte (código e móveis): a tela de
 // carregamento só espera o terreno. Ele baixa quando o visitante já está
@@ -29,6 +32,12 @@ function usePrefetchInterior() {
     if (window.requestIdleCallback) window.requestIdleCallback(() => void loadInterior(), { timeout: 3000 })
     else window.setTimeout(() => void loadInterior(), 1500)
   }, [playing])
+}
+
+// Relógio do vento (wind.ts): um número só, lido pelos shaders das plantas.
+function Wind() {
+  useFrame(({ clock }) => void (windTime.value = clock.elapsedTime))
+  return null
 }
 
 // Avisa a porta (state/game.ts) que a cena nova chegou: compila os shaders
@@ -114,6 +123,36 @@ function Lights() {
     showSky: { value: false, label: 'HDRI de fundo' },
   })
 
+  // Dia e noite (sky.ts), só no terreno: sol girando e mudando de cor, luz
+  // ambiente, reflexo do HDRI, fundo e as lâmpadas dos postes. Dentro de casa,
+  // a luz fica a de dia.
+  const sun = useRef<DirectionalLight>(null)
+  const amb = useRef<AmbientLight>(null)
+  const three = useThree((s) => s.scene)
+  const exterior = useGame((s) => s.scene === 'exterior')
+  useFrame((_, delta) => {
+    const light = sun.current
+    if (!light || !amb.current) return
+    if (!exterior) {
+      light.position.set(...(sunPosition as [number, number, number]))
+      light.color.set('#ffffff')
+      light.intensity = sunIntensity
+      amb.current.intensity = ambient
+      amb.current.color.set('#ffffff')
+      three.environmentIntensity = envIntensity
+      return
+    }
+    stepSky(delta)
+    sunDirection(light.position, 19)
+    light.color.copy(sky.light)
+    light.intensity = sunIntensity * (1 - sky.night * 0.82)
+    amb.current.intensity = ambient * (1 - sky.night * 0.45)
+    amb.current.color.copy(sky.ambient)
+    three.environmentIntensity = envIntensity * (1 - sky.night * 0.8)
+    if (three.background instanceof Color) three.background.copy(sky.background)
+    LAMP_GLOW.emissiveIntensity = 1.2 + sky.night * 3
+  })
+
   return (
     <>
       {/* HDRI = foto 360° do céu que ilumina e dá reflexo aos materiais.
@@ -121,11 +160,12 @@ function Lights() {
       <Environment files={HDRI} background={showSky} environmentIntensity={envIntensity} />
 
       {/* Luz uniforme que clareia tudo, inclusive o lado sem sol. */}
-      <ambientLight intensity={ambient} />
+      <ambientLight ref={amb} intensity={ambient} />
 
       {/* O "sol": luz paralela que gera as sombras. A sombra é calculada dentro
           de uma caixa (shadow-camera-*); objetos fora dela não fazem sombra. */}
       <directionalLight
+        ref={sun}
         position={sunPosition as [number, number, number]}
         intensity={sunIntensity}
         castShadow
@@ -157,6 +197,7 @@ export default function World() {
       {/* Fundo: claro no terreno; dentro da casa, o azul do madeusdev. */}
       <color attach="background" args={[scene === 'interior' ? BLUE : '#FAFAF7']} />
       <Lights />
+      <Wind />
       {/* some depois de aquecer: não precisa mais ouvir o progresso */}
       {!warm && <Warmup />}
 

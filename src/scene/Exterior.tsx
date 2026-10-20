@@ -1,4 +1,6 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
+import { MeshStandardMaterial } from 'three'
+import { patchTrail, TrailPainter, useTrail } from './Trail'
 import { CuboidCollider, RigidBody } from '@react-three/rapier'
 import { useControls } from 'leva'
 import { RoundedBox } from '@react-three/drei'
@@ -11,6 +13,8 @@ import Dog from './Dog'
 import SteppingStones from './SteppingStones'
 import { Bench, Flowers, Lamp, Sign } from './Garden'
 import Clothesline from './Clothesline'
+import SwingTree from './SwingTree'
+import { Cat, Smoke, SprinklerWater } from './YardLife'
 import SeatZone from './SeatZone'
 import type { Seat } from '../state/game'
 import { Birds, Butterflies, Pebbles } from './Critters'
@@ -36,15 +40,22 @@ const WOOD_DARK = '#8a5a2b'
 function Ground() {
   // A cor vem da textura pintada; `tom` só tinge por cima (branco = original).
   const { color } = useControls('Chão', { color: { value: '#ffffff', label: 'tom' } })
-  const map = useMemo(() => grassTexture(HALF * 2, 5), [])
+  const trail = useTrail(HALF * 2)
+  const material = useMemo(() => {
+    const m = new MeshStandardMaterial({ map: grassTexture(HALF * 2, 5), roughness: 0.95 })
+    // a grama fica pisada onde o personagem anda (Trail)
+    patchTrail(m, trail)
+    return m
+  }, [trail])
+  useEffect(() => void material.color.set(color), [material, color])
   return (
     <RigidBody type="fixed" colliders={false}>
       <CuboidCollider args={[HALF, 0.1, HALF]} position={[0, -0.1, 0]} />
       {/* O plano nasce em pé (eixo XY); girar -90° em X deita ele no chão. */}
-      <mesh rotation-x={-Math.PI / 2} receiveShadow>
+      <mesh rotation-x={-Math.PI / 2} receiveShadow material={material}>
         <planeGeometry args={[HALF * 2, HALF * 2]} />
-        <meshStandardMaterial color={color} map={map} roughness={0.95} />
       </mesh>
+      <TrailPainter trail={trail} />
     </RigidBody>
   )
 }
@@ -58,6 +69,10 @@ const NO_GRASS: Area[] = [
   { x: [-5.7, -2.7], z: [3.1, 6.1] }, // laguinho
   { x: [-6.8, -6.2], z: [3.9, 5.3] }, // banco
   { x: [-5.5, -3.35], z: [-0.3, 0.6] }, // varal
+  { x: [3.1, 5.3], z: [-5.1, -1.7] }, // churrasqueira e mesa
+  { x: [-6.4, -5.4], z: [-5.8, -2.5] }, // horta
+  { x: [-6.3, -5.5], z: [-2.2, -1.4] }, // irrigador
+  { x: [1.8, 3.5], z: [5.8, 6.7] }, // árvore do balanço e o balanço
 ]
 
 
@@ -125,13 +140,18 @@ const LAMPS: [number, number][] = [
 // Banco no canto esquerdo, ao lado do lago, olhando para ele (+x); assento a
 // 46 cm. Longe o bastante para o corpo de quem senta não encostar no lago.
 const POND_BENCH: Seat = { center: [-6.5, 4.6], yaw: Math.PI / 2, height: 0.465, depth: 0.22, edge: 0.03 }
+// Bancos da mesa de piquenique (34): quem senta fica de costas para a mesa (as
+// pernas não cabem embaixo dela com o corpo físico); o da frente olha para a
+// câmera e o de trás para a churrasqueira.
+const PICNIC_FRONT: Seat = { center: [4.2, -2.0], yaw: 0, height: 0.44, depth: 0.15, edge: 0 }
+const PICNIC_BACK: Seat = { center: [4.2, -3.2], yaw: Math.PI, height: 0.44, depth: 0.15, edge: 0 }
 
 // Passarinhos ciscando pelo gramado (voltam para cá depois de fugir).
 const BIRDS = [
   { home: [2.4, -1.4] as [number, number], color: '#6b7a8f' },
   { home: [-3.2, 1.6] as [number, number], color: '#c46a3d' },
   { home: [5.4, 5.1] as [number, number], color: '#6b7a8f' },
-  { home: [-5.6, -1.6] as [number, number], color: '#e0c25a' },
+  { home: [-4.6, -1.4] as [number, number], color: '#e0c25a' },
 ]
 // Canteiros de margaridas: [x, z, quantas].
 const FLOWER_BEDS: [number, number, number][] = [
@@ -139,7 +159,7 @@ const FLOWER_BEDS: [number, number, number][] = [
   [1.5, -0.1, 7],
   [-2.3, 3.2, 8],
   [-6.2, 2.6, 7],
-  [3.2, 5.6, 8],
+  [5.6, 6.0, 8],
   [-0.9, 5.2, 5],
   [5.8, -0.6, 6],
 ]
@@ -207,11 +227,9 @@ const TREES: [TreeKind, number, number, number, number][] = [
   ['orange', -6.7, -2.6, 1.1, 0.9],
   ['tall', -6.9, -0.6, 2.2, 0.85],
   // lado leste (direita), menos onde está o campo
-  ['orange', 6.8, -4.6, 0.8, 1],
   ['tall', 6.9, -2.5, 2.9, 0.9],
-  ['plain', 6.8, 6.75, 0.4, 0.82],
+  ['orange', 6.8, -4.6, 0.8, 1],
   // na frente, perto da cerca-viva
-  ['orange', 3.7, 6.75, 1.4, 0.8],
   ['tall', -2.7, 6.6, 0.6, 0.8],
 ]
 
@@ -241,6 +259,31 @@ export default function Exterior() {
       <Butterflies around={FLOWER_BEDS.filter((_, i) => i % 2 === 0).map(([x, z]) => [x, z] as [number, number])} />
       <Birds birds={BIRDS} />
       <Pebbles half={HALF - BORDER - 0.3} clear={NO_GRASS} />
+      {/* Churrasco (itens 33 e 34): no fundo à direita, entre a casa e as
+          árvores, à frente das copas do fundo (a chaminé ficava embaixo delas),
+          e a mesa na frente da churrasqueira. */}
+      <Prop url="/models/ai/33-churrasqueira.glb" scale={1.6} position={[4.2, 0, -4.6]} />
+      <Prop url="/models/ai/34-mesa-piquenique.glb" scale={1.8} position={[4.2, 0, -2.6]} rotationY={Math.PI / 2} />
+      <SeatZone seat={PICNIC_FRONT} width={0.7} />
+      <SeatZone seat={PICNIC_BACK} width={0.7} />
+      <Smoke position={[3.92, 1.62, -4.7]} />
+      {/* Horta (37): dois canteiros no comprimento, encostados nas árvores da
+          esquerda (um girado, para não ficarem iguais), e o irrigador (36) na
+          mesma linha: sobra a passagem ao lado da casa. */}
+      <Prop url="/models/ai/37-horta.glb" scale={1.4} position={[-5.9, 0, -5.0]} rotationY={Math.PI / 2} />
+      <Prop url="/models/ai/37-horta.glb" scale={1.4} position={[-5.9, 0, -3.3]} rotationY={-Math.PI / 2} />
+      <Prop url="/models/ai/36-irrigador.glb" scale={0.7} position={[-5.9, 0, -1.8]} rotationY={-0.6} minHeight={0.6} />
+      <SprinklerWater position={[-5.9, 0.3, -1.8]} />
+      {/* Gato (38) sentado na mureta esquerda, perto da casinha do cachorro:
+          quando o cachorro ou o personagem chega perto, pula para fora. */}
+      <Cat position={[-HALF + BORDER / 2, BORDER_HEIGHT, 2.3]} rotationY={Math.PI / 2} scale={0.5} away={[-HALF - 0.8, 2.3]} />
+      {/* Árvore do balanço (35), na frente à direita, no lugar da laranjeira
+          que ficava ali, com a copa do mesmo tamanho (não tapa o campinho). O
+          galho aponta para o caminho (−x): o balanço fica ao lado do tronco,
+          à vista (atrás dele, a copa tapava). Quem senta olha para a casa. */}
+      {/* (o galho do modelo sai a ~30° na diagonal: o giro compensa, para ele
+          apontar reto para o caminho) */}
+      <SwingTree position={[3.2, 0, 6.3]} rotationY={Math.PI - 0.52} scale={2.6} />
       {/* Varal no gramado à esquerda da varanda, longe das copas. */}
       <Clothesline from={[-5.3, 1.5, 0.05]} to={[-3.55, 1.5, 0.25]} />
       {/* Banco de madeira no canto esquerdo, olhando para o lago. */}
@@ -262,7 +305,7 @@ export default function Exterior() {
           altura: a lisa e a de laranjas com 3 m, a alta com 3,8 m (vezes o
           tamanho de cada uma). Só o tronco colide. */}
       {TREES.map(([kind, x, z, r, size], i) => (
-        <Prop key={i} url={TREE_URL[kind]} scale={TREE_SCALE[kind] * size} position={[x, 0, z]} rotationY={r} trunk={0.2} />
+        <Prop key={i} url={TREE_URL[kind]} scale={TREE_SCALE[kind] * size} position={[x, 0, z]} rotationY={r} trunk={0.2} wind />
       ))}
 
       {/* Casinha do dog (item 20): 1 unidade de fundo; 1,2 m. Vem de frente

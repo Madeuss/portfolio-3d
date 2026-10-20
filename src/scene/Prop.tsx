@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
 import { useGLTF } from '@react-three/drei'
 import { CuboidCollider, CylinderCollider, RigidBody } from '@react-three/rapier'
-import { Box3, Vector3, type Mesh } from 'three'
+import { Box3, Vector3, type Material, type Mesh } from 'three'
+import { addWind } from './wind'
 
 // Móvel gerado por IA (public/models/ai), parado no chão, com uma caixa de
 // colisão do tamanho dele. Cada uso é uma cópia da cena, então o mesmo
@@ -21,9 +22,11 @@ type Props = {
   /** Caixas de colisão sob medida, em unidades do modelo ([xmin, ymin, zmin,
       xmax, ymax, zmax]), no lugar da caixa única do tamanho do modelo. */
   boxes?: [number, number, number, number, number, number][]
+  /** Balança com o vento (árvores): do meio para cima, no espaço do modelo. */
+  wind?: boolean
 }
 
-export default function Prop({ url, scale, position, rotationY = 0, trunk, minHeight = 0, boxes }: Props) {
+export default function Prop({ url, scale, position, rotationY = 0, trunk, minHeight = 0, boxes, wind }: Props) {
   const { scene } = useGLTF(url)
   const { copy, half, center } = useMemo(() => {
     const c = scene.clone()
@@ -31,13 +34,31 @@ export default function Prop({ url, scale, position, rotationY = 0, trunk, minHe
       if ((obj as Mesh).isMesh) obj.castShadow = obj.receiveShadow = true
     })
     const box = new Box3().setFromObject(c)
+    // o modelo do Tripo tem 1 unidade de altura: a copa começa perto de 0,35
+    // (o shader vê a geometria antes do nó da malha, que no meshopt escala e
+    // sobe: as alturas do modelo são convertidas para esse espaço)
+    if (wind) {
+      c.updateMatrixWorld(true)
+      c.traverse((obj) => {
+        const mesh = obj as Mesh
+        if (!mesh.isMesh) return
+        const e = mesh.matrixWorld.elements
+        const sy = e[5] || 1
+        const local = (y: number) => (y - e[13]) / sy
+        addWind(mesh.material as Material, {
+          from: local(box.min.y + 0.3 * (box.max.y - box.min.y)),
+          to: local(box.max.y),
+          amount: 0.012 / sy,
+        })
+      })
+    }
     box.max.y = Math.max(box.max.y, minHeight / scale)
     return {
       copy: c,
       half: box.getSize(new Vector3()).multiplyScalar(scale / 2),
       center: box.getCenter(new Vector3()).multiplyScalar(scale),
     }
-  }, [scene, scale, minHeight])
+  }, [scene, scale, minHeight, wind])
 
   return (
     <RigidBody type="fixed" colliders={false} position={position} rotation={[0, rotationY, 0]}>

@@ -1,6 +1,6 @@
 import { useLayoutEffect, useMemo, useRef } from 'react'
 import { CuboidCollider, CylinderCollider, RigidBody } from '@react-three/rapier'
-import { CanvasTexture, Color, Object3D, SRGBColorSpace, type InstancedMesh } from 'three'
+import { CanvasTexture, Color, MeshStandardMaterial, Object3D, SRGBColorSpace, type InstancedMesh } from 'three'
 
 // Enfeites do quintal feitos em código: a placa MADEUS no portão, lampiões no
 // caminho, canteiros de margaridas e um banco de madeira perto do lago.
@@ -78,6 +78,10 @@ export function Sign({ position, rotationY = 0 }: { position: [number, number, n
 
 // Poste de madeira com uma lanterna de luz quente (só brilho, sem luz de
 // verdade: luzes pontuais pesariam no celular).
+// A lâmpada dos postes: um material só para todas, que o dia e noite (World)
+// deixa mais forte à noite.
+export const LAMP_GLOW = new MeshStandardMaterial({ color: '#ffd27a', emissive: '#ffb547', emissiveIntensity: 1.2, roughness: 0.4 })
+
 export function Lamp({ position }: { position: [number, number, number] }) {
   return (
     <RigidBody type="fixed" colliders={false} position={position}>
@@ -86,9 +90,8 @@ export function Lamp({ position }: { position: [number, number, number] }) {
         <cylinderGeometry args={[0.055, 0.07, 0.9, 8]} />
         <meshStandardMaterial color={WOOD_DARK} roughness={0.9} />
       </mesh>
-      <mesh position-y={1.02} castShadow>
+      <mesh position-y={1.02} castShadow material={LAMP_GLOW}>
         <cylinderGeometry args={[0.11, 0.11, 0.2, 8]} />
-        <meshStandardMaterial color="#ffd27a" emissive="#ffb547" emissiveIntensity={1.2} roughness={0.4} />
       </mesh>
       <mesh position-y={1.16} castShadow>
         <coneGeometry args={[0.17, 0.12, 8]} />
