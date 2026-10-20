@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Html, useGLTF } from '@react-three/drei'
 import { CuboidCollider, RigidBody, type RapierRigidBody } from '@react-three/rapier'
-import { AnimationMixer, MathUtils, Vector3, type Group, type Mesh } from 'three'
+import { AnimationMixer, MathUtils, Matrix4, Vector3, type Bone, type Group, type Mesh } from 'three'
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js'
 import { useI18n } from '../i18n'
 import { useIsTouch } from '../state/device'
@@ -34,7 +34,10 @@ const MARGIN = 0.6
 const THROW_MIN = 3
 const THROW_MAX = 5
 const FLIGHT_S = 0.9
-const MOUTH = new Vector3(0, 0.27, 0.27)
+// Boca no espaço do modelo (medida: a ponta do focinho fica em x −0,5, y 0,62;
+// a boca, logo abaixo e atrás) e o osso da cabeça, que ela acompanha.
+const MOUTH = new Vector3(-0.52, 0.57, -0.035)
+const HEAD_BONE = 'tripoHead_2'
 const BALL_R = 0.045
 
 type Props = {
@@ -61,7 +64,12 @@ export default function Dog({ start, half, avoid }: Props) {
         o.frustumCulled = false // a malha anda com os ossos: a caixa original não serve
       }
     })
-    return c
+    // a boca no espaço do osso da cabeça (na pose parada): a cada quadro, a
+    // bola vai para esse ponto do osso, então segue a cabeça na animação
+    c.updateMatrixWorld(true)
+    const head = c.getObjectByName(HEAD_BONE) as Bone | undefined
+    const mouth = head ? MOUTH.clone().applyMatrix4(new Matrix4().copy(head.matrixWorld).invert()) : null
+    return Object.assign(c, { head, mouth })
   }, [scene])
   const walkAnim = useMemo(() => {
     const mixer = new AnimationMixer(model)
@@ -198,8 +206,8 @@ export default function Dog({ start, half, avoid }: Props) {
         s.wait = 2 + Math.random() * 2
       }
     } else if (toPlayer < NOTICE) {
-      // Olha para o personagem.
-      wantYaw = Math.atan2(player.pos.x - s.x, player.pos.z - s.z)
+      // Olha para o personagem (colado nele, a direção não serve: ficava girando).
+      if (toPlayer > 0.35) wantYaw = Math.atan2(player.pos.x - s.x, player.pos.z - s.z)
     } else if (s.wait > 0) {
       s.wait -= dt
       if (s.wait <= 0) pickTarget()
@@ -240,8 +248,11 @@ export default function Dog({ start, half, avoid }: Props) {
         f.rest.copy(f.to)
       }
     } else if (f.inMouth) {
-      tmp.copy(MOUTH).applyAxisAngle(UP, s.yaw)
-      ballObj.position.set(s.x + tmp.x, g.position.y + tmp.y, s.z + tmp.z)
+      const { head, mouth } = model
+      if (head && mouth) {
+        head.updateWorldMatrix(true, false)
+        ballObj.position.copy(mouth).applyMatrix4(head.matrixWorld)
+      }
     } else {
       ballObj.position.copy(f.rest)
     }
@@ -250,7 +261,9 @@ export default function Dog({ start, half, avoid }: Props) {
   return (
     <>
       <RigidBody ref={body} type="kinematicPosition" colliders={false} position={[start[0], 0, start[1]]}>
-        <CuboidCollider args={[0.13, 0.2, 0.27]} position={[0, 0.2, 0]} />
+        {/* 1 m de altura, bem mais que ele: a cápsula do personagem flutua
+            30 cm e subia em cima de colisões baixas (como nos bancos) */}
+        <CuboidCollider args={[0.13, 0.5, 0.27]} position={[0, 0.5, 0]} />
         <group ref={look}>
           <primitive object={model} scale={SCALE} rotation-y={MODEL_YAW} />
         </group>
@@ -272,6 +285,5 @@ export default function Dog({ start, half, avoid }: Props) {
   )
 }
 
-const UP = new Vector3(0, 1, 0)
 
 useGLTF.preload(URL)

@@ -1,16 +1,12 @@
-import { useLayoutEffect, useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import { CuboidCollider, CylinderCollider, RigidBody } from '@react-three/rapier'
-import { CanvasTexture, Color, MeshStandardMaterial, Object3D, SRGBColorSpace, type InstancedMesh } from 'three'
+import { CanvasTexture, SRGBColorSpace } from 'three'
 
-// Enfeites do quintal feitos em código: a placa MADEUS no portão, lampiões no
-// caminho, canteiros de margaridas e um banco de madeira perto do lago.
+// Enfeites do quintal feitos em código: a placa MADEUS no portão e um banco de
+// madeira perto do lago. (Os postes e as flores viraram modelos: YardModels.)
 
 const WOOD = '#b98552'
 const WOOD_DARK = '#7a4f27'
-
-function seeded(seed: number) {
-  return () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646
-}
 
 // ---- Placa --------------------------------------------------------------------
 
@@ -71,114 +67,6 @@ export function Sign({ position, rotationY = 0 }: { position: [number, number, n
         </mesh>
       </group>
     </RigidBody>
-  )
-}
-
-// ---- Lampiões -----------------------------------------------------------------
-
-// Poste de madeira com uma lanterna de luz quente (só brilho, sem luz de
-// verdade: luzes pontuais pesariam no celular).
-// A lâmpada dos postes: um material só para todas, que o dia e noite (World)
-// deixa mais forte à noite.
-export const LAMP_GLOW = new MeshStandardMaterial({ color: '#ffd27a', emissive: '#ffb547', emissiveIntensity: 1.2, roughness: 0.4 })
-
-export function Lamp({ position }: { position: [number, number, number] }) {
-  return (
-    <RigidBody type="fixed" colliders={false} position={position}>
-      <CylinderCollider args={[0.5, 0.07]} position-y={0.5} />
-      <mesh position-y={0.45} castShadow>
-        <cylinderGeometry args={[0.055, 0.07, 0.9, 8]} />
-        <meshStandardMaterial color={WOOD_DARK} roughness={0.9} />
-      </mesh>
-      <mesh position-y={1.02} castShadow material={LAMP_GLOW}>
-        <cylinderGeometry args={[0.11, 0.11, 0.2, 8]} />
-      </mesh>
-      <mesh position-y={1.16} castShadow>
-        <coneGeometry args={[0.17, 0.12, 8]} />
-        <meshStandardMaterial color={WOOD_DARK} roughness={0.9} />
-      </mesh>
-      <mesh position-y={0.91}>
-        <cylinderGeometry args={[0.13, 0.13, 0.03, 8]} />
-        <meshStandardMaterial color={WOOD_DARK} roughness={0.9} />
-      </mesh>
-    </RigidBody>
-  )
-}
-
-// ---- Margaridas ---------------------------------------------------------------
-
-type Flower = { x: number; z: number; h: number; s: number; r: number; petals: string }
-
-const PETAL_COLORS = ['#ffffff', '#ffffff', '#fff6d6', '#ffe066']
-
-/** Canteiros de margaridas: `beds` = [x, z, quantas]. Três InstancedMesh (caule, pétalas, miolo). */
-export function Flowers({ beds }: { beds: [number, number, number][] }) {
-  const stems = useRef<InstancedMesh>(null)
-  const petals = useRef<InstancedMesh>(null)
-  const centers = useRef<InstancedMesh>(null)
-  const flowers = useMemo(() => {
-    const rnd = seeded(11)
-    const list: Flower[] = []
-    for (const [bx, bz, n] of beds) {
-      for (let i = 0; i < n; i++) {
-        const a = rnd() * Math.PI * 2
-        const d = Math.sqrt(rnd()) * 0.45
-        list.push({
-          x: bx + Math.cos(a) * d,
-          z: bz + Math.sin(a) * d,
-          h: 0.16 + rnd() * 0.14,
-          s: 0.8 + rnd() * 0.5,
-          r: rnd() * Math.PI,
-          petals: PETAL_COLORS[Math.floor(rnd() * PETAL_COLORS.length)],
-        })
-      }
-    }
-    return list
-  }, [beds])
-
-  useLayoutEffect(() => {
-    const o = new Object3D()
-    const c = new Color()
-    flowers.forEach((f, i) => {
-      o.rotation.set(0, f.r, 0)
-      o.scale.set(1, f.h / 0.2, 1)
-      o.position.set(f.x, f.h / 2, f.z)
-      o.updateMatrix()
-      stems.current?.setMatrixAt(i, o.matrix)
-      o.scale.setScalar(f.s * 1.6)
-      o.position.set(f.x, f.h, f.z)
-      o.updateMatrix()
-      petals.current?.setMatrixAt(i, o.matrix)
-      petals.current?.setColorAt(i, c.set(f.petals))
-      o.position.set(f.x, f.h + 0.02 * f.s, f.z)
-      o.updateMatrix()
-      centers.current?.setMatrixAt(i, o.matrix)
-    })
-    for (const m of [stems.current, petals.current, centers.current]) {
-      if (!m) continue
-      m.instanceMatrix.needsUpdate = true
-      if (m.instanceColor) m.instanceColor.needsUpdate = true
-    }
-  }, [flowers])
-
-  const n = flowers.length
-  return (
-    <>
-      <instancedMesh ref={stems} args={[undefined, undefined, n]} castShadow>
-        <cylinderGeometry args={[0.008, 0.01, 0.2, 5]} />
-        <meshStandardMaterial color="#4f8f3a" />
-      </instancedMesh>
-      {/* pétalas: um "asterisco" de 7 pontas, achatado (círculo de 14 lados
-          com raio alternado ficaria caro; um cilindro baixo serve de longe) */}
-      <instancedMesh ref={petals} args={[undefined, undefined, n]} castShadow>
-        <cylinderGeometry args={[0.06, 0.05, 0.02, 7]} />
-        <meshStandardMaterial roughness={0.7} />
-      </instancedMesh>
-      <instancedMesh ref={centers} args={[undefined, undefined, n]}>
-        <sphereGeometry args={[0.025, 8, 6]} />
-        <meshStandardMaterial color="#f2b705" roughness={0.6} />
-      </instancedMesh>
-    </>
   )
 }
 

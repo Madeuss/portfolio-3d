@@ -11,7 +11,7 @@ import { BLUE, INTERIOR_SPAWN } from './places'
 import Player from './Player'
 import { windTime } from './wind'
 import { sky, stepSky, sunDirection } from './sky'
-import { LAMP_GLOW } from './Garden'
+import { lampGlow } from './YardModels'
 
 // O interior fica num arquivo à parte (código e móveis): a tela de
 // carregamento só espera o terreno. Ele baixa quando o visitante já está
@@ -150,7 +150,7 @@ function Lights() {
     amb.current.color.copy(sky.ambient)
     three.environmentIntensity = envIntensity * (1 - sky.night * 0.8)
     if (three.background instanceof Color) three.background.copy(sky.background)
-    LAMP_GLOW.emissiveIntensity = 1.2 + sky.night * 3
+    lampGlow.value = 0.15 + sky.night * 2.2
   })
 
   return (

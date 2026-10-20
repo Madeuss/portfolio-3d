@@ -1,19 +1,20 @@
 import { useEffect, useMemo } from 'react'
-import { MeshStandardMaterial } from 'three'
+import { ExtrudeGeometry, Float32BufferAttribute, MeshStandardMaterial, Shape, ShapeGeometry } from 'three'
 import { patchTrail, TrailPainter, useTrail } from './Trail'
 import { CuboidCollider, RigidBody } from '@react-three/rapier'
 import { useControls } from 'leva'
-import { RoundedBox } from '@react-three/drei'
 import Station from './Station'
 import Prop from './Prop'
-import GrassClumps, { grassTexture, type Area } from './Grass'
+import { grassTexture, type Area } from './Grass'
+import { FlowerBeds, Gate, GrassTufts, HedgeRow, LampPosts, Walls, type WallSide } from './YardModels'
 import Pond from './Pond'
 import Soccer from './Soccer'
 import Dog from './Dog'
 import SteppingStones from './SteppingStones'
-import { Bench, Flowers, Lamp, Sign } from './Garden'
+import { Bench, Sign } from './Garden'
 import Clothesline from './Clothesline'
 import SwingTree from './SwingTree'
+import Fireflies from './Fireflies'
 import { Cat, Smoke, SprinklerWater } from './YardLife'
 import SeatZone from './SeatZone'
 import type { Seat } from '../state/game'
@@ -27,15 +28,34 @@ import { Birds, Butterflies, Pebbles } from './Critters'
 const HALF = 8 // terreno de 16 × 16 m
 const BORDER = 0.6 // espessura das bordas de madeira
 const BORDER_HEIGHT = 0.5
-const GATE = 2.2 // meia-largura do portão (sul, no fim do caminho)
+// meia-largura do portão (sul, no fim do caminho): o arco do portão (42) tem a
+// altura da largura, e mais largo que isso tapava o personagem na entrada
+const GATE = 1.25
 
 // Onde o personagem nasce: no caminho, logo depois do portão.
 export const EXTERIOR_SPAWN: [number, number, number] = [0, 2, 5.6]
 // Ao sair da casa: no pé da escada, logo fora da zona da porta.
 export const EXTERIOR_DOOR_SPAWN: [number, number, number] = [0, 2, 1.2]
 
-const WOOD = '#b98552'
-const WOOD_DARK = '#8a5a2b'
+
+// Cantos arredondados do terreno: o raio da curva da mureta (no meio dela) e,
+// para fora, o do gramado e da base de terra.
+const CORNER = 1.1
+
+/** Retângulo de cantos redondos, de meia-largura `half` (no plano XY). */
+function roundedSquare(half: number, r: number) {
+  const s = new Shape()
+  s.moveTo(-half + r, -half)
+  s.lineTo(half - r, -half)
+  s.quadraticCurveTo(half, -half, half, -half + r)
+  s.lineTo(half, half - r)
+  s.quadraticCurveTo(half, half, half - r, half)
+  s.lineTo(-half + r, half)
+  s.quadraticCurveTo(-half, half, -half, half - r)
+  s.lineTo(-half, -half + r)
+  s.quadraticCurveTo(-half, -half, -half + r, -half)
+  return s
+}
 
 function Ground() {
   // A cor vem da textura pintada; `tom` só tinge por cima (branco = original).
@@ -48,12 +68,37 @@ function Ground() {
     return m
   }, [trail])
   useEffect(() => void material.color.set(color), [material, color])
+  // gramado e base com os cantos redondos; o uv do gramado igual ao do plano
+  // de antes (0 a 1 no terreno todo), que a textura e a trilha usam
+  const { lawn, base } = useMemo(() => {
+    const r = CORNER + BORDER / 2
+    const lawn = new ShapeGeometry(roundedSquare(HALF, r), 12)
+    const pos = lawn.attributes.position
+    const uv = new Float32Array(pos.count * 2)
+    for (let i = 0; i < pos.count; i++) {
+      uv[i * 2] = (pos.getX(i) + HALF) / (HALF * 2)
+      uv[i * 2 + 1] = (pos.getY(i) + HALF) / (HALF * 2)
+    }
+    lawn.setAttribute('uv', new Float32BufferAttribute(uv, 2))
+    const base = new ExtrudeGeometry(roundedSquare(HALF - 0.04, r - 0.04), {
+      depth: 0.36,
+      bevelEnabled: true,
+      bevelThickness: 0.04,
+      bevelSize: 0.04,
+      bevelSegments: 3,
+      curveSegments: 12,
+    })
+    return { lawn, base }
+  }, [])
   return (
     <RigidBody type="fixed" colliders={false}>
       <CuboidCollider args={[HALF, 0.1, HALF]} position={[0, -0.1, 0]} />
       {/* O plano nasce em pé (eixo XY); girar -90° em X deita ele no chão. */}
-      <mesh rotation-x={-Math.PI / 2} receiveShadow material={material}>
-        <planeGeometry args={[HALF * 2, HALF * 2]} />
+      <mesh rotation-x={-Math.PI / 2} receiveShadow material={material} geometry={lawn} />
+      {/* base de terra embaixo do gramado: a beira do terreno tem espessura,
+          como um diorama (a mureta fina já não faz essa moldura) */}
+      <mesh rotation-x={Math.PI / 2} position={[0, -0.05, 0]} geometry={base}>
+        <meshStandardMaterial color="#8a5a35" roughness={1} />
       </mesh>
       <TrailPainter trail={trail} />
     </RigidBody>
@@ -78,19 +123,8 @@ const NO_GRASS: Area[] = [
 
 type Box = { center: [number, number, number]; half: [number, number, number] }
 
-function WoodBlock({ center, half, color = WOOD }: Box & { color?: string }) {
-  return (
-    <>
-      <CuboidCollider args={half} position={center} />
-      <mesh position={center} castShadow receiveShadow>
-        <boxGeometry args={[half[0] * 2, half[1] * 2, half[2] * 2]} />
-        <meshStandardMaterial color={color} roughness={0.8} />
-      </mesh>
-    </>
-  )
-}
-
-// Bordas de madeira ("fim do mundo"), com o portão fechado no meio do sul.
+// Bordas ("fim do mundo"): a mureta de madeira (item 41) em volta, aberta só no
+// portão do sul (42). As colisões são caixas grossas, até a beira do terreno.
 function Borders() {
   const blocks = useMemo<Box[]>(() => {
     const h = BORDER_HEIGHT / 2, t = BORDER / 2, edge = HALF - t
@@ -103,21 +137,56 @@ function Borders() {
       { center: [GATE + side, h, edge], half: [side, h, t] },
     ]
   }, [])
+  const e = HALF - BORDER / 2
+  const r = CORNER
+  // a mureta para antes de cada canto e faz a curva em 4 pedaços curtos
+  const { sides, arcs } = useMemo(() => {
+    const arcs: WallSide[] = []
+    for (const [sx, sz] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+      const cx = sx * (e - r)
+      const cz = sz * (e - r)
+      const a0 = Math.atan2(sz, 0) // começa no lado de cima/baixo
+      const steps = 4
+      for (let k = 0; k < steps; k++) {
+        const t0 = (k / steps) * (Math.PI / 2)
+        const t1 = ((k + 1) / steps) * (Math.PI / 2)
+        const p = (t: number): [number, number] => {
+          // de (0, sz) até (sx, 0) girando pelo canto
+          const a = a0 + (sx * sz > 0 ? -t : t)
+          return [cx + Math.cos(a) * r, cz + Math.sin(a) * r]
+        }
+        arcs.push({ from: p(t0), to: p(t1) })
+      }
+    }
+    const sides: WallSide[] = [
+      { from: [-e + r, -e], to: [e - r, -e] },
+      { from: [-e, -e + r], to: [-e, e - r] },
+      { from: [e, -e + r], to: [e, e - r] },
+      { from: [-e + r, e], to: [-GATE, e] },
+      { from: [GATE, e], to: [e - r, e] },
+      ...arcs,
+    ]
+    return { sides, arcs }
+  }, [e, r])
   return (
-    <RigidBody type="fixed" colliders={false}>
-      {blocks.map((b, i) => (
-        <WoodBlock key={i} {...b} />
-      ))}
-      {/* Portão: dois pilares e as tábuas entre eles. */}
-      <WoodBlock center={[-GATE + 0.15, 0.55, HALF - BORDER / 2]} half={[0.15, 0.55, 0.35]} color={WOOD_DARK} />
-      <WoodBlock center={[GATE - 0.15, 0.55, HALF - BORDER / 2]} half={[0.15, 0.55, 0.35]} color={WOOD_DARK} />
-      {[0.25, 0.6].map((y) => (
-        <WoodBlock key={y} center={[0, y, HALF - BORDER / 2]} half={[GATE - 0.3, 0.08, 0.05]} />
-      ))}
-      {[-1.4, -0.7, 0, 0.7, 1.4].map((x) => (
-        <WoodBlock key={x} center={[x, 0.4, HALF - BORDER / 2 + 0.06]} half={[0.08, 0.38, 0.03]} />
-      ))}
-    </RigidBody>
+    <>
+      <RigidBody type="fixed" colliders={false}>
+        {blocks.map((b, i) => (
+          <CuboidCollider key={i} args={b.half} position={b.center} />
+        ))}
+        {/* nas curvas, uma caixa por pedaço (as retas de cima não chegam lá) */}
+        {arcs.map(({ from, to }, i) => (
+          <CuboidCollider
+            key={`arc${i}`}
+            args={[Math.hypot(to[0] - from[0], to[1] - from[1]) / 2 + 0.05, BORDER_HEIGHT / 2, BORDER / 2]}
+            position={[(from[0] + to[0]) / 2, BORDER_HEIGHT / 2, (from[1] + to[1]) / 2]}
+            rotation={[0, -Math.atan2(to[1] - from[1], to[0] - from[0]), 0]}
+          />
+        ))}
+      </RigidBody>
+      <Walls sides={sides} />
+      <Gate z={e} width={GATE * 2} />
+    </>
   )
 }
 
@@ -133,8 +202,9 @@ const HOUSE_BOXES: [number, number, number, number, number, number][] = [
 const LAMPS: [number, number][] = [
   [-1.15, 6.3],
   [1.15, 6.3],
-  [-1.1, 3.4],
-  [1.1, 3.4],
+  // abaixo da linha do campinho: ao lado da trave fechava a passagem
+  [-1.1, 4.0],
+  [1.1, 4.0],
   [1.1, 0.7],
 ]
 // Banco no canto esquerdo, ao lado do lago, olhando para ele (+x); assento a
@@ -170,17 +240,20 @@ const HEDGE_SIZE = 0.8
 function Hedge() {
   const edge = HALF - BORDER - 0.35
   const bushes = useMemo(() => {
-    const list: { x: number; tone: string; h: number }[] = []
+    const list: { x: number; h: number }[] = []
     for (const side of [-1, 1]) {
-      for (let x = GATE + 0.6; x < HALF - BORDER - 0.3; x += HEDGE_SIZE) {
+      // (para antes da curva da mureta no canto)
+      for (let x = GATE + 0.6; x < HALF - BORDER - CORNER + 0.2; x += HEDGE_SIZE) {
         const i = list.length
-        list.push({ x: side * x, tone: i % 2 ? '#5f9c45' : '#6aa94d', h: 0.62 + ((i * 7) % 3) * 0.05 })
+        list.push({ x: side * x, h: 0.62 + ((i * 7) % 3) * 0.05 })
       }
     }
     return list
   }, [])
-  const span = HALF - BORDER - 0.3 - (GATE + 0.6) + HEDGE_SIZE
+  const span = Math.ceil((HALF - BORDER - CORNER + 0.2 - (GATE + 0.6)) / HEDGE_SIZE) * HEDGE_SIZE
   return (
+    <>
+      <HedgeRow bushes={bushes} z={edge} size={HEDGE_SIZE} />
     <RigidBody type="fixed" colliders={false}>
       {[-1, 1].map((side) => (
         <CuboidCollider
@@ -189,20 +262,8 @@ function Hedge() {
           position={[side * (GATE + 0.6 - HEDGE_SIZE / 2 + span / 2), 0.35, edge]}
         />
       ))}
-      {bushes.map((b, i) => (
-        <RoundedBox
-          key={i}
-          args={[HEDGE_SIZE + 0.04, b.h, 0.62]}
-          radius={0.18}
-          smoothness={4}
-          position={[b.x, b.h / 2, edge]}
-          castShadow
-          receiveShadow
-        >
-          <meshStandardMaterial color={b.tone} roughness={0.9} />
-        </RoundedBox>
-      ))}
     </RigidBody>
+    </>
   )
 }
 
@@ -250,11 +311,11 @@ export default function Exterior() {
       <SteppingStones from={-0.5} to={HALF - BORDER} />
       <Hedge />
       {/* Placa MADEUS logo depois do portão, apontando para a casa. */}
-      <Sign position={[-1.5, 0, 6.5]} rotationY={0.25} />
-      {LAMPS.map(([x, z]) => (
-        <Lamp key={`${x},${z}`} position={[x, 0, z]} />
-      ))}
-      <Flowers beds={FLOWER_BEDS} />
+      <Sign position={[-2.1, 0, 5.55]} rotationY={0.25} />
+      <LampPosts at={LAMPS} />
+      {/* vaga-lumes à noite */}
+      <Fireflies half={HALF - BORDER - 0.5} />
+      <FlowerBeds beds={FLOWER_BEDS} />
       {/* Bichinhos: borboletas nos canteiros e passarinhos que fogem de perto. */}
       <Butterflies around={FLOWER_BEDS.filter((_, i) => i % 2 === 0).map(([x, z]) => [x, z] as [number, number])} />
       <Birds birds={BIRDS} />
@@ -289,7 +350,7 @@ export default function Exterior() {
       {/* Banco de madeira no canto esquerdo, olhando para o lago. */}
       <Bench position={[-6.5, 0, 4.6]} rotationY={Math.PI / 2} />
       <SeatZone seat={POND_BENCH} />
-      <GrassClumps half={HALF - BORDER} clear={NO_GRASS} count={30} />
+      <GrassTufts half={HALF - BORDER} clear={NO_GRASS} count={30} />
       {/* Laguinho no canto da frente, à esquerda do caminho. */}
       <Pond position={[-4.2, 0, 4.6]} />
 

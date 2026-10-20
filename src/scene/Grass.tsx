@@ -1,11 +1,8 @@
-import { useLayoutEffect, useMemo, useRef } from 'react'
-import { CanvasTexture, Color, IcosahedronGeometry, InstancedMesh, MeshStandardMaterial, Object3D, RepeatWrapping, SRGBColorSpace } from 'three'
-import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
-import { addWind } from './wind'
+import { CanvasTexture, RepeatWrapping, SRGBColorSpace } from 'three'
 
 // Grama no estilo do worawork: em vez de folhas em pé, o volume vem de uma
 // textura pintada no chão (verde vivo, manchas e pinceladas curtas, como
-// grama "amassada") e de moitinhas redondas e baixas espalhadas por cima.
+// grama "amassada"). Os tufos por cima são modelos (YardModels).
 
 export type Area = { x: [number, number]; z: [number, number] }
 
@@ -13,8 +10,6 @@ export type Area = { x: [number, number]; z: [number, number] }
 function seeded(seed: number) {
   return () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646
 }
-
-const inside = (x: number, z: number, a: Area) => x > a.x[0] && x < a.x[1] && z > a.z[0] && z < a.z[1]
 
 // ---- Chão pintado ----------------------------------------------------------
 
@@ -77,73 +72,4 @@ export function grassTexture(size: number, tile: number) {
   t.repeat.set(size / tile, size / tile)
   t.anisotropy = 8
   return t
-}
-
-// ---- Moitinhas -------------------------------------------------------------
-
-// Uma moitinha: 3 bolinhas achatadas encostadas, facetadas de leve.
-function clumpGeometry() {
-  const parts = [
-    [0, 0.06, 0, 0.11],
-    [0.09, 0.045, 0.03, 0.08],
-    [-0.07, 0.04, -0.04, 0.075],
-  ].map(([x, y, z, r]) => {
-    const g = new IcosahedronGeometry(r, 1)
-    g.scale(1, 0.8, 1)
-    g.translate(x, y, z)
-    return g
-  })
-  return mergeGeometries(parts)!
-}
-
-type Props = {
-  /** Meia-largura da área onde as moitinhas nascem (terreno quadrado). */
-  half: number
-  /** Retângulos sem moitinhas. */
-  clear: Area[]
-  count?: number
-}
-
-export default function GrassClumps({ half, clear, count = 140 }: Props) {
-  const ref = useRef<InstancedMesh>(null)
-  const geometry = useMemo(clumpGeometry, [])
-  const material = useMemo(() => {
-    const m = new MeshStandardMaterial({ color: '#5f9b3e', roughness: 0.85, flatShading: true })
-    // vento: o topo das bolinhas balança, a base fica no chão
-    addWind(m, { from: 0.02, to: 0.15, amount: 0.012, speed: 1.4 })
-    return m
-  }, [])
-
-  const placed = useMemo(() => {
-    const rnd = seeded(42)
-    const list: { x: number; z: number; s: number; r: number; tint: number }[] = []
-    let tries = 0
-    while (list.length < count && tries++ < count * 20) {
-      const x = (rnd() * 2 - 1) * half
-      const z = (rnd() * 2 - 1) * half
-      if (clear.some((a) => inside(x, z, a))) continue
-      list.push({ x, z, s: 0.8 + rnd() * 0.9, r: rnd() * Math.PI * 2, tint: 0.85 + rnd() * 0.3 })
-    }
-    return list
-  }, [half, clear, count])
-
-  useLayoutEffect(() => {
-    const mesh = ref.current
-    if (!mesh) return
-    const o = new Object3D()
-    const c = new Color()
-    placed.forEach(({ x, z, s, r, tint }, i) => {
-      o.position.set(x, 0, z)
-      o.rotation.set(0, r, 0)
-      o.scale.setScalar(s)
-      o.updateMatrix()
-      mesh.setMatrixAt(i, o.matrix)
-      mesh.setColorAt(i, c.setScalar(tint))
-    })
-    mesh.count = placed.length
-    mesh.instanceMatrix.needsUpdate = true
-    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true
-  }, [placed])
-
-  return <instancedMesh ref={ref} args={[geometry, material, count]} castShadow receiveShadow />
 }
