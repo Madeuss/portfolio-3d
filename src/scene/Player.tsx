@@ -5,7 +5,7 @@ import { Ecctrl, type EcctrlHandle, type MovementInput } from 'ecctrl'
 import { EcctrlAnimationStateController } from 'ecctrl/animation'
 import { useButtonStore, useJoystickStore } from 'ecctrl/input'
 import { isPlaying, useGame } from '../state/game'
-import Footsteps from '../audio/Footsteps'
+import { player as tracked } from '../state/player'
 import Character from './Character'
 import FollowCamera from './FollowCamera'
 
@@ -91,6 +91,10 @@ function Respawn({ target, spawn }: { target: RefObject<EcctrlHandle | null>; sp
 // (o mínimo é 0,57: raio da cápsula + raio do saco). Mais longe, o direto
 // do chibi (≈0,42 m de alcance) não chegava no saco.
 const PUNCH_DISTANCE = 0.62
+// No passe, para a 0,55 m do centro da bola (cápsula 0,3 + bola 0,2 + folga).
+// Na embaixadinha a bola sobe bem na frente do pé, mais perto.
+const KICK_DISTANCE = 0.55
+const JUGGLE_DISTANCE = 0.42
 const APPROACH_SPEED = 8
 
 function TrainingApproach({ target }: { target: RefObject<EcctrlHandle | null> }) {
@@ -103,10 +107,25 @@ function TrainingApproach({ target }: { target: RefObject<EcctrlHandle | null> }
     const dx = pos.x - tx
     const dz = pos.z - tz
     const dist = Math.hypot(dx, dz) || 1
+    const reach = training.juggle ? JUGGLE_DISTANCE : training.ball ? KICK_DISTANCE : PUNCH_DISTANCE
     const k = 1 - Math.exp(-APPROACH_SPEED * delta)
-    const x = pos.x + (tx + (dx / dist) * PUNCH_DISTANCE - pos.x) * k
-    const z = pos.z + (tz + (dz / dist) * PUNCH_DISTANCE - pos.z) * k
+    const x = pos.x + (tx + (dx / dist) * reach - pos.x) * k
+    const z = pos.z + (tz + (dz / dist) * reach - pos.z) * k
     player.body.setTranslation({ x, y: pos.y, z }, true)
+  })
+
+  return null
+}
+
+// Publica posição e velocidade do personagem (state/player.ts) para a bola.
+function Tracker({ target }: { target: RefObject<EcctrlHandle | null> }) {
+  useFrame(() => {
+    const body = target.current?.body
+    if (!body) return
+    const p = body.translation()
+    const v = body.linvel()
+    tracked.pos.set(p.x, p.y, p.z)
+    tracked.vel.set(v.x, v.y, v.z)
   })
 
   return null
@@ -151,7 +170,7 @@ export default function Player({ position }: Props) {
       <MovementInputs target={ref} />
       <Respawn target={ref} spawn={position} />
       <TrainingApproach target={ref} />
-      <Footsteps />
+      <Tracker target={ref} />
       <FollowCamera target={ref} />
     </KeyboardControls>
   )

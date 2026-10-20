@@ -11,7 +11,7 @@ type Vec3 = [number, number, number]
 
 type Props = {
   /** Estação, ou a porta da casa (troca de cena em vez de abrir painel). */
-  id: ZoneId
+  id: Exclude<ZoneId, 'ball'>
   position: Vec3
   /** Centro da zona de interação, relativo a `position`. */
   zoneCenter: Vec3

@@ -4,6 +4,7 @@ import { Leva } from 'leva'
 import World from './scene/World'
 import Panel from './ui/Panel'
 import Hud from './ui/Hud'
+import GoalToast from './ui/GoalToast'
 import HelpScreen from './ui/HelpScreen'
 import LoadingScreen from './ui/LoadingScreen'
 import TouchControls from './ui/TouchControls'
@@ -20,7 +21,8 @@ const DOWN = ['ArrowDown', 'KeyS']
 const BACK = ['ArrowLeft', 'KeyA']
 const COMBO_MS = 600
 
-// Tecla E: interage com a estação em cuja zona o personagem está.
+// Tecla E: interage com a estação em cuja zona o personagem está (perto da
+// bola: toque rápido = passe, segurar = embaixadinha).
 function useInteractKey() {
   useEffect(() => {
     let down = 0
@@ -34,10 +36,18 @@ function useInteractKey() {
       const combo = down > 0 && back > down && now - down < COMBO_MS
       down = back = 0
       if (combo) useGame.getState().special()
-      else useGame.getState().interact()
+      else useGame.getState().press()
+    }
+    // Soltar o E: perto da bola, decide entre passe e fim da embaixadinha.
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.code === 'KeyE') useGame.getState().release()
     }
     window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    window.addEventListener('keyup', onKeyUp)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('keyup', onKeyUp)
+    }
   }, [])
 }
 
@@ -66,6 +76,7 @@ export default function App() {
 
       <SoundEffects />
       <Hud />
+      <GoalToast />
       <TouchControls />
       <Panel />
       <HelpScreen />

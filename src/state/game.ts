@@ -8,9 +8,12 @@ export type Screen = 'loading' | 'help' | 'play'
 // interior, aberto ao passar pela porta.
 export type Scene = 'exterior' | 'interior'
 
-// Zona perto da qual o personagem pode estar: uma estação (abre painel) ou a
-// porta da casa (troca de cena), dos dois lados.
-export type ZoneId = StationId | 'door'
+// Zona perto da qual o personagem pode estar: uma estação (abre painel), a
+// porta da casa (troca de cena, dos dois lados) ou a bola (chute).
+export type ZoneId = StationId | 'door' | 'ball'
+
+// Gol no campinho: `id` muda a cada gol, `at` é onde soltar o confete.
+export type Goal = { id: number; at: [number, number] }
 
 // Troca de cena pela porta: a tela escurece em FADE_MS, a cena troca no
 // escuro e clareia de novo depois de HOLD_MS (tempo de a nova cena montar).
@@ -22,7 +25,24 @@ const HOLD_MS = 250
 // próximo guardado (`queued`) para emendar sem perder o ritmo.
 // `special`: o golpe secreto (Shift+E, ou A+B no celular). Funciona em
 // qualquer lugar; `target` é o saco quando ele está perto, senão null.
-export type Training = { target: [number, number] | null; step: number; queued: boolean; special: boolean }
+// `ball`: em vez do saco, a bola do campinho: um passe (um golpe só) ou, com
+// `juggle`, embaixadinha (pé, joelho e cabeça enquanto o botão fica apertado).
+export type Training = {
+  target: [number, number] | null
+  step: number
+  queued: boolean
+  special: boolean
+  ball: boolean
+  juggle: boolean
+}
+
+// Cada toque da embaixadinha: a bola vai até a altura `y` (centro, m) em
+// `flight` segundos, numa parábola; `release` = último toque, a bola sai na física.
+export type JuggleTouch = { id: number; y: number; flight: number; release: boolean }
+
+// Segurar o botão por PRESS_HOLD_MS perto da bola vira embaixadinha; soltar antes é passe.
+const PRESS_HOLD_MS = 220
+let holdTimer: ReturnType<typeof setTimeout> | null = null
 
 // Último golpe que acertou o saco: `id` muda a cada acerto, `dir` é a direção
 // (x, z) do personagem para o saco, para ele balançar para o lado certo.
@@ -43,6 +63,14 @@ type GameState = {
   open: StationId | null
   training: Training | null
   hit: Hit | null
+  /** Último chute na bola (mesmo formato do acerto no saco). */
+  kick: Hit | null
+  goal: Goal | null
+  juggle: JuggleTouch | null
+  /** Botão de ação (E / A) apertado agora. */
+  holding: boolean
+  /** Gols nesta visita (placar do campinho). */
+  goals: number
   dizzy: boolean
   setScreen: (screen: Screen) => void
   setScene: (scene: Scene, spawn?: 'start' | 'door') => void
@@ -52,10 +80,16 @@ type GameState = {
   openStation: (id: StationId) => void
   close: () => void
   interact: () => void
+  /** Botão de ação apertado / solto (teclado e toque). */
+  press: () => void
+  release: () => void
+  juggleTouch: (y: number, flight: number, release: boolean) => void
   special: () => void
   endSpecial: () => boolean
   nextStrike: () => void
   landHit: (dir: [number, number]) => void
+  kickBall: (dir: [number, number]) => void
+  scoreGoal: (at: [number, number]) => void
   finishTraining: () => void
 }
 
@@ -85,6 +119,11 @@ export const useGame = create<GameState>((set, get) => ({
   open: null,
   training: null,
   hit: null,
+  kick: null,
+  goal: null,
+  juggle: null,
+  holding: false,
+  goals: 0,
   dizzy: false,
   setScreen: (screen) => set({ screen }),
   // Trocar de cena desmonta as zonas sem avisar a saída: limpa tudo junto.
@@ -109,16 +148,42 @@ export const useGame = create<GameState>((set, get) => ({
   interact: () => {
     const s = get()
     if (s.training) {
-      if (s.training.target) set({ training: { ...s.training, queued: true } })
+      if (s.training.target && !s.training.ball) set({ training: { ...s.training, queued: true } })
       return
     }
     if (!s.nearby || !isPlaying(s)) return
     if (s.nearby === 'door') return s.goThrough()
+    if (s.nearby === 'ball') {
+      if (s.nearbyAt && !s.dizzy) set({ training: { target: s.nearbyAt, step: 0, queued: false, special: false, ball: true, juggle: false } })
+      return
+    }
     const bag = bagNearby(s)
     if (bag && s.dizzy) return
-    if (bag) set({ training: { target: bag, step: randomStep(), queued: false, special: false } })
+    if (bag) set({ training: { target: bag, step: randomStep(), queued: false, special: false, ball: false, juggle: false } })
     else set({ open: s.nearby })
   },
+  // Perto da bola, o botão espera PRESS_HOLD_MS para saber se é passe (toque
+  // rápido) ou embaixadinha (segurou). Fora dela, interage na hora.
+  press: () => {
+    const s = get()
+    set({ holding: true })
+    if (s.nearby !== 'ball' || s.training || !isPlaying(s) || s.dizzy) return s.interact()
+    if (holdTimer) clearTimeout(holdTimer)
+    holdTimer = setTimeout(() => {
+      holdTimer = null
+      const now = get()
+      if (!now.holding || now.nearby !== 'ball' || !now.nearbyAt || !isPlaying(now)) return
+      set({ training: { target: now.nearbyAt, step: 0, queued: false, special: false, ball: true, juggle: true } })
+    }, PRESS_HOLD_MS)
+  },
+  release: () => {
+    set({ holding: false })
+    if (!holdTimer) return
+    clearTimeout(holdTimer)
+    holdTimer = null
+    get().interact()
+  },
+  juggleTouch: (y, flight, release) => set((s) => ({ juggle: { id: (s.juggle?.id ?? 0) + 1, y, flight, release } })),
   // Golpe secreto: interrompe o golpe em andamento (mas não abre por cima de
   // painel ou tela).
   special: () => {
@@ -126,7 +191,7 @@ export const useGame = create<GameState>((set, get) => ({
     if (s.dizzy || s.training?.special || (!s.training && !isPlaying(s))) return
     if (performance.now() - lastSpinEnd > SPIN_GAP_MS) spins = 0
     const step = s.training ? s.training.step + 1 : randomStep()
-    set({ training: { target: bagNearby(s), step, queued: false, special: true } })
+    set({ training: { target: bagNearby(s), step, queued: false, special: true, ball: false, juggle: false } })
   },
   // Fim de um hurricane kick: conta o giro e, no 4º seguido, fica tonto.
   // Devolve true se ficou tonto (o treino acaba na hora).
@@ -142,6 +207,8 @@ export const useGame = create<GameState>((set, get) => ({
   nextStrike: () =>
     set((s) => (s.training ? { training: { ...s.training, step: s.training.step + 1, queued: false, special: false } } : s)),
   landHit: (dir) => set((s) => ({ hit: { id: (s.hit?.id ?? 0) + 1, dir } })),
+  kickBall: (dir) => set((s) => ({ kick: { id: (s.kick?.id ?? 0) + 1, dir } })),
+  scoreGoal: (at) => set((s) => ({ goal: { id: (s.goal?.id ?? 0) + 1, at }, goals: s.goals + 1 })),
   finishTraining: () => set({ training: null }),
 }))
 

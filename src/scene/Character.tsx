@@ -35,6 +35,11 @@ const MIXAMO: Record<string, { url: string; spread: number; inPlace?: boolean }>
   hook: { url: '/models/character/anims/hook.glb', spread: 8 },
   'illegal-knee': { url: '/models/character/anims/illegal-knee.glb', spread: 8 },
   'hurricane-kick': { url: '/models/character/anims/hurricane-kick.glb', spread: 8, inPlace: true },
+  // Campinho: passe pela grama e os toques da embaixadinha (pé, joelho, cabeça).
+  'soccer-pass': { url: '/models/character/anims/soccer-pass.glb', spread: 8 },
+  'soccer-kick': { url: '/models/character/anims/soccer-kick.glb', spread: 8 },
+  'soccer-knee': { url: '/models/character/anims/soccer-knee.glb', spread: 8 },
+  'soccer-header': { url: '/models/character/anims/soccer-header.glb', spread: 8 },
   // Tonto, depois de 4 hurricane kicks seguidos (regras em state/game.ts).
   'drunk-idle': { url: '/models/character/anims/drunk-idle.glb', spread: 22 },
   'drunk-walk': { url: '/models/character/anims/drunk-walk.glb', spread: 22 },
@@ -63,6 +68,21 @@ const STRIKES: Strike[] = [
 // Golpe secreto (Shift+E, ou A+B no celular): o hurricane kick inteiro, com
 // três giros que acertam o saco se ele estiver perto.
 const SPECIAL: Strike = { clip: 'hurricane-kick', start: 0, hits: [0.43, 0.9, 1.37], end: 1.75 }
+// Passe na bola do campinho: o pé direito encosta nela em 0,5 s.
+const PASS: Strike = { clip: 'soccer-pass', start: 0.15, hits: [0.5], end: 1.15 }
+// Embaixadinha: cada toque e a altura (centro da bola, m) em que ele pega a
+// bola. Toques medidos no avatar: o pé no alto em 0,27 s, o joelho em 0,27 s,
+// a cabeça indo à frente em 0,33 s.
+type Touch = Strike & { height: number }
+const TOUCHES: Record<'foot' | 'knee' | 'head', Touch> = {
+  foot: { clip: 'soccer-kick', start: 0.05, hits: [0.27], end: 0.5, height: 0.32 },
+  knee: { clip: 'soccer-knee', start: 0.05, hits: [0.27], end: 0.55, height: 0.55 },
+  head: { clip: 'soccer-header', start: 0.05, hits: [0.33], end: 0.9, height: 1.15 },
+}
+const JUGGLE_ORDER = ['foot', 'foot', 'knee', 'foot', 'knee', 'head'] as const
+const touchAt = (step: number) => TOUCHES[JUGGLE_ORDER[step % JUGGLE_ORDER.length]]
+// A embaixadinha na velocidade original: mais lenta que a luta, dá tempo de ver.
+const JUGGLE_SPEED = 1
 // Golpes um pouco mais rápidos que o original, para ficar com cara de jogo.
 const STRIKE_SPEED = 1.4
 // Transição entre golpes: curta, para responder na hora.
@@ -110,7 +130,7 @@ const FADE = 0.2
 const TURN_SPEED = 12
 
 type Playing = { name: string; action: AnimationAction | null }
-type Fight = { step: number; phase: 'strike' | 'guard'; guard: number; hits: number }
+type Fight = { step: number; phase: 'strike' | 'guard'; guard: number; hits: number; released: boolean }
 
 export default function Character() {
   const group = useRef<Group>(null)
@@ -128,7 +148,7 @@ export default function Character() {
   }, [animations, mixamo, scene, nodes])
   const { actions } = useAnimations(clips, group)
   const current = useRef<Playing | null>(null)
-  const fight = useRef<Fight>({ step: -1, phase: 'guard', guard: 0, hits: 0 })
+  const fight = useRef<Fight>({ step: -1, phase: 'guard', guard: 0, hits: 0, released: false })
   const tmp = useRef({ target: new Vector3(), self: new Vector3() })
 
   // Toda malha do modelo projeta e recebe sombra.
@@ -168,7 +188,7 @@ export default function Character() {
     }
 
     // Um golpe: pula para o começo do pedaço e toca até o fim dele.
-    const strike = (s: Strike) => {
+    const strike = (s: Strike, speed = STRIKE_SPEED) => {
       const playing = current.current
       const next = actions[s.clip]
       if (!next) return
@@ -176,7 +196,7 @@ export default function Character() {
         next.reset()
         next.setLoop(LoopOnce, 1)
         next.clampWhenFinished = true
-        next.setEffectiveTimeScale(STRIKE_SPEED)
+        next.setEffectiveTimeScale(speed)
         next.fadeIn(STRIKE_FADE).play()
         playing?.action?.fadeOut(STRIKE_FADE)
       }
@@ -209,14 +229,21 @@ export default function Character() {
     }
 
     const f = fight.current
-    const s = training.special ? SPECIAL : STRIKES[training.step % STRIKES.length]
+    const juggle = training.juggle
+    const s = juggle ? touchAt(training.step) : training.ball ? PASS : training.special ? SPECIAL : STRIKES[training.step % STRIKES.length]
+    const speed = juggle ? JUGGLE_SPEED : STRIKE_SPEED
 
     // Golpe novo (primeiro E, o próximo emendado, ou o secreto).
     if (f.step !== training.step) {
       f.step = training.step
       f.phase = 'strike'
       f.hits = 0
-      strike(s)
+      strike(s, speed)
+      // Primeiro toque da embaixadinha: a bola sai do chão até o pé.
+      if (juggle && training.step === 0) {
+        f.released = false
+        game.juggleTouch(touchAt(0).height, (s.hits[0] - s.start) / speed, false)
+      }
     }
 
     if (f.phase === 'strike') {
@@ -225,10 +252,36 @@ export default function Character() {
       while (f.hits < s.hits.length && time >= s.hits[f.hits]) {
         f.hits++
         if (!bag) continue
+        if (juggle) {
+          // Segurando: manda a bola para o próximo toque. Soltou: este é o
+          // último, a bola cai na frente.
+          if (game.holding && !f.released) {
+            const next = touchAt(training.step + 1)
+            game.juggleTouch(next.height, (s.end - s.hits[0] + next.hits[0] - next.start) / speed, false)
+          } else if (!f.released) {
+            f.released = true
+            game.juggleTouch(0, 0, true)
+          }
+          continue
+        }
+        if (training.ball) {
+          game.kickBall([target.x - self.x, target.z - self.z])
+          continue
+        }
         game.landHit([target.x - self.x, target.z - self.z])
         playPunch()
       }
       if (time < s.end) return
+      // Embaixadinha: emenda o próximo toque até a bola ser solta.
+      if (juggle && !f.released) {
+        game.nextStrike()
+        return
+      }
+      // Passe (ou fim da embaixadinha): um só, sem guarda.
+      if (training.ball) {
+        game.finishTraining()
+        return
+      }
       // Fim do golpe secreto: conta o giro (no 4º seguido ele fica tonto e o
       // treino acaba ali); longe do saco, volta a andar.
       if (training.special && game.endSpecial()) return

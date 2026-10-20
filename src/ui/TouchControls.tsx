@@ -24,7 +24,8 @@ export default function TouchControls() {
         const both = s.buttons.interact && s.buttons.run
         const bothBefore = prev.buttons.interact && prev.buttons.run
         if (both && !bothBefore) useGame.getState().special()
-        else if (s.buttons.interact && !prev.buttons.interact) useGame.getState().interact()
+        else if (s.buttons.interact && !prev.buttons.interact) useGame.getState().press()
+        else if (!s.buttons.interact && prev.buttons.interact) useGame.getState().release()
       }),
     [],
   )

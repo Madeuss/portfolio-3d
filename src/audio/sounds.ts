@@ -14,14 +14,15 @@ const SFX = {
   click: { src: '/sounds/click.mp3', volume: 0.4 },
   toggle: { src: '/sounds/toggle.mp3', volume: 0.5 },
   // Porta da casa (Kenney RPG Audio, doorOpen_1 e doorClose_1).
-  'door-open': { src: '/sounds/door-open.mp3', volume: 0.6 },
-  'door-close': { src: '/sounds/door-close.mp3', volume: 0.5 },
+  'door-open': { src: '/sounds/door-open.mp3', volume: 0.25 },
+  'door-close': { src: '/sounds/door-close.mp3', volume: 0.25 },
+  // Campinho: chute (Kenney Impact Sounds, impactSoft_heavy_001) e gol
+  // (Kenney Music Jingles, jingles_STEEL07).
+  kick: { src: '/sounds/kick.mp3', volume: 0.6 },
+  goal: { src: '/sounds/goal.mp3', volume: 0.55 },
 } as const
 
 export type SfxName = keyof typeof SFX
-
-// Passos: 5 variações sorteadas para não soar repetitivo.
-const STEPS = [0, 1, 2, 3, 4].map((i) => `/sounds/step-grass-${i}.mp3`)
 
 // Música de fundo: escolha sua (Pixabay ou Freesound, licença livre). Coloque
 // o arquivo em public/sounds e o caminho aqui; null = sem música.
@@ -42,14 +43,6 @@ function howl(src: string, volume: number) {
 export function play(name: SfxName) {
   const { src, volume } = SFX[name]
   howl(src, volume).play()
-}
-
-export function playStep() {
-  const src = STEPS[Math.floor(Math.random() * STEPS.length)]
-  const h = howl(src, 0.25)
-  const id = h.play()
-  // Leve variação de tom a cada passo.
-  h.rate(0.9 + Math.random() * 0.2, id)
 }
 
 // Soco no saco: 4 variações (Kenney Impact Sounds, impactPunch_heavy).

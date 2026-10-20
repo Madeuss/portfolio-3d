@@ -16,6 +16,7 @@ const es: Dictionary = {
     labels: { wheel: 'Rueda' },
     close: 'Entendido',
   },
+  soccer: { kick: 'Patear', goal: '¡GOL!', score: 'GOLES' },
   door: { enter: 'Entrar en la casa', exit: 'Salir' },
   panel: { close: 'Cerrar', escHint: 'Esc cierra', prev: 'anterior', next: 'siguiente', site: 'Sitio' },
   stations: {

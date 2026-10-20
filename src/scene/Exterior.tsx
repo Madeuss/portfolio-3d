@@ -5,6 +5,8 @@ import Station from './Station'
 import Prop from './Prop'
 import GrassClumps, { grassTexture, type Area } from './Grass'
 import Pond from './Pond'
+import Soccer from './Soccer'
+import Dog from './Dog'
 
 // Terreno (docs/planta.excalidraw, à esquerda): a planta tem 30 × 30 m com a
 // casa de 10 m; aqui a casa tem 5,6 m e o terreno 20 × 20 m, com a mesma
@@ -47,6 +49,7 @@ const NO_GRASS: Area[] = [
   { x: [-2.1, -1.3], z: [0.6, 1.4] },
   { x: [-6.1, -3.1], z: [4.7, 7.7] }, // laguinho
 ]
+
 
 type Box = { center: [number, number, number]; half: [number, number, number] }
 
@@ -124,81 +127,13 @@ const TREES: [TreeKind, number, number, number][] = [
   ['orange', -8.2, 7.4, 1.7],
 ]
 
-const FIELD = { center: [5.6, 2.6] as const, half: [3, 1.9] as const }
-const LINE = 0.06
-
-// Mini campo de futebol: gramado mais verde, linhas brancas e dois golzinhos.
-function Field() {
-  const [cx, cz] = FIELD.center
-  const [hx, hz] = FIELD.half
-  const lines: [number, number, number, number][] = [
-    // [x, z, largura, comprimento]
-    [0, -hz, hx * 2, LINE],
-    [0, hz, hx * 2, LINE],
-    [-hx, 0, LINE, hz * 2],
-    [hx, 0, LINE, hz * 2],
-    [0, 0, LINE, hz * 2],
-  ]
-  return (
-    <group position={[cx, 0, cz]}>
-      <mesh rotation-x={-Math.PI / 2} position-y={0.006} receiveShadow>
-        <planeGeometry args={[hx * 2 + 0.4, hz * 2 + 0.4]} />
-        <meshStandardMaterial color="#8fc98a" />
-      </mesh>
-      {lines.map(([x, z, w, l], i) => (
-        <mesh key={i} rotation-x={-Math.PI / 2} position={[x, 0.008, z]}>
-          <planeGeometry args={[w, l]} />
-          <meshStandardMaterial color="#ffffff" />
-        </mesh>
-      ))}
-      <mesh rotation-x={-Math.PI / 2} position-y={0.008}>
-        <ringGeometry args={[0.6 - LINE, 0.6, 32]} />
-        <meshStandardMaterial color="#ffffff" />
-      </mesh>
-      <Goal x={-hx} facing={1} />
-      <Goal x={hx} facing={-1} />
-    </group>
-  )
-}
-
-// Golzinho: duas traves e o travessão brancos, com a rede (fundo) translúcida.
-function Goal({ x, facing }: { x: number; facing: 1 | -1 }) {
-  const W = 0.6, H = 0.7, D = 0.4, R = 0.035
-  return (
-    <RigidBody type="fixed" colliders={false} position={[x, 0, 0]} rotation-y={facing === 1 ? 0 : Math.PI}>
-      {[-W, W].map((z) => (
-        <group key={z}>
-          <CuboidCollider args={[R, H / 2, R]} position={[0, H / 2, z]} />
-          <mesh position={[0, H / 2, z]} castShadow>
-            <cylinderGeometry args={[R, R, H, 8]} />
-            <meshStandardMaterial color="#ffffff" />
-          </mesh>
-        </group>
-      ))}
-      <mesh position={[0, H, 0]} rotation-x={Math.PI / 2} castShadow>
-        <cylinderGeometry args={[R, R, W * 2, 8]} />
-        <meshStandardMaterial color="#ffffff" />
-      </mesh>
-      {/* Rede: o fundo do gol segura a bola. */}
-      <CuboidCollider args={[0.02, H / 2, W]} position={[-D, H / 2, 0]} />
-      <mesh position={[-D, H / 2, 0]} rotation-y={Math.PI / 2}>
-        <planeGeometry args={[W * 2, H]} />
-        <meshStandardMaterial color="#ffffff" transparent opacity={0.35} side={2} />
-      </mesh>
-    </RigidBody>
-  )
-}
-
-function Ball() {
-  return (
-    <RigidBody colliders="ball" position={[FIELD.center[0], 0.5, FIELD.center[1]]} restitution={0.6} friction={0.6} linearDamping={0.6} angularDamping={0.6} mass={0.3}>
-      <mesh castShadow>
-        <icosahedronGeometry args={[0.18, 1]} />
-        <meshStandardMaterial color="#ffffff" flatShading roughness={0.5} />
-      </mesh>
-    </RigidBody>
-  )
-}
+// Onde o doguinho não passa: as áreas de NO_GRASS menos o caminho, mais a casinha e os
+// troncos das árvores.
+const DOG_AVOID: Area[] = [
+  ...NO_GRASS.slice(1),
+  { x: [-7.5, -6.1], z: [2.7, 4.1] },
+  ...TREES.map(([, x, z]): Area => ({ x: [x - 0.3, x + 0.3], z: [z - 0.3, z + 0.3] })),
+]
 
 export default function Exterior() {
   return (
@@ -228,6 +163,7 @@ export default function Exterior() {
       {/* Casinha do dog (item 20): 1 unidade de fundo; 1,2 m. Vem de frente
           para +z: gira um pouco para olhar para o caminho. */}
       <Prop url="/models/ai/20-casinha-dog.glb" scale={1.2} position={[-6.8, 0, 3.4]} rotationY={Math.PI / 5} />
+      <Dog start={[-6, 2.2]} half={HALF - BORDER - 0.5} avoid={DOG_AVOID} />
 
       {/* Portão / entrada: caixa de correio ao lado do caminho. */}
       <Station id="contact" position={[-1.7, 0, 1]} zoneCenter={[0, 0.75, 0]} zoneSize={[1, 0.75, 1]} markerY={1.8}>
@@ -235,8 +171,7 @@ export default function Exterior() {
         <Prop url="/models/ai/17-caixa-correio.glb" scale={1.2} position={[0, 0, 0]} />
       </Station>
 
-      <Field />
-      <Ball />
+      <Soccer />
     </>
   )
 }
