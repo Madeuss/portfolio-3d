@@ -356,11 +356,11 @@ function Ball() {
           const dz = pos.z - player.pos.z
           const len = Math.hypot(dx, dz) || 1
           b.setLinvel({ x: (dx / len) * DROP_FORWARD, y: DROP_UP, z: (dz / len) * DROP_FORWARD }, true)
-          play('kick')
+          play('juggle')
           return
         }
         // o primeiro trecho só tira a bola do chão; os outros são toques
-        if (flight.current) play('kick')
+        if (flight.current) play('juggle')
         flight.current = { y0: pos.y, y1: e.y, t0: performance.now() / 1000, dur: Math.max(e.flight, 0.05) }
       }),
     [],

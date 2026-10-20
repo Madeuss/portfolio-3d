@@ -18,7 +18,7 @@ Avatar e móveis: gerados com IA (imagens no Gemini, modelos e rig no [Tripo](ht
 
 Assets provisórios (CC0, domínio público, salvo onde indicado):
 
-- Sons: [Impact Sounds](https://kenney.nl/assets/impact-sounds), [Interface Sounds](https://kenney.nl/assets/interface-sounds), [RPG Audio](https://kenney.nl/assets/rpg-audio) (porta) e [Music Jingles](https://kenney.nl/assets/music-jingles) (gol), Kenney
+- Sons: [Impact Sounds](https://kenney.nl/assets/impact-sounds), [Interface Sounds](https://kenney.nl/assets/interface-sounds), [RPG Audio](https://kenney.nl/assets/rpg-audio) (porta) e [UI Audio](https://kenney.nl/assets/ui-audio), Kenney; chute, embaixadinha, rede e apito do [Pixabay](https://pixabay.com/sound-effects/)
 - Cachorro: [Cartoon Dog](https://sketchfab.com/3d-models/cartoon-dog-d4e8e37ea031422b843dc09587d21260), assetfactory (Sketchfab, licença Standard, não é CC0); provisório até o modelo próprio
 - Céu (HDRI): [Kloofendal 48d Partly Cloudy (Pure Sky)](https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky), Poly Haven
 

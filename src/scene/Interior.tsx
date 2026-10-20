@@ -7,6 +7,7 @@ import Locker from './Locker'
 import Prop from './Prop'
 import InteriorShell, { Doormat } from './InteriorShell'
 import { JerseyFrame, OfficeRug, RoundRug } from './Decor'
+import InteriorWindow, { SunPatch } from './InteriorWindow'
 
 // Interior da casa (docs/planta.excalidraw, à direita): 10 × 10 m sem teto e
 // sem paredes internas, com os cômodos em quatro cantos, separados pelo piso
@@ -20,6 +21,15 @@ export default function Interior() {
   return (
     <>
       <InteriorShell />
+
+      {/* Janelas (face de dentro das paredes: fundo em z = −4,8, leste em
+          x = 4,8): no quarto, acima da cabeceira, com cortinas; na academia e
+          no escritório, sem. Cada uma com a mancha de sol no chão. */}
+      <InteriorWindow position={[3.1, 1.6, -4.8]} width={1.5} height={0.7} curtains seed={3} />
+      <InteriorWindow position={[-3.1, 1.45, -4.8]} width={1.3} height={0.9} seed={7} />
+      <SunPatch position={[-3.1, -3.7]} size={[1.4, 1.6]} />
+      <InteriorWindow position={[4.8, 1.45, 1.9]} rotationY={-Math.PI / 2} width={1.2} height={0.9} seed={11} />
+      <SunPatch position={[3.9, 1.9]} size={[1.6, 1.2]} />
 
       {/* Capacho na porta sul: E sai da casa. */}
       <Station id="door" position={[0, 0, 4.35]} zoneCenter={[0, 0.75, 0]} zoneSize={[0.8, 0.75, 0.5]} markerY={1.6}>
@@ -61,7 +71,7 @@ export default function Interior() {
       <Prop url="/models/ai/30-rack-tv.glb" scale={1.7} position={[4.5, 0, -1.5]} rotationY={-Math.PI / 2} />
       {/* Sobre mim: a camisa do Corinthians emoldurada na parede do fundo,
           ao lado da cama. */}
-      <Station id="about" position={[1, 0, -4.2]} zoneCenter={[0, 0.75, 0.6]} zoneSize={[0.8, 0.75, 0.6]} markerY={2.5}>
+      <Station id="about" position={[1, 0, -4.2]} zoneCenter={[0, 0.75, 0.6]} zoneSize={[0.8, 0.75, 0.6]} markerY={2.2} markerAt={[0, -0.5]}>
         <JerseyFrame position={[0, 1.35, -0.6 + 0.025]} />
       </Station>
 

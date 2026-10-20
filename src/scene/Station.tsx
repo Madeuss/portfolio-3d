@@ -19,6 +19,8 @@ type Props = {
   zoneSize: Vec3
   /** Altura do marcador flutuante. */
   markerY: number
+  /** Onde fica o marcador (x, z relativos a `position`), se não for no centro da zona. */
+  markerAt?: [number, number]
   children?: ReactNode
 }
 
@@ -28,7 +30,8 @@ const isPlayer = ({ other }: IntersectionEnterPayload) =>
 // Estação interativa (tarefa 2.6): o objeto + uma zona invisível em volta.
 // A zona é um collider "sensor": não empurra nada, só avisa quando o
 // personagem entra e sai. Dentro dela aparece "E ..." e a tecla E abre o painel.
-export default function Station({ id, position, zoneCenter, zoneSize, markerY, children }: Props) {
+export default function Station({ id, position, zoneCenter, zoneSize, markerY, markerAt, children }: Props) {
+  const [mx, mz] = markerAt ?? [zoneCenter[0], zoneCenter[2]]
   const enter = useGame((s) => s.enter)
   const leave = useGame((s) => s.leave)
   const openStation = useGame((s) => s.openStation)
@@ -54,12 +57,12 @@ export default function Station({ id, position, zoneCenter, zoneSize, markerY, c
         />
       </RigidBody>
 
-      <Marker position={[zoneCenter[0], markerY, zoneCenter[2]]} active={showPrompt} onClick={() => (id === 'door' ? goThrough() : id === 'skills' ? interact() : openStation(id))} />
+      <Marker position={[mx, markerY, mz]} icon={id} active={showPrompt} onClick={() => (id === 'door' ? goThrough() : id === 'skills' ? interact() : openStation(id))} />
 
       {/* Html: um elemento do DOM preso a um ponto 3D, que acompanha a câmera.
           Fica sempre montado e só troca de classe, para o CSS animar tanto a
           entrada quanto a saída do aviso. */}
-      <Html position={[zoneCenter[0], markerY + 0.55, zoneCenter[2]]} center zIndexRange={[10, 0]}>
+      <Html position={[mx, markerY + 0.55, mz]} center zIndexRange={[10, 0]}>
         <div className={`prompt${showPrompt ? ' prompt--visible' : ''}`} aria-hidden={!showPrompt}>
           <kbd>{key}</kbd>
           {id === 'door' ? (outside ? t.door.enter : t.door.exit) : stationPrompt(id, t)}

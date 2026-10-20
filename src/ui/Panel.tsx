@@ -26,7 +26,7 @@ function PanelDialog({ id }: { id: StationId }) {
   // Volta ao início depois do último (e vice-versa).
   const go = (step: number) => {
     setPage((p) => (p + step + pages.length) % pages.length)
-    play('click')
+    play('page')
   }
 
   useEffect(() => {

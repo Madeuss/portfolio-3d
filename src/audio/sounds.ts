@@ -8,18 +8,23 @@ import { create } from 'zustand'
 
 const SFX = {
   enter: { src: '/sounds/enter.mp3', volume: 0.5 },
-  'panel-open': { src: '/sounds/panel-open.mp3', volume: 0.5 },
-  'panel-close': { src: '/sounds/panel-close.mp3', volume: 0.4 },
-  prompt: { src: '/sounds/prompt.mp3', volume: 0.35 },
+  // Abrir e fechar painéis (projetos, sobre, contato...): Kenney UI Audio, click3.
+  'panel-open': { src: '/sounds/panel-click.mp3', volume: 0.5 },
+  'panel-close': { src: '/sounds/panel-click.mp3', volume: 0.4 },
+  prompt: { src: '/sounds/prompt-drop.mp3', volume: 0.35 },
   click: { src: '/sounds/click.mp3', volume: 0.4 },
+  // Trocar de página num painel (‹ anterior / próximo ›): Kenney Interface Sounds, click_001.
+  page: { src: '/sounds/page-turn.mp3', volume: 0.5 },
   toggle: { src: '/sounds/toggle.mp3', volume: 0.5 },
   // Porta da casa (Kenney RPG Audio, doorOpen_1 e doorClose_1).
-  'door-open': { src: '/sounds/door-open.mp3', volume: 0.25 },
-  'door-close': { src: '/sounds/door-close.mp3', volume: 0.25 },
-  // Campinho: chute (Kenney Impact Sounds, impactSoft_heavy_001) e gol
-  // (Kenney Music Jingles, jingles_STEEL07).
-  kick: { src: '/sounds/kick.mp3', volume: 0.6 },
-  goal: { src: '/sounds/goal.mp3', volume: 0.55 },
+  'door-open': { src: '/sounds/door-open.mp3', volume: 0.1 },
+  'door-close': { src: '/sounds/door-close.mp3', volume: 0.1 },
+  // Campinho (Pixabay, sem exigir crédito): chute no passe, toque mais leve
+  // na embaixadinha e, no gol, a bola na rede seguida do apito do juiz.
+  kick: { src: '/sounds/ball-kick.mp3', volume: 0.6 },
+  juggle: { src: '/sounds/ball-juggle.mp3', volume: 0.5 },
+  'goal-net': { src: '/sounds/goal-net-2.mp3', volume: 0.35 },
+  'goal-whistle': { src: '/sounds/goal-whistle.mp3', volume: 0.12 },
 } as const
 
 export type SfxName = keyof typeof SFX
