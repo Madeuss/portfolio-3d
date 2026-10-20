@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import { MeshStandardMaterial, Object3D, SphereGeometry, type Group, type InstancedMesh, type Mesh } from 'three'
 import { dog, player } from '../state/player'
+import { playBark } from '../audio/sounds'
 
 // O que mexe nas peças novas do quintal: a fumaça da churrasqueira (33), a
 // água do irrigador (36) e o gato (38), que foge quando alguém chega perto.
@@ -117,6 +118,8 @@ export function Cat({ position, rotationY, scale, away }: CatProps) {
     const near = (p: { x: number; z: number }) => Math.hypot(p.x - position[0], p.z - position[2]) < CAT_SCARE
     if (st.mode === 'sit') {
       if (near(player.pos) || near(dog.pos)) {
+        // foi o cachorro que chegou perto: ele late para o gato
+        if (near(dog.pos)) playBark()
         st.mode = 'jump'
         st.t = 0
       }

@@ -8,6 +8,7 @@ import { useI18n } from '../i18n'
 import { useIsTouch } from '../state/device'
 import { isPlaying, useGame } from '../state/game'
 import { dog, player } from '../state/player'
+import { playBark } from '../audio/sounds'
 import type { Area } from './Grass'
 
 // O shih tzu do Mat (item 39), solto pelo terreno, com o rig e a animação de
@@ -29,7 +30,15 @@ const RUN = 2.6 // correndo atrás da bola
 const TURN = 6
 // Perto assim do personagem, ele para e fica olhando.
 const NOTICE = 1.4
-const MARGIN = 0.6
+// folga em volta de cada obstáculo (ele tem 26 cm de largura): mais que isso
+// fechava passagens e ele ficava preso num pedaço do quintal
+const MARGIN = 0.4
+// Com o personagem parado perto, olha para ele por isso e volta a passear.
+const LOOK_S = 4
+// Passeio: o quintal vira uma grade de quadradinhos de 40 cm (livre ou não)
+// e o caminho é achado nela, andando nas 8 direções.
+const CELL = 0.4
+const STEPS = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]]
 // Bolinha: alcance do arremesso, duração do voo e onde ela fica na boca.
 const THROW_MIN = 3
 const THROW_MAX = 5
@@ -81,7 +90,7 @@ export default function Dog({ start, half, avoid }: Props) {
   const body = useRef<RapierRigidBody>(null)
   const look = useRef<Group>(null)
   const ballRef = useRef<Group>(null)
-  const state = useRef({ x: start[0], z: start[1], yaw: 0, tx: start[0], tz: start[1], wait: 1, walk: 0, run: 0 })
+  const state = useRef({ x: start[0], z: start[1], yaw: 0, path: [] as [number, number][], wait: 1, walk: 0, run: 0, look: 0 })
   // A bolinha: no chão (rest), voando (do ponto `from` até `to`) ou na boca.
   const fetch = useRef({
     mode: 'wander' as Mode,
@@ -110,25 +119,78 @@ export default function Dog({ start, half, avoid }: Props) {
     return true
   }
 
-  // Próximo ponto: sorteado na área livre, com o caminho reto até ele também livre.
-  // Se ele já está numa área proibida (nasceu ou foi empurrado para lá), só o
-  // destino precisa ser livre: senão nenhum caminho passa e ele trava ali.
+  // Mapa do quintal em quadradinhos de CELL: livre ou não (casa, campo,
+  // árvores...). O passeio usa ele para achar caminho desviando das coisas.
+  const grid = useMemo(() => {
+    const n = Math.ceil((half * 2) / CELL)
+    const free = new Uint8Array(n * n)
+    for (let i = 0; i < n; i++)
+      for (let j = 0; j < n; j++) free[i * n + j] = blocked(-half + (i + 0.5) * CELL, -half + (j + 0.5) * CELL, avoid) ? 0 : 1
+    return { n, free }
+  }, [half, avoid])
+  const toCell = (v: number) => Math.min(grid.n - 1, Math.max(0, Math.floor((v + half) / CELL)))
+  const center = (i: number) => -half + (i + 0.5) * CELL
+
+  // Próximo passeio: de onde ele está, uma busca em largura pelos quadradinhos
+  // livres; sorteia um destino alcançável a mais de 2 m e monta o caminho até
+  // ele, pulando os pontos do meio quando a reta entre eles está livre.
   const pickTarget = () => {
     const s = state.current
-    const escaping = blocked(s.x, s.z, avoid)
-    // (com o quintal cheio, muitos sorteios caem em caminho bloqueado: tenta
-    // bastante; o destino pode ser mais perto, para achar um livre)
-    for (let i = 0; i < 120; i++) {
-      const tx = (Math.random() * 2 - 1) * half
-      const tz = (Math.random() * 2 - 1) * half
-      if (Math.hypot(tx - s.x, tz - s.z) < 1.2) continue
-      if (!freePath(s.x, s.z, tx, tz, escaping)) continue
-      s.tx = tx
-      s.tz = tz
+    const { n, free } = grid
+    const startI = toCell(s.x)
+    const startJ = toCell(s.z)
+    const from = new Int32Array(n * n).fill(-1)
+    const start = startI * n + startJ
+    from[start] = start
+    const queue = [start]
+    const reach: number[] = []
+    for (let q = 0; q < queue.length; q++) {
+      const c = queue[q]
+      const i = Math.floor(c / n)
+      const j = c % n
+      if (free[c] && Math.hypot(center(i) - s.x, center(j) - s.z) > 2) reach.push(c)
+      for (const [di, dj] of STEPS) {
+        const a = i + di
+        const b = j + dj
+        if (a < 0 || b < 0 || a >= n || b >= n) continue
+        const k = a * n + b
+        // (se ele começou numa área proibida, anda por ela até sair; depois,
+        // só por quadradinhos livres)
+        if (from[k] !== -1 || (!free[k] && free[c])) continue
+        from[k] = c
+        queue.push(k)
+      }
+    }
+    if (!reach.length) {
+      s.wait = 0.4
       return
     }
-    // nada livre: tenta de novo logo
-    s.wait = 0.4
+    // caminho do destino de volta até ele
+    let c = reach[Math.floor(Math.random() * reach.length)]
+    const cells: [number, number][] = []
+    while (c !== start) {
+      cells.push([center(Math.floor(c / n)), center(c % n)])
+      c = from[c]
+    }
+    cells.reverse()
+    // corta caminho: de cada ponto, vai direto ao mais longe que der em reta
+    const path: [number, number][] = []
+    let px = s.x
+    let pz = s.z
+    let k = 0
+    while (k < cells.length) {
+      let far = k
+      for (let m = cells.length - 1; m > k; m--) {
+        if (freePath(px, pz, cells[m][0], cells[m][1], false)) {
+          far = m
+          break
+        }
+      }
+      path.push(cells[far])
+      ;[px, pz] = cells[far]
+      k = far + 1
+    }
+    s.path = path
   }
 
   // Arremesso: um ponto livre a 3–5 m do personagem, de preferência para o
@@ -162,6 +224,7 @@ export default function Dog({ start, half, avoid }: Props) {
     const now = clock.elapsedTime
     const dt = Math.min(delta, 0.05)
     const toPlayer = Math.hypot(player.pos.x - s.x, player.pos.z - s.z)
+    if (toPlayer > NOTICE + 0.5) s.look = 0 // longe de novo: na próxima, olha outra vez
     let moving = false
     let wantYaw = s.yaw
 
@@ -195,7 +258,11 @@ export default function Dog({ start, half, avoid }: Props) {
     if (f.mode === 'wait') {
       // olha a bola voando e sai correndo quando ela cai
       wantYaw = Math.atan2(f.to.x - s.x, f.to.z - s.z)
-      if (!f.flying) f.mode = 'chase'
+      if (!f.flying) {
+        // a bola caiu: late e sai correndo
+        f.mode = 'chase'
+        playBark()
+      }
     } else if (f.mode === 'chase') {
       if (walkTo(f.to.x, f.to.z, RUN, 0.3)) {
         f.inMouth = true
@@ -207,16 +274,25 @@ export default function Dog({ start, half, avoid }: Props) {
         f.inMouth = false
         f.rest.set(s.x + Math.sin(s.yaw) * 0.35, BALL_R, s.z + Math.cos(s.yaw) * 0.35)
         f.mode = 'wander'
+        playBark() // soltou aos pés: "joga de novo!"
         s.wait = 1.5 + Math.random() * 1.5
       }
-    } else if (toPlayer < NOTICE) {
-      // Olha para o personagem (colado nele, a direção não serve: ficava girando).
+    } else if (toPlayer < NOTICE && (s.look < LOOK_S || Math.hypot(player.vel.x, player.vel.z) > 0.3)) {
+      // Olha para o personagem (colado nele, a direção não serve: ficava
+      // girando). Com ele parado, depois de LOOK_S volta a passear.
+      s.look += dt
       if (toPlayer > 0.35) wantYaw = Math.atan2(player.pos.x - s.x, player.pos.z - s.z)
     } else if (s.wait > 0) {
       s.wait -= dt
       if (s.wait <= 0) pickTarget()
-    } else if (walkTo(s.tx, s.tz, SPEED)) {
-      s.wait = 1 + Math.random() * 2
+    } else if (s.path.length) {
+      // segue o caminho, ponto a ponto; no fim, para um pouco
+      if (walkTo(s.path[0][0], s.path[0][1], SPEED, 0.15)) {
+        s.path.shift()
+        if (!s.path.length) s.wait = 1 + Math.random() * 2
+      }
+    } else {
+      s.wait = 0.4
     }
 
     // Vira pelo caminho mais curto.

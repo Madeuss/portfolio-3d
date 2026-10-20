@@ -54,6 +54,14 @@ export function play(name: SfxName) {
 // Soco no saco: 4 variações (Kenney Impact Sounds, impactPunch_heavy).
 const PUNCHES = [0, 1, 2, 3].map((i) => `/sounds/punch-${i}.mp3`)
 
+// Latido do shih tzu (Pixabay, só o primeiro dos três latidos do arquivo), com
+// o tom variando um pouco a cada vez.
+export function playBark() {
+  const h = howl('/sounds/dog-bark.mp3', 0.35)
+  const id = h.play()
+  h.rate(0.92 + Math.random() * 0.16, id)
+}
+
 export function playPunch() {
   const src = PUNCHES[Math.floor(Math.random() * PUNCHES.length)]
   const h = howl(src, 0.5)

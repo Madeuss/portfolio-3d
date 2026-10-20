@@ -302,6 +302,14 @@ const DOG_AVOID: Area[] = [
   ...NO_GRASS.slice(1),
   { x: [-6.3, -4.9], z: [0.5, 1.9] }, // casinha
   ...TREES.map(([, x, z]): Area => ({ x: [x - 0.3, x + 0.3], z: [z - 0.3, z + 0.3] })),
+  // coisas pequenas que ele também contorna (a margem do Dog aumenta tudo)
+  ...LAMPS.map(([x, z]): Area => ({ x: [x - 0.08, x + 0.08], z: [z - 0.08, z + 0.08] })),
+  ...FLOWER_BEDS.map(([x, z]): Area => ({ x: [x - 0.3, x + 0.3], z: [z - 0.3, z + 0.3] })),
+  { x: [-2.4, -1.8], z: [5.4, 5.7] }, // placa
+  { x: [3.8, 4.8], z: [-0.25, 0.15] }, // placar do campinho
+  // perto do gato na mureta: ele não vai até lá de propósito (ainda assusta o
+  // gato quando passa perto, mas bem menos)
+  { x: [-7.4, -6.6], z: [1.4, 3.2] },
 ]
 
 export default function Exterior() {
