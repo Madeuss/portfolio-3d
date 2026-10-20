@@ -478,6 +478,139 @@ the bush, do not include the house.
 - Flores: `a small cluster of white and yellow daisies with green leaves, about 30 cm tall` (e "Only the flowers").
 - Pedras: `a group of three smooth rounded grey rocks of different sizes` (e "Only the rocks").
 
+### Quintal, segunda leva (33 a 39)
+
+Mesmo esquema: anexe a referência do objeto e, como segunda imagem, a âncora `refs/16-fachada.jpg`.
+No Tripo, as mesmas opções de sempre (Ultra desligada, textura 2K, remover iluminação, 25 mil polígonos).
+Rede, balanço (assento e cordas), água do irrigador, dia e noite, vento e trilha na grama eu faço em código.
+
+#### 33. Churrasqueira
+
+**Anexe:** buscar **"churrasqueira de tijolinho"** ou **"brick barbecue grill"**.
+
+```
+Create a stylized 3D game asset of a small backyard brick barbecue like the attached
+image, Brazilian style: warm red-orange bricks, a short chimney on top, a black grill
+grate with a few skewers of meat and sausages, a small wooden counter on one side.
+No smoke, no fire.
+Soft rounded shapes, clay-like smooth surfaces, cozy warm colors, Animal Crossing
+style, single object, centered, front three-quarter view, plain white background, even
+soft lighting, no shadow on the floor, no text, no logo.
+Match the art style and lighting of the second attached image (only the style, keep
+the colors described above). Only the barbecue, do not include the house.
+```
+
+Sem fumaça e sem fogo de propósito: a fumaça eu faço animada no site.
+
+#### 34. Mesa de madeira com bancos
+
+**Anexe:** buscar **"mesa de piquenique madeira"** ou **"wooden picnic table"**.
+
+```
+Create a stylized 3D game asset of a wooden picnic table like the attached image, with
+two long benches attached on the sides, warm natural wood planks, about 1.8 m long,
+completely empty on top.
+Soft rounded shapes, clay-like smooth surfaces, cozy warm colors, Animal Crossing
+style, single object, centered, front three-quarter view, plain white background, even
+soft lighting, no shadow on the floor, no text, no logo.
+Match the art style and lighting of the second attached image (only the style, keep
+the colors described above). Only the table, do not include the house.
+```
+
+Vazia em cima para eu poder pôr pratos e copos no site, e para o personagem poder sentar nos bancos.
+
+#### 35. Árvore com galho para o balanço
+
+**Anexe:** só a árvore aprovada [`refs/22-arvore.jpg`](refs/22-arvore.jpg) (ela já é a âncora; não precisa da fachada).
+
+```
+Create another variation of the attached stylized 3D tree, in the exact same art style
+and the exact same vivid green: a slightly wider tree with one thick, long horizontal
+branch sticking out to the right side of the trunk at about two meters high, clearly
+visible below the canopy, with nothing hanging from it. Soft rounded shapes, clay-like
+smooth surfaces, single object, centered, front view, plain white background, even
+soft lighting, no shadow on the floor, no text, no logo.
+```
+
+O balanço (cordas e assento) fica fora do modelo: ele precisa balançar, então eu faço em código e penduro no galho.
+
+Feito assim (20/10): [`refs/35-arvore-galho.jpg`](refs/35-arvore-galho.jpg). O galho saiu baixo (uns 20% da altura,
+60 cm no quintal) e o pedido de edição devolveu a mesma imagem. Fica assim mesmo: no site eu estico só o tronco abaixo
+do galho, o que sobe galho e copa juntos até a altura do balanço sem deformar nenhum dos dois.
+
+#### 36. Irrigador
+
+**Anexe:** buscar **"irrigador de jardim giratório"** ou **"rotating garden sprinkler"**.
+
+```
+Create a stylized 3D game asset of a small rotating garden sprinkler like the attached
+image: a round green base on the grass with two short arms on top and a coiled green
+garden hose coming out of it. No water.
+Soft rounded shapes, clay-like smooth surfaces, cozy warm colors, Animal Crossing
+style, single object, centered, front three-quarter view, plain white background, even
+soft lighting, no shadow on the floor, no text, no logo.
+Match the art style and lighting of the second attached image (only the style, keep
+the colors described above). Only the sprinkler, do not include the house.
+```
+
+Sem água: os jatos são partículas no site, girando junto com os braços.
+
+#### 37. Canteiro da horta
+
+**Anexe:** buscar **"canteiro elevado de madeira horta"** ou **"raised garden bed vegetables"**.
+
+```
+Create a stylized 3D game asset of a rectangular raised wooden garden bed like the
+attached image, about 1.6 m long, filled with dark soil and rows of vegetables: round
+lettuces, carrot tops, and two small tomato plants tied to wooden stakes with a few red
+tomatoes.
+Soft rounded shapes, clay-like smooth surfaces, cozy warm colors, Animal Crossing
+style, single object, centered, front three-quarter view, plain white background, even
+soft lighting, no shadow on the floor, no text, no logo.
+Match the art style and lighting of the second attached image (only the style, keep
+the colors described above). Only the garden bed, do not include the house.
+```
+
+Um modelo só, usado duas vezes lado a lado (um deles girado, para não parecerem iguais).
+
+#### 38. Gato
+
+**Anexe:** buscar **"gato laranja rajado sentado"** ou **"orange tabby cat sitting"** (foto de lado ou de três quartos).
+
+```
+Create a stylized 3D game asset of a cute orange tabby cat sitting upright like the
+attached image, tail curled around its front paws, ears up, looking forward, chibi
+proportions with a slightly big head.
+Soft rounded shapes, clay-like smooth surfaces, cozy warm colors, Animal Crossing
+style, single object, centered, front three-quarter view, plain white background, even
+soft lighting, no shadow on the floor, no text, no logo.
+Match the art style and lighting of the second attached image (only the style, keep
+the colors described above). Only the cat, do not include the house.
+```
+
+Laranja para contrastar com as pedras cinza do quintal (cinza sumiria no meio delas).
+Sentado e parado: não anda, então não precisa de rig.
+O pulo para fugir eu animo no site (sobe, gira e some atrás do muro, como os passarinhos).
+
+#### 39. Shih tzu (opcional, para trocar o cachorro provisório)
+
+**Anexe:** uma foto do seu cachorro **de lado**, em pé, corpo inteiro, fundo limpo. Se tiver, uma de frente também.
+
+```
+Using the attached photo of my dog as reference, create a stylized 3D game asset of
+this white and chestnut brown shih tzu standing on all four legs, side three-quarter
+view, keeping its white and chestnut brown markings exactly as in the photo (no black
+fur), fur simplified into soft chunky clumps, short legs
+clearly separated from the body and from each other, tail up, chibi proportions with a
+slightly big head. Soft rounded shapes, clay-like smooth surfaces, cozy colors, Animal
+Crossing style, single object, centered, plain white background, even soft lighting,
+no shadow on the floor, no text, no logo.
+```
+
+Pernas separadas do corpo de propósito: é o que dá chance ao rig de quadrúpede do Tripo funcionar.
+Depois de gerar, teste no Tripo o **Rig** (quadrúpede) e as animações de andar e correr. Se ficar ruim, mande só o
+modelo parado e a gente decide (manter o provisório animado ou animar o shih tzu de um jeito mais simples).
+
 ---
 
 ## Prioridade 3 (só se sobrar crédito)

@@ -83,6 +83,19 @@ Legenda de prioridade: **1** = sem ele a estação não existe · **2** = deixa 
 | 25 | Portão / cerca | Imagem → Tripo | 3 | |
 | 26 | Bordas de madeira, chão, caminho, campo | Blender | 1 | Medidas da planta (`planta.excalidraw`) |
 
+### Quintal, segunda leva (com o crédito extra)
+
+| # | Item | Como | Notas |
+|---|---|---|---|
+| 33 | Churrasqueira de tijolinho | Imagem → Tripo | Sem fumaça e sem fogo: a fumaça é animada no site |
+| 34 | Mesa de madeira com bancos | Imagem → Tripo | Vazia em cima; dá para sentar nos bancos |
+| 35 | Árvore com galho para o balanço | Variação da 22 → Tripo | Cordas e assento em código (balançam) |
+| 36 | Irrigador | Imagem → Tripo | Água em partículas no site |
+| 37 | Canteiro da horta | Imagem → Tripo | Um modelo, usado 2 vezes |
+| 38 | Gato laranja sentado | Imagem → Tripo | Parado; o pulo para fugir é animado no site |
+| 39 | Shih tzu branco e castanho (opcional) | Foto dele → Tripo + Rig quadrúpede | Só troca o provisório se o rig ficar bom |
+| — | Rede, balanço, dia e noite, vento, trilha na grama, bola para o cachorro | Código | Sem crédito |
+
 ## Conta de créditos (Tripo Starter: 750/mês)
 
 Cada geração custou 45–55 créditos com malha Ultra e textura 4K. Com Ultra desligada e textura 2K deve ficar perto de 30
