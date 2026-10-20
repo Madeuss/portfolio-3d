@@ -611,6 +611,151 @@ Pernas separadas do corpo de propósito: é o que dá chance ao rig de quadrúpe
 Depois de gerar, teste no Tripo o **Rig** (quadrúpede) e as animações de andar e correr. Se ficar ruim, mande só o
 modelo parado e a gente decide (manter o provisório animado ou animar o shih tzu de um jeito mais simples).
 
+### Quintal, terceira leva (40 a 46): trocar o que foi feito em código
+
+Peças que hoje são formas simples feitas em código (por isso parecem low poly). Mesmo esquema: anexe a referência e,
+como segunda imagem, a âncora `refs/16-fachada.jpg`.
+
+**Atenção aos polígonos no Tripo:** estas peças se repetem muito no quintal, então cada uma precisa ser bem mais leve
+que um móvel. Em vez dos 25 mil de sempre, use o número indicado em cada item (campo de polígonos / face limit).
+Textura 2K continua.
+
+| # | Peça | Repete | Polígonos no Tripo |
+|---|---|---|---|
+| 40 | Arbusto da cerca-viva | 16× | 5 mil |
+| 41 | Mureta de madeira (pedaço) | ~30× | 3 mil |
+| 42 | Portão de entrada | 1× | 15 mil |
+| 43 | Tufo de grama | 30× | 1,5 mil |
+| 44 | Flores (3 tipos) | ~50× no total | 1,5 mil cada |
+| 45 | Poste de luz | 5× | 5 mil |
+| 46 | Passarinho (opcional) | 4× | 3 mil |
+
+#### 40. Arbusto da cerca-viva
+
+**Anexe:** buscar **"cerca viva podada"** ou **"boxwood hedge"** (bloco de arbusto aparado, retangular).
+
+```
+Create a stylized 3D game asset of one short trimmed hedge block like the attached
+image: a rectangular boxwood bush with soft rounded edges and a puffy leafy surface made
+of small round clumps, about 80 cm long, 65 cm tall and 60 cm deep, fresh green.
+Designed to be repeated side by side, so both short ends are flat and plain.
+Soft rounded shapes, clay-like smooth surfaces, cozy warm colors, Animal Crossing
+style, single object, centered, front three-quarter view, plain white background, even
+soft lighting, no shadow on the floor, no text, no logo.
+Match the art style and lighting of the second attached image (only the style, keep
+the colors described above). Only the hedge block, do not include the house.
+```
+
+As pontas retas são de propósito: os blocos ficam lado a lado na frente do quintal, como hoje.
+
+#### 41. Mureta de madeira (pedaço)
+
+**Anexe:** buscar **"mureta de madeira jardim"** ou **"low wooden garden border"**.
+
+```
+Create a stylized 3D game asset of one straight section of a low wooden garden border
+wall like the attached image: horizontal warm wood planks stacked, with a flat wide
+wooden cap beam on top and a short square post at each end, about 2 m long, 50 cm
+tall and 60 cm thick. Designed to be repeated in a line, so both ends are clean.
+Soft rounded shapes, clay-like smooth surfaces, cozy warm colors, Animal Crossing
+style, single object, centered, front three-quarter view, plain white background, even
+soft lighting, no shadow on the floor, no text, no logo.
+Match the art style and lighting of the second attached image (only the style, keep
+the colors described above). Only the wall section, do not include the house.
+```
+
+O topo largo e reto é de propósito: o gato senta em cima da mureta.
+
+#### 42. Portão de entrada
+
+**Anexe:** buscar **"portão de madeira jardim com arco"** ou **"wooden garden gate arch"**.
+
+```
+Create a stylized 3D game asset of a wooden garden entrance like the attached image:
+two thick square wooden posts about 4 m apart with a curved wooden arch on top
+connecting them, a few small green leaves climbing one post, and two low wooden gate
+doors swung fully open against the posts, leaving the middle completely free to walk
+through. Warm natural wood.
+Soft rounded shapes, clay-like smooth surfaces, cozy warm colors, Animal Crossing
+style, single object, centered, front three-quarter view, plain white background, even
+soft lighting, no shadow on the floor, no text, no logo.
+Match the art style and lighting of the second attached image (only the style, keep
+the colors described above). Only the gate, do not include the house.
+```
+
+As portas abertas e o meio livre são de propósito: o caminho de pedras passa por ali. Se o arco ficar alto demais e
+tapar a casa com a câmera de cima, a gente usa só os postes.
+
+#### 43. Tufo de grama
+
+**Anexe:** buscar **"tufo de grama"** ou **"grass tuft"**.
+
+```
+Create a stylized 3D game asset of a small tuft of grass like the attached image:
+about fifteen thick, soft, slightly curved grass blades growing from one point, some
+taller than others, about 25 cm tall, fresh green with lighter tips. Flat bottom.
+Soft rounded shapes, clay-like smooth surfaces, cozy warm colors, Animal Crossing
+style, single object, centered, front three-quarter view, plain white background, even
+soft lighting, no shadow on the floor, no text, no logo.
+Match the art style and lighting of the second attached image (only the style, keep
+the colors described above). Only the grass tuft, do not include the house.
+```
+
+#### 44. Flores (três tipos)
+
+Gere as três com o mesmo prompt, trocando só a primeira frase. As margaridas de hoje viram a primeira variedade.
+
+**Anexe:** buscar a flor de cada uma (foto de um tufo pequeno, de lado).
+
+```
+Create a stylized 3D game asset of a small cluster of white daisies like the attached
+image: five flowers with white petals and yellow centers on thin green stems, with a few
+leaves at the base, about 30 cm tall. Flat bottom.
+Soft rounded shapes, clay-like smooth surfaces, cozy warm colors, Animal Crossing
+style, single object, centered, front three-quarter view, plain white background, even
+soft lighting, no shadow on the floor, no text, no logo.
+Match the art style and lighting of the second attached image (only the style, keep
+the colors described above). Only the flowers, do not include the house.
+```
+
+- **44b. Tulipas:** troque a primeira frase por `a small cluster of three red and yellow tulips on green stems with long leaves`.
+- **44c. Lavanda:** troque por `a small round bush of purple lavender with many thin flower spikes`.
+
+#### 45. Poste de luz
+
+**Anexe:** buscar **"poste de jardim com lanterna"** ou **"garden lamp post lantern"**.
+
+```
+Create a stylized 3D game asset of a short wooden garden lamp post like the attached
+image: a dark wooden post about 1.1 m tall with a small square lantern on top, the
+lantern has a small dark roof and four panes of warm frosted yellow glass.
+Soft rounded shapes, clay-like smooth surfaces, cozy warm colors, Animal Crossing
+style, single object, centered, front three-quarter view, plain white background, even
+soft lighting, no shadow on the floor, no text, no logo.
+Match the art style and lighting of the second attached image (only the style, keep
+the colors described above). Only the lamp post, do not include the house.
+```
+
+A luz que acende à noite eu ponho no site, por dentro do vidro (a textura do Tripo não brilha sozinha).
+
+#### 46. Passarinho (opcional)
+
+**Anexe:** buscar **"pardal"** ou **"sparrow side view"**.
+
+```
+Create a stylized 3D game asset of a cute small round bird like the attached image,
+standing on the ground with wings folded, short orange beak, chubby round body, brown
+and cream feathers simplified into soft shapes.
+Soft rounded shapes, clay-like smooth surfaces, cozy warm colors, Animal Crossing
+style, single object, centered, front three-quarter view, plain white background, even
+soft lighting, no shadow on the floor, no text, no logo.
+Match the art style and lighting of the second attached image (only the style, keep
+the colors described above). Only the bird, do not include the house.
+```
+
+Fica a seu critério: hoje as asas dos passarinhos batem quando eles voam (são peças separadas em código). Um modelo
+do Tripo vem inteiro, então ele ficaria mais bonito parado no chão, mas voaria sem bater as asas.
+
 ---
 
 ## Prioridade 3 (só se sobrar crédito)

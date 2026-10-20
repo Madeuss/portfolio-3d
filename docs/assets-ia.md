@@ -96,6 +96,20 @@ Legenda de prioridade: **1** = sem ele a estação não existe · **2** = deixa 
 | 39 | Shih tzu branco e castanho (opcional) | Foto dele → Tripo + Rig quadrúpede | Só troca o provisório se o rig ficar bom |
 | — | Rede, balanço, dia e noite, vento, trilha na grama, bola para o cachorro | Código | Sem crédito |
 
+### Quintal, terceira leva (trocar o que foi feito em código)
+
+Estas peças se repetem muito: no Tripo, usar bem menos polígonos que os 25 mil de sempre (número ao lado).
+
+| # | Item | Polígonos | Notas |
+|---|---|---|---|
+| 40 | Arbusto da cerca-viva | 5 mil | Bloco de pontas retas, repetido 16× |
+| 41 | Mureta de madeira (pedaço de 2 m) | 3 mil | Topo largo e reto (o gato senta) |
+| 42 | Portão de entrada com arco | 15 mil | Portas abertas, meio livre |
+| 43 | Tufo de grama | 1,5 mil | No lugar das moitinhas (30) |
+| 44 | Flores: margarida, tulipa, lavanda | 1,5 mil cada | ~50 no total |
+| 45 | Poste de luz | 5 mil | A luz da noite é posta no site |
+| 46 | Passarinho (opcional) | 3 mil | Sem bater as asas ao voar |
+
 ## Conta de créditos (Tripo Starter: 750/mês)
 
 Cada geração custou 45–55 créditos com malha Ultra e textura 4K. Com Ultra desligada e textura 2K deve ficar perto de 30
