@@ -26,6 +26,8 @@ export type Dictionary = {
   seat: string
   /** Aviso no balanço. */
   swing: string
+  /** Aviso na rede. */
+  hammock: string
   /** Aviso perto do cachorro (jogar a bolinha para ele buscar). */
   dog: string
   /** Porta da casa: o aviso de fora e o de dentro. */

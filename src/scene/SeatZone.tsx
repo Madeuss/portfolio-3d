@@ -15,11 +15,13 @@ type Props = {
   seat: Seat
   /** Meia-largura da zona, ao longo do assento. */
   width?: number
-  /** Texto do aviso: "Sentar" ou "Balançar". */
-  label?: 'seat' | 'swing'
+  /** Texto do aviso: "Sentar", "Balançar" ou "Deitar na rede". */
+  label?: 'seat' | 'swing' | 'hammock'
+  /** Onde fica a zona (x, z no mundo), se não for na frente do assento. */
+  at?: [number, number]
 }
 
-export default function SeatZone({ seat, width = 0.5, label = 'seat' }: Props) {
+export default function SeatZone({ seat, width = 0.5, label = 'seat', at }: Props) {
   const enter = useGame((s) => s.enter)
   const leave = useGame((s) => s.leave)
   const nearSeat = useGame((s) => s.nearSeat)
@@ -32,13 +34,15 @@ export default function SeatZone({ seat, width = 0.5, label = 'seat' }: Props) {
   // a zona fica na frente do assento, virada como ele
   const front = depth + 0.35
 
+  // com `at`, a zona (e o aviso) ficam lá, sem girar
+  const [gx, gz] = at ?? center
   return (
-    <group position={[center[0], 0, center[1]]} rotation-y={yaw}>
+    <group position={[gx, 0, gz]} rotation-y={at ? 0 : yaw}>
       <RigidBody type="fixed" colliders={false}>
         <CuboidCollider
           sensor
           args={[width, 0.75, 0.35]}
-          position={[0, 0.75, front]}
+          position={[0, 0.75, at ? 0 : front]}
           onIntersectionEnter={(e) => {
             if (!isPlayer(e)) return
             nearSeat(seat)

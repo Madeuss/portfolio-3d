@@ -15,6 +15,7 @@ import { Bench, Sign } from './Garden'
 import Clothesline from './Clothesline'
 import SwingTree from './SwingTree'
 import Fireflies from './Fireflies'
+import Hammock from './Hammock'
 import { Cat, Smoke, SprinklerWater } from './YardLife'
 import SeatZone from './SeatZone'
 import type { Seat } from '../state/game'
@@ -118,6 +119,7 @@ const NO_GRASS: Area[] = [
   { x: [-6.4, -5.4], z: [-5.8, -2.5] }, // horta
   { x: [-6.3, -5.5], z: [-2.2, -1.4] }, // irrigador
   { x: [1.8, 3.5], z: [5.8, 6.7] }, // árvore do balanço e o balanço
+  { x: [4.1, 7.5], z: [4.7, 5.9] }, // rede
 ]
 
 
@@ -220,7 +222,7 @@ const PICNIC_BACK: Seat = { center: [4.2, -3.2], yaw: Math.PI, height: 0.44, dep
 const BIRDS = [
   { home: [2.4, -1.4] as [number, number], color: '#6b7a8f' },
   { home: [-3.2, 1.6] as [number, number], color: '#c46a3d' },
-  { home: [5.4, 5.1] as [number, number], color: '#6b7a8f' },
+  { home: [4.9, 4.3] as [number, number], color: '#6b7a8f' },
   { home: [-4.6, -1.4] as [number, number], color: '#e0c25a' },
 ]
 // Canteiros de margaridas: [x, z, quantas].
@@ -229,7 +231,7 @@ const FLOWER_BEDS: [number, number, number][] = [
   [1.5, -0.1, 7],
   [-2.3, 3.2, 8],
   [-6.2, 2.6, 7],
-  [5.6, 6.0, 8],
+  [4.6, 6.3, 8],
   [-0.9, 5.2, 5],
   [5.8, -0.6, 6],
 ]
@@ -313,6 +315,8 @@ export default function Exterior() {
       {/* Placa MADEUS logo depois do portão, apontando para a casa. */}
       <Sign position={[-2.1, 0, 5.55]} rotationY={0.25} />
       <LampPosts at={LAMPS} />
+      {/* Rede (7) no canto da frente à direita, entre o balanço e a mureta. */}
+      <Hammock position={[5.8, 0, 5.3]} />
       {/* vaga-lumes à noite */}
       <Fireflies half={HALF - BORDER - 0.5} />
       <FlowerBeds beds={FLOWER_BEDS} />

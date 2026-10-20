@@ -19,6 +19,7 @@ const es: Dictionary = {
   soccer: { kick: 'Patear', goal: '¡GOL!', score: 'GOLES' },
   seat: 'Sentarse',
   swing: 'Columpiarse',
+  hammock: 'Acostarse en la hamaca',
   dog: 'Lanzar la pelota',
   door: { enter: 'Entrar en la casa', exit: 'Salir' },
   panel: { close: 'Cerrar', escHint: 'Esc cierra', prev: 'anterior', next: 'siguiente', site: 'Sitio' },

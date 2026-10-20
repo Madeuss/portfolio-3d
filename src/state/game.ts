@@ -48,9 +48,19 @@ export type Training = {
 // onde quem senta olha; `height`: altura do assento; `depth`: do meio do
 // assento até a frente do móvel (onde o corpo físico fica parado); `edge`:
 // quanto o quadril fica à frente do meio do assento.
-export type Seat = { center: [number, number]; yaw: number; height: number; depth: number; edge: number }
-// Sentado: descendo, parado ou levantando.
-export type Sitting = { seat: Seat; phase: 'down' | 'sit' | 'up' }
+export type Seat = {
+  center: [number, number]
+  yaw: number
+  height: number
+  depth: number
+  edge: number
+  /** Rede: senta de lado (olhando para `yaw`) e, ao deitar, vira para olhar
+      para `lie.yaw` (o comprimento da rede): a cabeça fica do lado oposto. */
+  lie?: { yaw: number; /** Deitado, o quadril vai isso para o lado dos pés (a cabeça grande do avatar sai da ponta). */ shift?: number }
+}
+// Sentado: descendo, parado ou levantando. Na rede, depois de sentar: deitando,
+// deitado e voltando a sentar (antes de levantar).
+export type Sitting = { seat: Seat; phase: 'down' | 'sit' | 'lie-down' | 'lie' | 'lie-up' | 'up' }
 
 // Cada toque da embaixadinha: a bola vai até a altura `y` (centro, m) em
 // `flight` segundos, numa parábola; `release` = último toque, a bola sai na física.
@@ -141,6 +151,24 @@ const DIZZY_MS = 6500
 let spins = 0
 let lastSpinEnd = 0
 
+// Gols marcados ficam salvos no navegador (o placar continua na próxima
+// visita). Sem acesso ao armazenamento (aba anônima, bloqueado), começa do 0.
+const GOALS_KEY = 'goals'
+function savedGoals() {
+  try {
+    return Math.max(0, Number(localStorage.getItem(GOALS_KEY)) || 0)
+  } catch {
+    return 0
+  }
+}
+function saveGoals(n: number) {
+  try {
+    localStorage.setItem(GOALS_KEY, String(n))
+  } catch {
+    // sem armazenamento: o placar vale só nesta visita
+  }
+}
+
 export const useGame = create<GameState>((set, get) => ({
   screen: 'loading',
   warm: false,
@@ -159,7 +187,7 @@ export const useGame = create<GameState>((set, get) => ({
   seatNear: null,
   sitting: null,
   fetch: 0,
-  goals: 0,
+  goals: savedGoals(),
   dizzy: false,
   setScreen: (screen) => set({ screen }),
   setWarm: () => set({ warm: true }),
@@ -245,7 +273,13 @@ export const useGame = create<GameState>((set, get) => ({
     set({ training: { ...t, bicycle: true, step: t.step + 1 } })
   },
   nearSeat: (seat) => set({ seatNear: seat }),
-  standUp: () => set((s) => (s.sitting && s.sitting.phase !== 'up' ? { sitting: { ...s.sitting, phase: 'up' } } : s)),
+  // Na rede, primeiro senta de novo (lie-up) e só então levanta.
+  standUp: () =>
+    set((s) => {
+      const p = s.sitting?.phase
+      if (!s.sitting || p === 'up' || p === 'lie-up') return s
+      return { sitting: { ...s.sitting, phase: p === 'lie' || p === 'lie-down' ? 'lie-up' : 'up' } }
+    }),
   setSitPhase: (phase) => set((s) => (s.sitting ? { sitting: { ...s.sitting, phase } } : s)),
   // Terminou de levantar: volta a andar.
   finishSitting: () => set({ sitting: null }),
@@ -275,7 +309,11 @@ export const useGame = create<GameState>((set, get) => ({
     set((s) => (s.training ? { training: { ...s.training, step: s.training.step + 1, queued: false, special: false } } : s)),
   landHit: (dir) => set((s) => ({ hit: { id: (s.hit?.id ?? 0) + 1, dir } })),
   kickBall: (dir, bicycle = false) => set((s) => ({ kick: { id: (s.kick?.id ?? 0) + 1, dir, bicycle } })),
-  scoreGoal: (at) => set((s) => ({ goal: { id: (s.goal?.id ?? 0) + 1, at }, goals: s.goals + 1 })),
+  scoreGoal: (at) =>
+    set((s) => {
+      saveGoals(s.goals + 1)
+      return { goal: { id: (s.goal?.id ?? 0) + 1, at }, goals: s.goals + 1 }
+    }),
   finishTraining: () => set({ training: null }),
 }))
 

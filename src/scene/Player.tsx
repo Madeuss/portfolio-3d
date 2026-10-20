@@ -47,7 +47,7 @@ function MovementInputs({ target }: { target: RefObject<EcctrlHandle | null> }) 
   useFrame(() => {
     // Sentado: qualquer tecla de andar (ou o joystick) levanta.
     const game = useGame.getState()
-    if (game.sitting?.phase === 'sit') {
+    if (game.sitting?.phase === 'sit' || game.sitting?.phase === 'lie') {
       const k = getKeys() as MovementInput
       const stick = useJoystickStore.getState().joysticks.default ?? NO_STICK
       if (k.forward || k.backward || k.leftward || k.rightward || Math.hypot(stick.x, stick.y) > 0.3) game.standUp()

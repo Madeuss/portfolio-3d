@@ -46,6 +46,9 @@ const MIXAMO: Record<string, { url: string; spread: number; inPlace?: boolean }>
   // Sentar no sofá e nos bancos: sentando (e, ao contrário, levantando) e sentado.
   'sit-down': { url: '/models/character/anims/sit-down.glb', spread: 22 },
   sitting: { url: '/models/character/anims/sitting.glb', spread: 22 },
+  // Rede: de sentado para deitado (Lying Down) e deitado parado (Laying Idle).
+  'lie-down': { url: '/models/character/anims/lie-down.glb', spread: 22 },
+  lying: { url: '/models/character/anims/lying.glb', spread: 22 },
   // Tonto, depois de 4 hurricane kicks seguidos (regras em state/game.ts).
   'drunk-idle': { url: '/models/character/anims/drunk-idle.glb', spread: 22 },
   'drunk-walk': { url: '/models/character/anims/drunk-walk.glb', spread: 22 },
@@ -105,6 +108,15 @@ const SEAT_GAP = 0.32 // distância do corpo físico até a frente do móvel (Pl
 const SIT_CUSHION = 0.03 // senta em cima da almofada, não dentro dela
 // Sentado, o osso do quadril fica uns 10 cm acima do assento (o bumbum embaixo dele).
 const HIP_ABOVE_SEAT = 0.1
+// Rede (medido no avatar): o Lying Down começa sentado e termina deitado por
+// volta de 5,2 s; deitado, o quadril fica a uns 5 cm da superfície.
+// O começo (até 1,1 s) é só ele sentado parado: pula. Na rede, sentar e
+// levantar também são mais rápidos (são duas animações seguidas).
+const LIE_START = 1.1
+const LIE_END = 5.2
+const LIE_SPEED = 2.6
+const LIE_HIP = 0.09
+const HAMMOCK_SIT_SPEED = 2.2
 // Golpes um pouco mais rápidos que o original, para ficar com cara de jogo.
 const STRIKE_SPEED = 1.4
 // Transição entre golpes: curta, para responder na hora.
@@ -247,14 +259,23 @@ export default function Character() {
     if (sitting && model?.parent) {
       const { seat, phase } = sitting
       const { self, target } = tmp.current
+      // Rede: sentado de lado, vai virando para o comprimento enquanto deita
+      // (0 sentado, 1 deitado), e o quadril vai da beira para o meio.
+      const lieAction = actions['lie-down']
+      const lieT = MathUtils.clamp(((lieAction?.time ?? LIE_START) - LIE_START) / (LIE_END - LIE_START), 0, 1)
+      const turn = !seat.lie ? 0 : phase === 'lie' ? 1 : phase === 'lie-down' || phase === 'lie-up' ? MathUtils.smoothstep(lieT, 0.05, 0.6) : 0
+      const turnBy = seat.lie ? Math.atan2(Math.sin(seat.lie.yaw - seat.yaw), Math.cos(seat.lie.yaw - seat.yaw)) : 0
+      const faceYaw = seat.yaw + turnBy * turn
+      const edge = seat.edge * (1 - turn)
+      const sitSpeed = seat.lie ? HAMMOCK_SIT_SPEED : SIT_SPEED
       model.parent.getWorldPosition(self)
-      target.set(self.x + Math.sin(seat.yaw), self.y, self.z + Math.cos(seat.yaw))
+      target.set(self.x + Math.sin(faceYaw), self.y, self.z + Math.cos(faceYaw))
       const local = model.parent.worldToLocal(target.clone())
       const face = Math.atan2(local.x, local.z)
       model.rotation.y = dampAngle(model.rotation.y, face, delta)
       const sit = actions['sit-down']
       // recuo e subida (no espaço do corpo), até onde o quadril senta
-      const back = seat.depth + SEAT_GAP - SIT_BACK - seat.edge
+      const back = seat.depth + SEAT_GAP - SIT_BACK - edge
       const lift = seat.height - SIT_HIP + SIT_CUSHION
       const progress = MathUtils.clamp(((sit?.time ?? SIT_START) - SIT_START) / (SIT_END - SIT_START), 0, 1)
       const want = phase === 'sit' ? 1 : progress
@@ -266,10 +287,18 @@ export default function Character() {
       // próprio boneco (fixo na pose sentada) e desconta. Sem acumular: o corpo
       // físico balança na mola do ecctrl e uma correção acumulada disparava.
       const hips = (hipsBone.current ??= scene.getObjectByName('mixamorigHips') ?? null)
-      if (phase === 'sit' && hips) {
+      const settled = phase === 'sit' || phase === 'lie-down' || phase === 'lie' || phase === 'lie-up'
+      if (settled && hips) {
         const { hip, goal } = tmp.current
         const offset = model.parent.worldToLocal(hips.getWorldPosition(hip)).sub(model.position)
-        goal.set(seat.center[0] + Math.sin(seat.yaw) * seat.edge, seat.height + HIP_ABOVE_SEAT, seat.center[1] + Math.cos(seat.yaw) * seat.edge)
+        const above = HIP_ABOVE_SEAT + (LIE_HIP - HIP_ABOVE_SEAT) * turn
+        const shift = (seat.lie?.shift ?? 0) * turn
+        const ly = seat.lie?.yaw ?? 0
+        goal.set(
+          seat.center[0] + Math.sin(seat.yaw) * edge + Math.sin(ly) * shift,
+          seat.height + above,
+          seat.center[1] + Math.cos(seat.yaw) * edge + Math.cos(ly) * shift,
+        )
         const place = model.parent.worldToLocal(goal).sub(offset)
         sitPlace.current.lerp(place, sitPlace.current.lengthSq() ? 1 - Math.exp(-12 * delta) : 1)
         model.position.copy(sitPlace.current)
@@ -281,18 +310,40 @@ export default function Character() {
           sit.reset()
           sit.setLoop(LoopOnce, 1)
           sit.clampWhenFinished = true
-          sit.setEffectiveTimeScale(SIT_SPEED)
+          sit.setEffectiveTimeScale(sitSpeed)
           sit.time = SIT_START
           sit.fadeIn(FADE).play()
           current.current?.action?.fadeOut(FADE)
           current.current = { name: 'sit-down', action: sit }
         }
         if (!sit || sit.time >= SIT_END) {
-          game.setSitPhase('sit')
-          loop('sitting')
+          game.setSitPhase(seat.lie ? 'lie-down' : 'sit')
+          if (!seat.lie) loop('sitting')
         }
       } else if (phase === 'sit') {
         loop('sitting')
+      } else if (phase === 'lie-down' || phase === 'lie-up') {
+        // deitando (ou, ao contrário, voltando a sentar) na rede
+        const lie = actions['lie-down']
+        const name = phase === 'lie-down' ? 'lie-down' : 'lie-up'
+        if (lie && current.current?.name !== name) {
+          lie.reset()
+          lie.setLoop(LoopOnce, 1)
+          lie.clampWhenFinished = true
+          lie.time = phase === 'lie-down' ? LIE_START : LIE_END
+          lie.setEffectiveTimeScale(phase === 'lie-down' ? LIE_SPEED : -LIE_SPEED)
+          lie.fadeIn(FADE).play()
+          current.current?.action?.fadeOut(FADE)
+          current.current = { name, action: lie }
+        }
+        if (!lie || (phase === 'lie-down' && lie.time >= LIE_END)) {
+          game.setSitPhase('lie')
+          loop('lying')
+        } else if (phase === 'lie-up' && lie.time <= LIE_START + 0.02) {
+          game.setSitPhase('up')
+        }
+      } else if (phase === 'lie') {
+        loop('lying')
       } else if (sit) {
         // levantando: o mesmo sit-down, de trás para a frente
         if (current.current?.name !== 'stand-up') {
@@ -300,7 +351,7 @@ export default function Character() {
           sit.setLoop(LoopOnce, 1)
           sit.clampWhenFinished = true
           sit.time = SIT_END
-          sit.setEffectiveTimeScale(-SIT_SPEED)
+          sit.setEffectiveTimeScale(-sitSpeed)
           sit.fadeIn(FADE).play()
           current.current?.action?.fadeOut(FADE)
           current.current = { name: 'stand-up', action: sit }
