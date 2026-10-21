@@ -24,7 +24,6 @@ type Props = {
 export default function SeatZone({ seat, width = 0.5, label = 'seat', at }: Props) {
   const enter = useGame((s) => s.enter)
   const leave = useGame((s) => s.leave)
-  const nearSeat = useGame((s) => s.nearSeat)
   const showPrompt = useGame((s) => s.nearby === 'seat' && s.seatNear === seat && isPlaying(s))
   const t = useI18n((s) => s.t)
   const key = useIsTouch() ? 'A' : 'E'
@@ -43,12 +42,8 @@ export default function SeatZone({ seat, width = 0.5, label = 'seat', at }: Prop
           sensor
           args={[width, 0.75, 0.35]}
           position={[0, 0.75, at ? 0 : front]}
-          onIntersectionEnter={(e) => {
-            if (!isPlayer(e)) return
-            nearSeat(seat)
-            enter('seat', seat.center)
-          }}
-          onIntersectionExit={(e) => isPlayer(e) && leave('seat')}
+          onIntersectionEnter={(e) => isPlayer(e) && enter('seat', seat.center, seat)}
+          onIntersectionExit={(e) => isPlayer(e) && leave('seat', seat)}
         />
       </RigidBody>
       <Html position={[0, height + 0.9, 0]} center zIndexRange={[10, 0]}>

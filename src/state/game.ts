@@ -12,6 +12,7 @@ export type Scene = 'exterior' | 'interior'
 // porta da casa (troca de cena, dos dois lados), o saco de pancada (luta, só
 // diversão), a bola (chute) ou um assento.
 export type ZoneId = StationId | 'door' | 'bag' | 'ball' | 'seat' | 'dog'
+type Zone = { id: ZoneId; at: [number, number]; seat?: Seat }
 
 // Gol no campinho: `id` muda a cada gol, `at` é onde soltar o confete.
 export type Goal = { id: number; at: [number, number] }
@@ -76,7 +77,8 @@ let holdTimer: ReturnType<typeof setTimeout> | null = null
 export type Hit = { id: number; dir: [number, number]; bicycle?: boolean }
 
 // Estado do jogo compartilhado entre a cena 3D e a interface HTML.
-// `nearby`: estação em cuja zona o personagem está (mostra o "E ...").
+// `zones`: as zonas em que o personagem está agora, na ordem em que entrou.
+// `nearby`: a última delas (mostra o "E ..."); ao sair dela, volta a anterior.
 // `open`: estação com o painel aberto.
 type GameState = {
   screen: Screen
@@ -87,6 +89,7 @@ type GameState = {
   spawn: 'start' | 'door'
   /** Tela escurecida durante a troca de cena. */
   fading: boolean
+  zones: Zone[]
   nearby: ZoneId | null
   nearbyAt: [number, number] | null
   open: StationId | null
@@ -110,8 +113,9 @@ type GameState = {
   goThrough: () => void
   /** A cena nova montou e desenhou o primeiro quadro: pode clarear. */
   arrived: () => void
-  enter: (id: ZoneId, at: [number, number]) => void
-  leave: (id: ZoneId) => void
+  /** Entrou numa zona (de novo: só atualiza `at`). Assentos vão com o assento. */
+  enter: (id: ZoneId, at: [number, number], seat?: Seat) => void
+  leave: (id: ZoneId, seat?: Seat) => void
   openStation: (id: StationId) => void
   close: () => void
   interact: () => void
@@ -122,7 +126,6 @@ type GameState = {
   release: () => void
   juggleTouch: (y: number, flight: number, release: boolean, at?: [number, number]) => void
   bicycle: () => void
-  nearSeat: (seat: Seat | null) => void
   standUp: () => void
   setSitPhase: (phase: Sitting['phase']) => void
   finishSitting: () => void
@@ -141,6 +144,11 @@ type GameState = {
 const randomStep = () => Math.floor(Math.random() * 1000)
 
 const bagNearby = (s: GameState) => (s.nearby === 'bag' ? s.nearbyAt : null)
+// A ação que vale: a da última zona em que ele entrou e ainda está.
+const top = (zones: Zone[]) => {
+  const z = zones.at(-1)
+  return { nearby: z?.id ?? null, nearbyAt: z?.at ?? null, seatNear: z?.seat ?? null }
+}
 
 // Easter egg do easter egg: 4 hurricane kicks seguidos (cada um começando até
 // 3 s depois do fim do anterior) e o personagem fica tonto por 6,5 s: anda de
@@ -175,6 +183,7 @@ export const useGame = create<GameState>((set, get) => ({
   scene: 'exterior',
   spawn: 'start',
   fading: false,
+  zones: [],
   nearby: null,
   nearbyAt: null,
   open: null,
@@ -193,7 +202,7 @@ export const useGame = create<GameState>((set, get) => ({
   setWarm: () => set({ warm: true }),
   // Trocar de cena desmonta as zonas sem avisar a saída: limpa tudo junto.
   setScene: (scene, spawn = 'start') =>
-    set({ scene, spawn, nearby: null, nearbyAt: null, open: null, training: null, sitting: null, seatNear: null }),
+    set({ scene, spawn, zones: [], ...top([]), open: null, training: null, sitting: null }),
   // Passa pela porta: escurece, troca para a outra cena (aparecendo na porta
   // de lá) e clareia.
   goThrough: () => {
@@ -211,10 +220,22 @@ export const useGame = create<GameState>((set, get) => ({
     arriveTimer = null
     setTimeout(() => set({ fading: false }), Math.max(0, holdUntil - performance.now()))
   },
-  enter: (id, at) => set({ nearby: id, nearbyAt: at }),
-  // Só limpa se for a mesma estação: ao passar de uma zona para outra
-  // vizinha, o "entrou" da nova pode chegar antes do "saiu" da antiga.
-  leave: (id) => set((s) => (s.nearby === id ? { nearby: null, nearbyAt: null } : s)),
+  // Zonas encostadas (o saco e os halteres, o cachorro e o correio): entrar
+  // numa passa a ação para ela; sair dela devolve a da zona em que ele ainda
+  // está (antes sumia tudo, e era preciso sair e entrar de novo na outra).
+  enter: (id, at, seat) =>
+    set((s) => {
+      const i = s.zones.findIndex((z) => z.id === id && z.seat === seat)
+      const old = s.zones[i]
+      if (old && old.at[0] === at[0] && old.at[1] === at[1]) return s
+      const zones = old ? s.zones.with(i, { id, at, seat }) : [...s.zones, { id, at, seat }]
+      return { zones, ...top(zones) }
+    }),
+  leave: (id, seat) =>
+    set((s) => {
+      const zones = s.zones.filter((z) => !(z.id === id && z.seat === seat))
+      return zones.length === s.zones.length ? s : { zones, ...top(zones) }
+    }),
   openStation: (id) => set({ open: id }),
   close: () => set({ open: null }),
   // Tecla E / botão A. O saco é só diversão: cada toque é um golpe e nenhum
@@ -272,7 +293,6 @@ export const useGame = create<GameState>((set, get) => ({
     if (!t?.juggle || t.bicycle) return
     set({ training: { ...t, bicycle: true, step: t.step + 1 } })
   },
-  nearSeat: (seat) => set({ seatNear: seat }),
   // Na rede, primeiro senta de novo (lie-up) e só então levanta.
   standUp: () =>
     set((s) => {

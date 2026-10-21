@@ -454,10 +454,10 @@ function Ball() {
     const dx = pos.x - player.pos.x
     const dz = pos.z - player.pos.z
     const dist = Math.hypot(dx, dz)
+    const mine = game.zones.find((z) => z.id === 'ball')
     if (dist < NEAR && !scoring.current) {
-      const at = game.nearbyAt
-      if (game.nearby !== 'ball' || !at || Math.hypot(at[0] - pos.x, at[1] - pos.z) > 0.1) game.enter('ball', [pos.x, pos.z])
-    } else if (game.nearby === 'ball') {
+      if (!mine || Math.hypot(mine.at[0] - pos.x, mine.at[1] - pos.z) > 0.1) game.enter('ball', [pos.x, pos.z])
+    } else if (mine) {
       game.leave('ball')
     }
 
