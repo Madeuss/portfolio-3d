@@ -89,7 +89,7 @@ const es: Dictionary = {
             period: '08/2024 — 02/2025',
             company: 'Jinboo',
             role: 'Front-End Developer · Contrato',
-            desc: 'Contrato en paralelo: nuevas features en las aplicaciones web y mobile nativa del producto OBT, estabilización de bugs en el front-end y corrección de defectos de API en el back-end en Go.',
+            desc: 'Contrato: nuevas features en las aplicaciones web y mobile nativa del producto OBT, estabilización de bugs en el front-end y corrección de defectos de API en el back-end en Go.',
           },
           {
             period: '07/2020 — 05/2022',
