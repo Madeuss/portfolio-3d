@@ -107,14 +107,20 @@ function Ground() {
 }
 
 // Onde não nascem moitinhas: caminho, casa (com a varanda), mini campo e a caixa de correio.
+const HOUSE_AREA: Area = { x: [-4.1, 1.9], z: [-6.2, -0.5] }
+const CLOTHESLINE_AREA: Area = { x: [-5.5, -3.35], z: [-0.3, 0.6] }
+const PITCH_AREA: Area = { x: [1.1, 7.5], z: [0.2, 4.2] }
+const POND_AT: [number, number] = [-4.2, 4.6]
+const POND_AREA: Area = { x: [-5.7, -2.7], z: [3.1, 6.1] }
+const BENCH_AREA: Area = { x: [-6.8, -6.2], z: [3.9, 5.3] }
 const NO_GRASS: Area[] = [
   { x: [-0.95, 0.95], z: [-0.8, HALF] },
-  { x: [-4.1, 1.9], z: [-6.2, -0.5] },
-  { x: [1.1, 7.5], z: [0.2, 4.2] },
+  HOUSE_AREA,
+  PITCH_AREA,
   { x: [-2.1, -1.3], z: [1.1, 1.9] },
-  { x: [-5.7, -2.7], z: [3.1, 6.1] }, // laguinho
-  { x: [-6.8, -6.2], z: [3.9, 5.3] }, // banco
-  { x: [-5.5, -3.35], z: [-0.3, 0.6] }, // varal
+  POND_AREA,
+  BENCH_AREA,
+  CLOTHESLINE_AREA,
   { x: [3.1, 5.3], z: [-5.1, -1.7] }, // churrasqueira e mesa
   { x: [-6.4, -5.4], z: [-5.8, -2.5] }, // horta
   { x: [-6.3, -5.5], z: [-2.2, -1.4] }, // irrigador
@@ -199,6 +205,8 @@ const HOUSE_BOXES: [number, number, number, number, number, number][] = [
   [-0.45, 0, -0.41, 0.45, 0.72, 0.34],
   [0.12, 0, 0.34, 0.29, 0.2, 0.48],
 ]
+const HOUSE_AT: [number, number] = [-1.13, -3.2]
+const HOUSE_SCALE = 5.6
 
 // Lampiões dos dois lados do caminho, do portão até a casa.
 const LAMPS: [number, number][] = [
@@ -297,15 +305,44 @@ const TREES: [TreeKind, number, number, number, number][] = [
 ]
 
 // Onde o doguinho não passa: as áreas de NO_GRASS menos o caminho, mais a casinha e os
-// troncos das árvores.
+// troncos das árvores. A casa entra pelas caixas de colisão (a área sem grama
+// é bem maior e, com a folga, fechava os fundos) e o varal só pelos postes
+// (ele passa embaixo da corda): senão ele não chegava atrás da casa nem na
+// churrasqueira. No campinho ele entra (só desvia das traves). O lago e o
+// banco também vão pelo tamanho da colisão (com as áreas sem grama, as
+// passagens que o personagem usa em volta deles ficavam fechadas).
+const DOG_AREAS_FROM_GRASS = [HOUSE_AREA, CLOTHESLINE_AREA, PITCH_AREA, POND_AREA, BENCH_AREA]
+// Um círculo em três retângulos cruzados (o lago redondo, sem os cantos).
+const disc = ([x, z]: [number, number], r: number): Area[] =>
+  [20, 45, 70].map((deg) => {
+    const a = (deg * Math.PI) / 180
+    return { x: [x - r * Math.cos(a), x + r * Math.cos(a)], z: [z - r * Math.sin(a), z + r * Math.sin(a)] }
+  })
+const HEDGE_Z = HALF - BORDER - 0.35 - 0.31 // frente da cerca-viva (Hedge)
+const CORNER_IN = HALF - BORDER - 0.45 // canto arredondado da mureta
 const DOG_AVOID: Area[] = [
-  ...NO_GRASS.slice(1),
+  ...NO_GRASS.slice(1).filter((a) => !DOG_AREAS_FROM_GRASS.includes(a)),
+  ...disc(POND_AT, 1.25), // laguinho (colisão do Pond)
+  { x: [-6.72, -6.28], z: [3.95, 5.25] }, // banco (colisão do Bench)
+  { x: [-HALF, -(GATE + 0.2)], z: [HEDGE_Z, HALF] }, // cerca-viva
+  { x: [GATE + 0.2, HALF], z: [HEDGE_Z, HALF] },
+  ...[-1, 1].flatMap((sx) => [-1, 1].map((sz): Area => ({
+    x: sx < 0 ? [-HALF, -CORNER_IN] : [CORNER_IN, HALF],
+    z: sz < 0 ? [-HALF, -CORNER_IN] : [CORNER_IN, HALF],
+  }))),
+  { x: [1.25, 1.7], z: [1.6, 2.8] }, // traves do campinho (FIELD e GOAL no Soccer)
+  { x: [6.9, 7.35], z: [1.6, 2.8] },
+  ...HOUSE_BOXES.map(([x0, , z0, x1, , z1]): Area => ({
+    x: [HOUSE_AT[0] + x0 * HOUSE_SCALE, HOUSE_AT[0] + x1 * HOUSE_SCALE],
+    z: [HOUSE_AT[1] + z0 * HOUSE_SCALE, HOUSE_AT[1] + z1 * HOUSE_SCALE],
+  })),
+  ...[[-5.3, 0.05], [-3.55, 0.25]].map(([x, z]): Area => ({ x: [x - 0.1, x + 0.1], z: [z - 0.1, z + 0.1] })), // postes do varal
   { x: [-6.3, -4.9], z: [0.5, 1.9] }, // casinha
-  ...TREES.map(([, x, z]): Area => ({ x: [x - 0.3, x + 0.3], z: [z - 0.3, z + 0.3] })),
+  ...TREES.map(([, x, z]): Area => ({ x: [x - 0.2, x + 0.2], z: [z - 0.2, z + 0.2] })), // troncos (trunk do Prop)
   // coisas pequenas que ele também contorna (a margem do Dog aumenta tudo)
   ...LAMPS.map(([x, z]): Area => ({ x: [x - 0.08, x + 0.08], z: [z - 0.08, z + 0.08] })),
-  ...FLOWER_BEDS.map(([x, z]): Area => ({ x: [x - 0.3, x + 0.3], z: [z - 0.3, z + 0.3] })),
-  { x: [-2.4, -1.8], z: [5.4, 5.7] }, // placa
+  ...FLOWER_BEDS.map(([x, z]): Area => ({ x: [x - 0.2, x + 0.2], z: [z - 0.2, z + 0.2] })),
+  { x: [-2.16, -2.04], z: [5.49, 5.61] }, // poste da placa (ele passa embaixo dela)
   { x: [3.8, 4.8], z: [-0.25, 0.15] }, // placar do campinho
   // perto do gato na mureta: ele não vai até lá de propósito (ainda assusta o
   // gato quando passa perto, mas bem menos)
@@ -364,13 +401,13 @@ export default function Exterior() {
       <SeatZone seat={POND_BENCH} />
       <GrassTufts half={HALF - BORDER} clear={NO_GRASS} count={30} />
       {/* Laguinho no canto da frente, à esquerda do caminho. */}
-      <Pond position={[-4.2, 0, 4.6]} />
+      <Pond position={[POND_AT[0], 0, POND_AT[1]]} />
 
       {/* Casa (item 16): 1 unidade de largura; 5,6 m. As janelas e os degraus
           vêm de scripts/house_glass.mts. Textura em 4k (o maior objeto da tela).
           Os degraus ficam 1,13 m à direita do centro da casa: ela vai 1,13 m
           para a esquerda para eles caírem no caminho (z ≈ −0,5). */}
-      <Prop url="/models/ai/16-casa-v2.glb" scale={5.6} position={[-1.13, 0, -3.2]} boxes={HOUSE_BOXES} />
+      <Prop url="/models/ai/16-casa-v2.glb" scale={HOUSE_SCALE} position={[HOUSE_AT[0], 0, HOUSE_AT[1]]} boxes={HOUSE_BOXES} />
       {/* Porta: no pé da escada, E entra na casa (troca de cena). */}
       <Station id="door" position={[0, 0, 0]} zoneCenter={[0, 0.75, 0]} zoneSize={[0.8, 0.75, 0.5]} markerY={1.6} />
 
@@ -384,7 +421,7 @@ export default function Exterior() {
       {/* Casinha do dog (item 20): 1 unidade de fundo; 1,2 m. Vem de frente
           para +z: gira um pouco para olhar para o caminho. */}
       <Prop url="/models/ai/20-casinha-dog.glb" scale={1.2} position={[-5.6, 0, 1.2]} rotationY={Math.PI / 5} />
-      <Dog start={[-3.6, 1.3]} half={HALF - BORDER - 0.5} avoid={DOG_AVOID} />
+      <Dog start={[-3.6, 1.3]} half={HALF - BORDER - 0.2} avoid={DOG_AVOID} />
 
       {/* Portão / entrada: caixa de correio ao lado do caminho. */}
       <Station id="contact" position={[-1.7, 0, 1.5]} zoneCenter={[0, 0.75, 0]} zoneSize={[1, 0.75, 1]} markerY={1.8}>
