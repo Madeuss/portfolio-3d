@@ -4,7 +4,7 @@ import type { StackGroupId } from '../i18n/types'
 // O texto traduzível fica nos dicionários em src/i18n.
 
 export const contact = {
-  email: 'mateus1two3@gmail.com',
+  email: 'contato@madeusdev.com',
   linkedin: 'https://linkedin.com/in/mateusdevsouza',
   github: 'https://github.com/madeuss',
 }
