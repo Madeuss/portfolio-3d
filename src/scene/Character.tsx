@@ -227,7 +227,8 @@ export default function Character() {
         next.clampWhenFinished = false
         next.setEffectiveTimeScale(SPEED[name] ?? 1)
         next.fadeIn(FADE).play()
-        playing?.action?.fadeOut(FADE)
+        // (a mesma ação não: o fadeOut venceria o fadeIn e desligaria ela)
+        if (playing?.action !== next) playing?.action?.fadeOut(FADE)
       } else {
         playing?.action?.stop()
       }
@@ -313,7 +314,7 @@ export default function Character() {
           sit.setEffectiveTimeScale(sitSpeed)
           sit.time = SIT_START
           sit.fadeIn(FADE).play()
-          current.current?.action?.fadeOut(FADE)
+          if (current.current?.action !== sit) current.current?.action?.fadeOut(FADE)
           current.current = { name: 'sit-down', action: sit }
         }
         if (!sit || sit.time >= SIT_END) {
@@ -326,14 +327,20 @@ export default function Character() {
         // deitando (ou, ao contrário, voltando a sentar) na rede
         const lie = actions['lie-down']
         const name = phase === 'lie-down' ? 'lie-down' : 'lie-up'
-        if (lie && current.current?.name !== name) {
+        if (lie && current.current?.name === 'lie-down' && name === 'lie-up') {
+          // E no meio do deitar: volta dali mesmo (é a mesma animação; o
+          // fadeOut da "anterior" desligava ela e ele ficava preso)
+          lie.paused = false
+          lie.setEffectiveTimeScale(-LIE_SPEED)
+          current.current = { name, action: lie }
+        } else if (lie && current.current?.name !== name) {
           lie.reset()
           lie.setLoop(LoopOnce, 1)
           lie.clampWhenFinished = true
           lie.time = phase === 'lie-down' ? LIE_START : LIE_END
           lie.setEffectiveTimeScale(phase === 'lie-down' ? LIE_SPEED : -LIE_SPEED)
           lie.fadeIn(FADE).play()
-          current.current?.action?.fadeOut(FADE)
+          if (current.current?.action !== lie) current.current?.action?.fadeOut(FADE)
           current.current = { name, action: lie }
         }
         if (!lie || (phase === 'lie-down' && lie.time >= LIE_END)) {
@@ -346,14 +353,21 @@ export default function Character() {
         loop('lying')
       } else if (sit) {
         // levantando: o mesmo sit-down, de trás para a frente
-        if (current.current?.name !== 'stand-up') {
+        if (current.current?.name === 'sit-down') {
+          // E no meio do sentar: levanta dali mesmo (é a mesma animação; o
+          // fadeOut da "anterior" desligava ela e ele ficava preso na frente
+          // do assento)
+          sit.paused = false
+          sit.setEffectiveTimeScale(-sitSpeed)
+          current.current = { name: 'stand-up', action: sit }
+        } else if (current.current?.name !== 'stand-up') {
           sit.reset()
           sit.setLoop(LoopOnce, 1)
           sit.clampWhenFinished = true
           sit.time = SIT_END
           sit.setEffectiveTimeScale(-sitSpeed)
           sit.fadeIn(FADE).play()
-          current.current?.action?.fadeOut(FADE)
+          if (current.current?.action !== sit) current.current?.action?.fadeOut(FADE)
           current.current = { name: 'stand-up', action: sit }
         }
         if (sit.time <= SIT_START + 0.02) {
